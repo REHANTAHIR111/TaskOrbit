@@ -1383,7 +1383,7 @@ class TaskController extends Controller
      */
     private function findAvailableTaskAllocation($userId, Carbon $rangeStart, Carbon $rangeEnd, int $requiredMinutes, $setting, $excludeTaskId = null)
     {
-        if ($rangeEnd->lt($rangeStart) || empty($setting->working_days) ||
+        if ($rangeEnd->copy()->startOfDay()->lt($rangeStart->copy()->startOfDay()) || empty($setting->working_days) ||
             empty($setting->start_work_time) || empty($setting->end_work_time)) {
             return null;
         }

@@ -98,48 +98,49 @@ const TaskListing = (props: any) => {
         setPage(1);
     }, [sortStatus]);
 
-    const deleteRow = (id: any = null) => {
-        const swalWithBootstrapButtons = Swal.mixin({
+    const deleteRow = async (id: any = null) => {
+        const result = await Swal.fire({
+            title: 'Delete this task?',
+            text: 'Would you also like to move the following tasks earlier and automatically reschedule them?',
+            icon: 'warning',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Yes, move following tasks',
+            denyButtonText: 'No, delete only this task',
+            cancelButtonText: t('noCancel'),
+            reverseButtons: true,
             customClass: {
-                confirmButton: 'btn btn-secondary',
-                cancelButton: 'btn btn-dark ltr:mr-3 rtl:ml-3',
+                confirmButton: 'btn btn-primary',
+                denyButton: 'btn btn-secondary',
+                cancelButton: 'btn btn-dark',
                 popup: 'sweet-alerts',
             },
             buttonsStyling: false,
         });
-        swalWithBootstrapButtons
-            .fire({
-                title: t('areyouSure'),
-                text: t('youWontBeAbleToRevertThis'),
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: t('yesDeleteIt'),
-                cancelButtonText: t('noCancel'),
-                reverseButtons: true,
-                padding: '2em',
-            })
-            .then((result: any) => {
-                if (result.value) {
-                    get('task/' + id + '/delete').then((responseJson: any) => {
-                        if (responseJson?.success === 'true') {
-                            getTask();
-                            swalWithBootstrapButtons.fire({
-                                title: 'Deleted',
-                                text: 'Task has been Deleted',
-                                icon: 'success',
-                                confirmButtonText: t('ok'),
-                            });
-                        }
-                    });
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    swalWithBootstrapButtons.fire({
-                        title: 'Cancelled',
-                        text: 'Task is Safe :)',
-                        icon: 'error',
-                        confirmButtonText: t('ok'),
-                    });
-                }
+
+        if (result.isDismissed) return;
+
+        const shouldReflow = result.isConfirmed;
+        const responseJson: any = await get(
+            'task/' + id + '/delete' + (shouldReflow ? '?reflow=true' : '')
+        );
+
+        if (responseJson?.success === true || responseJson?.success === 'true') {
+            await getTask();
+            await Swal.fire({
+                title: 'Deleted',
+                text: responseJson.message || 'Task has been deleted successfully.',
+                icon: 'success',
+                confirmButtonText: t('ok'),
             });
+        } else {
+            await Swal.fire({
+                title: 'Could not delete task',
+                text: responseJson?.message || 'The task could not be deleted.',
+                icon: 'error',
+                confirmButtonText: t('ok'),
+            });
+        }
     };
 
     const showAlert = async (type: number) => {

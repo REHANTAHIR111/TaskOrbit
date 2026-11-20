@@ -1,0 +1,62 @@
+dial_code,flag,code,name_arabic,name,currency_name,currency_symbol,status
+93,AF,AF,أفغانستان,Afghanistan,Afghani,؋,1
+358,AX,AX,جزر ألاند,Åland Islands,Euro,€,1
+355,AL,AL,ألبانيا,Albania,Lek,L,1
+213,DZ,DZ,الجزائر,Algeria,Algerian Dinar,د.ك,1
+1-684,AS,AS,ساموا الأمريكية,American Samoa,US Dollar,$,1
+376,AD,AD,أندورا,Andorra,Euro,€,1
+244,AO,AO,أنغولا,Angola,Kwanza,Kz,1
+1-264,AI,AI,أنغويلا,Anguilla,East Caribbean Dollar,$,1
+672,AQ,AQ,أنتاركتيكا,Antarctica,No universal currency,,1
+1-268,AG,AG,أنتيغوا وبربودا,Antigua and Barbuda,East Caribbean Dollar,$,1
+54,AR,AR,الأرجنتين,Argentina,Argentine Peso,₱,1
+374,AM,AM,أرمينيا,Armenia,Armenian Dram,֏,1
+297,AW,AW,أروبا,Aruba,Aruban Florin,ƒ,1
+61,AU,AU,أستراليا,Australia,Australian Dollar,$,1
+43,AT,AT,النمسا,Austria,Euro,€,1
+994,AZ,AZ,أذربيجان,Azerbaijan,Azerbaijan Manat,₼,1
+1-242,BS,BS,جزر البهاما,Bahamas,Bahamian Dollar,$,1
+973,BH,BH,البحرين,Bahrain,Bahraini Dinar,د.ك,1
+880,BD,BD,بنغلاديش,Bangladesh,Taka,৳,1
+1-246,BB,BB,بربادوس,Barbados,Barbados Dollar,$,1
+375,BY,BY,بيلاروس,Belarus,Belarusian Ruble,₽,1
+32,BE,BE,بلجيكا,Belgium,Euro,€,1
+501,BZ,BZ,بليز,Belize,Belize Dollar,$,1
+229,BJ,BJ,بنن,Benin,CFA Franc BCEAO,,1
+1-441,BM,BM,برمودا,Bermuda,Bermudian Dollar,$,1
+975,BT,BT,بوتان,Bhutan,Indian Rupee,₹,1
+591,BO,BO,بوليفيا (دولة - المتعددة القوميات),Bolivia (Plurinational State of),Boliviano,Bs,1
+599,BQ,BQ,بونير وسانت يوستاشيوس وسابا,"Bonaire, Sint Eustatius and Saba",US Dollar,$,1
+387,BA,BA,البوسنة والهرسك,Bosnia and Herzegovina,Convertible Mark,,1
+267,BW,BW,بوتسوانا,Botswana,Pula,P,1
+47,BV,BV,جزيرة بوفيت,Bouvet Island,Norwegian Krone,kr,1
+55,BR,BR,البرازيل,Brazil,Brazilian Real,R$,1
+246,IO,IO,المحيط الهندي الإقليم البريطاني في,British Indian Ocean Territory,US Dollar,$,1
+1-284,VG,VG,جزر فرجن البريطانية,British Virgin Islands,US Dollar,$,1
+673,BN,BN,بروني دار السلام,Brunei Darussalam,Brunei Dollar,$,1
+359,BG,BG,بلغاريا,Bulgaria,Bulgarian Lev,лв,1
+226,BF,BF,بوركينا فاسو,Burkina Faso,CFA Franc BCEAO,Fr,1
+257,BI,BI,بوروندي,Burundi,Burundi Franc,Fr,1
+238,CV,CV,كابو فيردي,Cabo Verde,Cabo Verde Escudo,Esc,1
+855,KH,KH,كمبوديا,Cambodia,Riel,₯,1
+237,CM,CM,الكاميرون,Cameroon,CFA Franc BEAC,Fr,1
+1,CA,CA,كندا,Canada,Canadian Dollar,$,1
+1-345,KY,KY,جزر كايمان,Cayman Islands,Cayman Islands Dollar,$,1
+236,CF,CF,جمهورية أفريقيا الوسطى,Central African Republic,CFA Franc BEAC,CFA Franc BEAC,1
+235,TD,TD,تشاد,Chad,CFA Franc BEAC,CFA Franc BEAC,1
+56,CL,CL,شيلي,Chile,Chilean Peso,₱,1
+86,CN,CN,الصين,China,Yuan Renminbi,¥,1
+852,HK,HK,الصين، منطقة هونغ كونغ الإدارية الخاصة,"China, Hong Kong Special Administrative Region",Hong Kong Dollar,HK$,1
+853,MO,MO,الصين، منطقة ماكاو الإدارية الخاصة,"China, Macao Special Administrative Region",Pataca,MOP$,1
+61,CX,CX,جزيرة عيد الميلاد,Christmas Island,Australian Dollar,$,1
+61,CC,CC,جزر كوكس (كيلينغ),Cocos (Keeling) Islands,Australian Dollar,$,1
+57,CO,CO,كولومبيا,Colombia,Colombian Peso,₱,1
+269,KM,KM,جزر القمر,Comoros,Comorian Franc,CF,1
+242,CG,CG,الكونغو,Congo,CFA Franc BEAC,Fr,1
+682,CK,CK,جزر كوك,Cook Islands,New Zealand Dollar,$,1
+506,CR,CR,كوستاريكا,Costa Rica,Costa Rican Colon,₡,1
+385,HR,HR,كرواتيا,Croatia,Euro,€,1
+53,CU,CU,كوبا,Cuba,"Cuban Peso,Peso Convertible",₱,1
+599,CW,CW,كوراساو,Curaçao,Netherlands Antillean Guilder,ƒ,1
+357,CY,CY,قبرص,Cyprus,Euro,€,1
+420,CZ,CZ,تشيكيا,Czechia,Czech Koruna,Kč,1

@@ -1,0 +1,710 @@
+[2026-09-04 18:19:34] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:19:34] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:19:34] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:19:34] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:19:34] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:19:34] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:19:34] local.INFO: !!! BREAK SKIPPED! Moving from 18:19:34 to 18:30:00  
+[2026-09-04 18:19:34] local.INFO: Free Periods for 2026-09-04 {"available_start":"18:30:00","free_periods":[{"start":"18:30:00","end":"20:00:00","minutes":90.0}],"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:19:43] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:19:43] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:19:43] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:19:43] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:19:43] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:19:43] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:19:43] local.INFO: !!! BREAK SKIPPED! Moving from 18:19:43 to 18:30:00  
+[2026-09-04 18:19:43] local.INFO: Free Periods for 2026-09-04 {"available_start":"18:30:00","free_periods":[{"start":"18:30:00","end":"20:00:00","minutes":90.0}],"remaining_minutes":60,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:20:21] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:20:21] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:20:21] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:20:21] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:20:21] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:20:21] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:20:21] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:20:27] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:20:27] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:20:27] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:20:27] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:20:27] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:20:27] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:20:27] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:20:33] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:20:33] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:20:33] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:20:33] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:20:33] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:20:33] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:20:33] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:20:33] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:20:33] local.INFO: Free Periods for 2026-09-07 {"available_start":"11:00:00","free_periods":[{"start":"11:00:00","end":"18:00:00","minutes":420.0},{"start":"18:30:00","end":"20:00:00","minutes":90.0}],"remaining_minutes":91.0,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:24:14] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:24:14] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:24:14] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:24:14] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:24:14] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:24:14] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:24:14] local.INFO: !!! BREAK SKIPPED! Moving from 18:24:14 to 18:30:00  
+[2026-09-04 18:24:14] local.INFO: Free Periods for 2026-09-04 {"available_start":"18:30:00","free_periods":[{"start":"18:30:00","end":"20:00:00","minutes":90.0}],"day_available_minutes":90.0,"total_available_minutes":90.0,"remaining_minutes":60,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:24:28] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:24:28] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:24:28] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:24:28] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:24:28] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:24:28] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:24:28] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:24:33] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:24:33] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:24:33] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:24:33] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:24:33] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:24:33] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:24:33] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:24:38] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:24:38] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:24:38] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:24:38] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:24:38] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:24:38] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:24:38] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:24:42] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:24:42] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:24:42] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:24:42] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:24:42] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:24:42] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:24:42] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:24:49] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:24:49] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:24:49] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:24:49] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:24:49] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:24:49] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:24:49] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:24:54] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:24:54] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:24:54] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:24:54] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:24:54] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:24:54] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:24:54] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:24:58] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:24:58] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:24:58] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:24:58] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:24:58] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:24:58] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:24:58] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:25:02] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:25:02] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:25:02] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:25:02] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:25:02] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:25:02] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:25:02] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:25:06] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:25:06] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:25:06] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:25:06] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:25:06] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:25:06] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:25:06] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:25:11] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:25:11] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:25:11] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:25:11] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:25:11] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:25:11] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:25:11] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:25:15] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:25:15] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:25:15] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:25:15] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:25:15] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:25:15] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:25:15] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:25:39] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:25:39] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:25:39] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:25:39] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:25:39] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:25:40] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:25:40] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:25:40] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:25:40] local.INFO: Free Periods for 2026-09-07 {"available_start":"11:00:00","free_periods":[{"start":"11:00:00","end":"18:00:00","minutes":420.0},{"start":"18:30:00","end":"20:00:00","minutes":90.0}],"day_available_minutes":510.0,"total_available_minutes":539.0,"remaining_minutes":91.0,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-04 18:26:38] local.INFO: === SLOT SETTING DATA ===  
+[2026-09-04 18:26:38] local.INFO: start_break_time: 18:00:00  
+[2026-09-04 18:26:38] local.INFO: end_break_time: 18:30:00  
+[2026-09-04 18:26:38] local.INFO: start_work_time: 11:00:00  
+[2026-09-04 18:26:38] local.INFO: end_work_time: 20:00:00  
+[2026-09-04 18:26:38] local.INFO: Break set: 18:00:00 - 18:30:00  
+[2026-09-04 18:26:38] local.INFO: Free Periods for 2026-09-04 {"available_start":"19:31:00","free_periods":[{"start":"19:31:00","end":"20:00:00","minutes":29.0}],"day_available_minutes":29.0,"total_available_minutes":29.0,"remaining_minutes":120,"break":{"start":"18:00:00","end":"18:30:00"}} 
+[2026-09-08 19:33:13] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:33:15] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:34:55] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:35:51] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:36:06] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:36:11] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:36:19] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:36:26] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:36:27] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:36:51] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:36:58] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:37:16] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:37:40] local.ERROR: Method App\Http\Controllers\Api\TaskController::show does not exist. {"exception":"[object] (BadMethodCallException(code: 0): Method App\\Http\\Controllers\\Api\\TaskController::show does not exist. at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php:68)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): Illuminate\\Routing\\Controller->__call('show', Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('show', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'show')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:44:31] local.ERROR: Class "App\Http\Controllers\Api\Validator" not found {"exception":"[object] (Error(code: 0): Class \"App\\Http\\Controllers\\Api\\Validator\" not found at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\app\\Http\\Controllers\\Api\\TaskController.php:136)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): App\\Http\\Controllers\\Api\\TaskController->store(Object(Illuminate\\Http\\Request))
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('store', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'store')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 
+[2026-09-08 19:44:50] local.ERROR: Class "Validator\Validator" not found {"exception":"[object] (Error(code: 0): Class \"Validator\\Validator\" not found at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\app\\Http\\Controllers\\Api\\TaskController.php:137)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Controller.php(54): App\\Http\\Controllers\\Api\\TaskController->store(Object(Illuminate\\Http\\Request))
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\ControllerDispatcher.php(44): Illuminate\\Routing\\Controller->callAction('store', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(266): Illuminate\\Routing\\ControllerDispatcher->dispatch(Object(Illuminate\\Routing\\Route), Object(App\\Http\\Controllers\\Api\\TaskController), 'store')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Route.php(212): Illuminate\\Routing\\Route->runController()
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(808): Illuminate\\Routing\\Route->run()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Routing\\Router->Illuminate\\Routing\\{closure}(Object(Illuminate\\Http\\Request))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Middleware\\SubstituteBindings.php(51): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Routing\\Middleware\\SubstituteBindings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(807): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(786): Illuminate\\Routing\\Router->runRouteWithinStack(Object(Illuminate\\Routing\\Route), Object(Illuminate\\Http\\Request))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(750): Illuminate\\Routing\\Router->runRoute(Object(Illuminate\\Http\\Request), Object(Illuminate\\Routing\\Route))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Routing\\Router.php(739): Illuminate\\Routing\\Router->dispatchToRoute(Object(Illuminate\\Http\\Request))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(201): Illuminate\\Routing\\Router->dispatch(Object(Illuminate\\Http\\Request))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(170): Illuminate\\Foundation\\Http\\Kernel->Illuminate\\Foundation\\Http\\{closure}(Object(Illuminate\\Http\\Request))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull.php(31): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\ConvertEmptyStringsToNull->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest.php(21): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\TrimStrings.php(51): Illuminate\\Foundation\\Http\\Middleware\\TransformsRequest->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\TrimStrings->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\ValidatePostSize.php(27): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\ValidatePostSize->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance.php(110): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Foundation\\Http\\Middleware\\PreventRequestsDuringMaintenance->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\HandleCors.php(62): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\HandleCors->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Http\\Middleware\\TrustProxies.php(58): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#28 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(209): Illuminate\\Http\\Middleware\\TrustProxies->handle(Object(Illuminate\\Http\\Request), Object(Closure))
+#29 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(127): Illuminate\\Pipeline\\Pipeline->Illuminate\\Pipeline\\{closure}(Object(Illuminate\\Http\\Request))
+#30 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(176): Illuminate\\Pipeline\\Pipeline->then(Object(Closure))
+#31 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Http\\Kernel.php(145): Illuminate\\Foundation\\Http\\Kernel->sendRequestThroughRouter(Object(Illuminate\\Http\\Request))
+#32 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\public\\index.php(51): Illuminate\\Foundation\\Http\\Kernel->handle(Object(Illuminate\\Http\\Request))
+#33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
+#34 {main}
+"} 

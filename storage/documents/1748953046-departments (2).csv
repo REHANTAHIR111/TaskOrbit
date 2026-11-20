@@ -1,0 +1,6 @@
+id,name,description,status,agents,company,creator
+1,Development,Development Team,1,"Salman,Irfan",Irfan Company,Irfan Owner
+2,Design UI UX,Design UI UX Team,1,"Adeel,Rehan,Hadi,Ahmed",Irfan Company,Irfan Owner
+3,Development & Design UI UX,Development Team!,1,"Salman,Irfan,Adeel,Rehan,Hadi,Ahmed",Irfan Company,Irfan Owner
+9,Development & Design UI UX Update,Development Team!,1,"Salman,Irfan,Adeel,Hadi,Ahmed,Irfan",Irfan Company,Irfan Owner
+10,Support,This is support,1,"Salman,Irfan,Ahmed",Irfan Company,Irfan Owner

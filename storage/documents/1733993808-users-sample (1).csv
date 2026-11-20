@@ -1,0 +1,2 @@
+first_name,last_name,phone_number,email,date_of_birth,gender,password,address,country,state,city,area,role,companies,,status,first_name
+test1,test1,1234,test@gmail.com,1/1/2001,male,12345,test1,Saudi Arabia,Riyadh,Makkah,Ajyad,Agent,"Testing,company2",,1,test1

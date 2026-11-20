@@ -1,0 +1,2 @@
+first_name,last_name,phone_number,email,date_of_birth,gender,password,address,country,state,city,area,role,companies,,status
+pertest1,pertest1,1234,pertest@gmail.com,1/1/2001,male,12345,test1,Saudi Arabia,Riyadh,Makkah,Ajyad,Agent,"Tamkeen,Amazon",,1

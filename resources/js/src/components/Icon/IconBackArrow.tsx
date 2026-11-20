@@ -1,0 +1,15 @@
+import React, { FC } from 'react';
+
+interface IconBrowserProps {
+    className?: string;
+}
+
+const IconBackArrow: FC<IconBrowserProps> = ({ className }) => {
+    return (
+        <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4.5 12L9.5 7M4.5 12L9.5 17M4.5 12L14.5 12C16.1667 12 19.5 13 19.5 17" stroke="#1C274C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin ="round" />
+        </svg>
+    );
+};
+
+export default IconBackArrow;

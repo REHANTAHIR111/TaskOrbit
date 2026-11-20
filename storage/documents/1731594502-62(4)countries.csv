@@ -1,0 +1,63 @@
+dial_code,flag,code,name_arabic,name,currency_name,currency_symbol,status
+40,RO,RO,رومانيا,Romania,Romanian Leu,Fr,1
+7,RU,RU,الاتحاد الروسي,Russian Federation,Russian Ruble,د.د,1
+250,RW,RW,رواندا,Rwanda,Rwanda Franc,₨,1
+590,BL,BL,سان بارتليمي,Saint Barthélemy,Euro,₨,1
+290 n,SH,SH,سانت هيلانة,Saint Helena,Saint Helena Pound,Le,1
+1-869,KN,KN,سانت كيتس ونيفس,Saint Kitts and Nevis,East Caribbean Dollar,S$,1
+1-758,LC,LC,سانت لوسيا,Saint Lucia,East Caribbean Dollar,ƒ,1
+590,MF,MF,سانت مارتن (الجزء الفرنسي),Saint Martin (French Part),Euro,€,1
+508,PM,PM,سان بيير وميكلون,Saint Pierre and Miquelon,Euro,€,1
+1-784,VC,VC,سانت فنسنت وجزر غرينادين,Saint Vincent and the Grenadines,East Caribbean Dollar,$,1
+685,WS,WS,ساموا,Samoa,Tala,Sh,1
+378,SM,SM,سان مارينو,San Marino,Euro,R,1
+239,ST,ST,سان تومي وبرينسيبي,Sao Tome and Principe,Dobra,No universal currency,1
+966,SA,SA,المملكة العربية السعودية,Saudi Arabia,Saudi Riyal,£,1
+221,SN,SN,السنغال,Senegal,CFA Franc BCEAO,€,1
+381,RS,RS,صربيا,Serbia,Serbian Dinar,₨,1
+248,SC,SC,سيشيل,Seychelles,Seychelles Rupee,No universal currency,1
+248,SC,SC,سيشيل,Seychelles,Seychelles Rupee,£,1
+232,SL,SL,سيراليون,Sierra Leone,Leone,$,1
+65,SG,SG,سنغافورة,Singapore,Singapore Dollar,kr,1
+1-721,SX,SX,سانت مارتن (الجزء الهولندي),Sint Maarten (Dutch part),Netherlands Antillean Guilder,kr,1
+421,SK,SK,سلوفاكيا,Slovakia,Euro,Fr,1
+386,SI,SI,سلوفينيا,Slovenia,Euro,€,1
+677,SB,SB,جزر سليمان,Solomon Islands,Solomon Islands Dollar,$,1
+252,SO,SO,الصومال,Somalia,Somali Shilling,Sh,1
+27,ZA,ZA,جنوب أفريقيا,South Africa,Rand,R,1
+500,GS,GS,جورجيا الجنوبية وجزر ساندويتش الجنوبية,South Georgia and the South Sandwich Islands,No universal currency,,1
+211,SS,SS,جنوب السودان,South Sudan,South Sudanese Pound,£,1
+34,ES,ES,إسبانيا,Spain,Euro,€,1
+94,LK,LK,سري لانكا,Sri Lanka,Sri Lanka Rupee,₨,1
+970,PS,PS,دولة فلسطين,State of Palestine,No universal currency,,1
+249,SD,SD,السودان,Sudan,Sudanese Pound,£,1
+597,SR,SR,سورينام,Suriname,Surinam Dollar,$,1
+47,SJ,SJ,جزيرتي سفالبارد وجان مايِن,Svalbard and Jan Mayen Islands,Norwegian Krone,kr,1
+46,SE,SE,السويد,Sweden,Swedish Krona,kr,1
+41,CH,CH,سويسرا,Switzerland,Swiss Franc,Fr,1
+963,SY,SY,الجمهورية العربية السورية,Syrian Arab Republic,Syrian Pound,£,1
+886,TW,TW,تايوان,Taiwan,New Taiwan Dollar,$,1
+992,TJ,TJ,طاجيكستان,Tajikistan,Somoni,Som,1
+66,TH,TH,تايلند,Thailand,Baht,฿,1
+670,TL,TL,تيمور - ليشتي,Timor-Leste,US Dollar,$,1
+228,TG,TG,توغو,Togo,CFA Franc BCEAO,Fr,1
+690,TK,TK,توكيلاو,Tokelau,New Zealand Dollar,$,1
+676,TO,TO,تونغا,Tonga,Pa’anga,PA$,1
+1-868,TT,TT,ترينيداد وتوباغو,Trinidad and Tobago,Trinidad and Tobago Dollar,$,1
+216,TN,TN,تونس,Tunisia,Tunisian Dinar,د.ك,1
+90,TR,TR,تركيا,Turkey,Turkish Lira,₺,1
+993,TM,TM,تركمانستان,Turkmenistan,Turkmenistan New Manat,,1
+1-649,TC,TC,جزر تركس وكايكوس,Turks and Caicos Islands,US Dollar,$,1
+688,TV,TV,توفالو,Tuvalu,Australian Dollar,$,1
+256,UG,UG,أوغندا,Uganda,Uganda Shilling,Sh,1
+380,UA,UA,أوكرانيا,Ukraine,Hryvnia,₴,1
+971,AE,AE,الإمارات العربية المتحدة,United Arab Emirates,UAE Dirham,د.إ,1
+44,GB,GB,المملكة المتحدة لبريطانيا العظمى وآيرلندا الشمالية,United Kingdom of Great Britain and Northern Ireland,Pound Sterling,£,1
+255,TZ,TZ,جمهورية تنزانيا المتحدة,United Republic of Tanzania,Tanzanian Shilling,Sh,1
+1,UM,UM,نائية التابعة للولايات المتحدة,United States Minor Outlying Islands,US Dollar,$,1
+1,US,US,الولايات المتحدة الأمريكية,United States of America,US Dollar,$,1
+1-340,VI,VI,جزر فرجن التابعة للولايات المتحدة,United States Virgin Islands,US Dollar,$,1
+598,UY,UY,أوروغواي,Uruguay,"Peso Uruguayo,Unidad Previsional",₱,1
+998,UZ,UZ,أوزبكستان,Uzbekistan,Uzbekistan Sum,so'm,1
+678,VU,VU,فانواتو,Vanuatu,Vatu,Vt,1
+58,VE,VE,فنزويلا (جمهورية - البوليفارية),Venezuela (Bolivarian Republic of),"Bolívar Soberano,Bolívar Soberano",Bs.S,1

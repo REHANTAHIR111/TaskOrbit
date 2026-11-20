@@ -1333,7 +1333,7 @@ class TaskController extends Controller
                     // newly opened earlier slot can be used.
                     $allocation = $this->findAvailableTaskAllocation(
                         $laterTask->user_id,
-                        $deletedStart->copy(),
+                        $anchor->copy(),
                         $taskDeadline,
                         $minutes,
                         $setting,
@@ -1415,6 +1415,9 @@ class TaskController extends Controller
 
             $dayStart = $date->copy()->setTime($workingStart->hour, $workingStart->minute, 0);
             $dayEnd = $date->copy()->setTime($workingEnd->hour, $workingEnd->minute, 0);
+            if ($date->isSameDay($rangeStart)) {
+                $dayStart = $dayStart->max($rangeStart);
+            }
             if ($date->isToday()) {
                 $dayStart = $dayStart->max(now());
             }

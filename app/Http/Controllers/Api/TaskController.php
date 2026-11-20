@@ -1407,7 +1407,7 @@ class TaskController extends Controller
         $lastEnd = null;
         $remaining = $requiredMinutes;
 
-        for ($date = $rangeStart->copy(); $date->lte($rangeEnd) && $remaining > 0; $date->addDay()) {
+        for ($date = $rangeStart->copy()->startOfDay(); $date->lte($rangeEnd->copy()->startOfDay()) && $remaining > 0; $date->addDay()) {
             $dateKey = $date->format('Y-m-d');
             if (!in_array($date->dayOfWeekIso, $workingDays, true) || in_array($dateKey, $holidays, true)) {
                 continue;

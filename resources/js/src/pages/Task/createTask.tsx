@@ -38,6 +38,23 @@ const CreateTask = (props: any) => {
     const [startDateError, setStartDateError] = useState<any>('');
     const [endDateError, setEndDateError] = useState<any>('');
 
+    // Use local calendar dates so the defaults are not shifted by UTC timezone conversion.
+    const initializeDates = () => {
+        const today = new Date();
+        const formatLocalDate = (date: Date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        setStartDate(formatLocalDate(today));
+        setEndDate(formatLocalDate(tomorrow));
+    };
+
     useEffect(() => {
         dispatch(setPageTitle('Create new Task'));
         getAndCheckData();
@@ -50,20 +67,10 @@ const CreateTask = (props: any) => {
         });
     };
 
-    // const initializeDates = () => {
-    //     const today = new Date();
-    //     const todayStr = today.toISOString().split('T')[0];
-    //     const tomorrowStr = new Date(today.setDate(today.getDate() + 1)).toISOString().split('T')[0];
-        
-    //     setStartDate(todayStr);
-    //     setEndDate(tomorrowStr);
-    // };
-    
-
     const handleCreatePriority = (inputValue: string) => {
-        const newPriority = { 
-            value: inputValue.toLowerCase().replace(/\s+/g, '_'), 
-            label: inputValue 
+        const newPriority = {
+            value: inputValue.toLowerCase().replace(/\\s+/g, '_'),
+            label: inputValue
         };
         setPriorityOptions([...priorityOptions, newPriority]);
         setPriority(newPriority);
@@ -104,7 +111,7 @@ const CreateTask = (props: any) => {
                             `Please fill ${errors.slice(0, -1).join(', ')} & ${errors[errors.length - 1]}!`;
 
             coloredToast('danger', message);
-            
+
             if (!name) {
                 setError(true);
                 setTimeout(() => setError(false), 3000);
@@ -218,9 +225,9 @@ const CreateTask = (props: any) => {
                         <div className="w-full flex items-center gap-3 mb-3">
                             <div className="w-full">
                                 <label htmlFor="startTime" className="mb-1">
-                                    Start Time 
-                                    {isSettingSaved ? 
-                                        <span className='text-xs text-gray-500 ml-1'>(Auto-calculated from settings)</span> : 
+                                    Start Time
+                                    {isSettingSaved ?
+                                        <span className='text-xs text-gray-500 ml-1'>(Auto-calculated from settings)</span> :
                                         <span className='text-danger'>*</span>
                                     }
                                 </label>
@@ -241,9 +248,9 @@ const CreateTask = (props: any) => {
                             </div>
                             <div className="w-full">
                                 <label htmlFor="endTime" className="mb-1">
-                                    End Time 
-                                    {isSettingSaved ? 
-                                        <span className='text-xs text-gray-500 ml-1'>(Auto-calculated from settings)</span> : 
+                                    End Time
+                                    {isSettingSaved ?
+                                        <span className='text-xs text-gray-500 ml-1'>(Auto-calculated from settings)</span> :
                                         <span className='text-danger'>*</span>
                                     }
                                 </label>
@@ -263,7 +270,7 @@ const CreateTask = (props: any) => {
                                 )}
                             </div>
                         </div>
-                        
+
                         <div className="w-full mb-3">
                             <label htmlFor="description" className="mb-1">Description</label>
                             <textarea
@@ -308,9 +315,9 @@ const CreateTask = (props: any) => {
                         </div>
                         <div className="flex gap-3 mt-6 items-center">
                             <label className="w-12 h-6 relative">
-                                <input 
-                                    type="checkbox" 
-                                    className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" 
+                                <input
+                                    type="checkbox"
+                                    className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer"
                                     id="custom_switch_checkbox1"
                                     checked={status}
                                     onChange={(e) => setStatus(e.target.checked)}

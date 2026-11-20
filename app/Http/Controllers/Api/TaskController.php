@@ -1303,6 +1303,13 @@ class TaskController extends Controller
                     ->orderBy('start_date')->orderBy('start_time')->orderBy('id')
                     ->lockForUpdate()->get();
 
+                // Temporarily release every later task's old slot so earlier
+                // tasks can be packed into the newly opened time without being
+                // blocked by tasks that are themselves waiting to move.
+                foreach ($laterTasks as $queuedTask) {
+                    $queuedTask->update(['start_time' => null, 'end_time' => null]);
+                }
+
                 $task->delete();
                 $moved = [];
 

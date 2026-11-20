@@ -1254,14 +1254,218 @@ class TaskController extends Controller
         ]);
     }
 
-    public function destroy($id){
-        $task = Task::find($id);
-        $task->delete();
+    /**
+     * Soft delete a task. When reflow=1, later tasks are moved into the
+     * earliest available time slots, in their existing chronological order.
+     * The operation is atomic: if any task cannot fit, nothing is changed.
+     */
+    public function destroy(Request $request, $id)
+    {
+        $task = Task::whereKey($id)->first();
+        if (!$task) {
+            return response()->json(['success' => false, 'message' => 'Task not found.'], 404);
+        }
 
-        return response()->json([
-            'success' => 'true',
-            'message' => 'Task has been deleted Successfully!'
-        ]);
+        $reflow = filter_var($request->query('reflow', false), FILTER_VALIDATE_BOOLEAN);
+        if (!$reflow) {
+            $task->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Task has been deleted successfully.'
+            ]);
+        }
+
+        $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)
+            ->where('status', '1')->first();
+        if (!$setting) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Active working-time settings are required to reschedule following tasks.'
+            ], 422);
+        }
+
+        try {
+            return DB::transaction(function () use ($task, $setting) {
+                $deletedStart = Carbon::parse($task->start_date)->startOfDay();
+                $deletedStartTime = $task->start_time ?: '00:00:00';
+                $anchor = $deletedStart->copy()->setTimeFromTimeString($deletedStartTime);
+
+                $laterTasks = Task::where('user_id', $task->user_id)
+                    ->whereNull('deleted_at')
+                    ->where('id', '<>', $task->id)
+                    ->where(function ($query) use ($anchor) {
+                        $query->whereDate('start_date', '>', $anchor->format('Y-m-d'))
+                            ->orWhere(function ($sameDay) use ($anchor) {
+                                $sameDay->whereDate('start_date', $anchor->format('Y-m-d'))
+                                    ->where('start_time', '>', $anchor->format('H:i:s'));
+                            });
+                    })
+                    ->orderBy('start_date')->orderBy('start_time')->orderBy('id')
+                    ->lockForUpdate()->get();
+
+                $task->delete();
+                $moved = [];
+
+                foreach ($laterTasks as $laterTask) {
+                    $minutes = (int) round(((float) $laterTask->hour) * 60);
+                    if ($minutes <= 0) {
+                        continue;
+                    }
+
+                    // The old end date is the task's known scheduling deadline.
+                    // Start searching from the deleted task's start date so a
+                    // newly opened earlier slot can be used.
+                    $allocation = $this->findAvailableTaskAllocation(
+                        $laterTask->user_id,
+                        $deletedStart->copy(),
+                        Carbon::parse($laterTask->end_date)->startOfDay(),
+                        $minutes,
+                        $setting,
+                        $laterTask->id
+                    );
+
+                    if (!$allocation) {
+                        throw new \RuntimeException(
+                            "Could not reschedule '{$laterTask->task_name}' (task #{$laterTask->id}) within its existing end date."
+                        );
+                    }
+
+                    $laterTask->update([
+                        'start_date' => $allocation['start_date'],
+                        'end_date' => $allocation['end_date'],
+                        'start_time' => $allocation['start_time'],
+                        'end_time' => $allocation['end_time'],
+                    ]);
+
+                    $moved[] = [
+                        'id' => $laterTask->id,
+                        'task_name' => $laterTask->task_name,
+                        'start_date' => $allocation['start_date'],
+                        'start_time' => $allocation['start_time'],
+                        'end_date' => $allocation['end_date'],
+                        'end_time' => $allocation['end_time'],
+                    ];
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Task deleted and following tasks rescheduled successfully.',
+                    'rescheduled' => $moved,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tasks were changed. ' . $e->getMessage(),
+            ], 422);
+        }
+    }
+
+    /**
+     * Find the earliest contiguous working-time allocation for a task.
+     * Daily breaks, holidays, non-working days and existing tasks are blocked.
+     */
+    private function findAvailableTaskAllocation($userId, Carbon $rangeStart, Carbon $rangeEnd, int $requiredMinutes, $setting, $excludeTaskId = null)
+    {
+        if ($rangeEnd->lt($rangeStart) || empty($setting->working_days) ||
+            empty($setting->start_work_time) || empty($setting->end_work_time)) {
+            return null;
+        }
+
+        $workingDays = collect(explode(',', (string) $setting->working_days))
+            ->map(fn ($day) => (int) trim($day))->filter(fn ($day) => $day >= 1 && $day <= 7)->all();
+        $workingStart = Carbon::parse($setting->start_work_time);
+        $workingEnd = Carbon::parse($setting->end_work_time);
+        if ($workingStart->gte($workingEnd)) return null;
+
+        $hasBreak = !empty($setting->start_break_time) && !empty($setting->end_break_time);
+        $breakStart = $hasBreak ? Carbon::parse($setting->start_break_time) : null;
+        $breakEnd = $hasBreak ? Carbon::parse($setting->end_break_time) : null;
+        if ($hasBreak && $breakStart->gte($breakEnd)) return null;
+
+        $holidays = $setting->holidays->pluck('holiday_date')->map(
+            fn ($date) => Carbon::parse($date)->format('Y-m-d')
+        )->all();
+
+        $firstStart = null;
+        $lastEnd = null;
+        $remaining = $requiredMinutes;
+
+        for ($date = $rangeStart->copy(); $date->lte($rangeEnd) && $remaining > 0; $date->addDay()) {
+            $dateKey = $date->format('Y-m-d');
+            if (!in_array($date->dayOfWeekIso, $workingDays, true) || in_array($dateKey, $holidays, true)) {
+                continue;
+            }
+
+            $dayStart = $date->copy()->setTime($workingStart->hour, $workingStart->minute, 0);
+            $dayEnd = $date->copy()->setTime($workingEnd->hour, $workingEnd->minute, 0);
+            if ($date->isToday()) {
+                $dayStart = $dayStart->max(now());
+            }
+            if (!$dayStart->lt($dayEnd)) continue;
+
+            $blocks = [];
+            if ($hasBreak) {
+                $bs = $date->copy()->setTime($breakStart->hour, $breakStart->minute, 0)->max($dayStart);
+                $be = $date->copy()->setTime($breakEnd->hour, $breakEnd->minute, 0)->min($dayEnd);
+                if ($bs->lt($be)) $blocks[] = ['start' => $bs, 'end' => $be];
+            }
+
+            $existing = Task::where('user_id', $userId)->whereNull('deleted_at')
+                ->when($excludeTaskId, fn ($q) => $q->where('id', '<>', $excludeTaskId))
+                ->whereDate('start_date', '<=', $dateKey)->whereDate('end_date', '>=', $dateKey)
+                ->whereNotNull('start_time')->whereNotNull('end_time')->get();
+
+            foreach ($existing as $other) {
+                $otherStartDate = Carbon::parse($other->start_date);
+                $otherEndDate = Carbon::parse($other->end_date);
+                $bs = $date->copy()->setTimeFromTimeString(
+                    $otherStartDate->isSameDay($date) ? $other->start_time : $workingStart->format('H:i:s')
+                )->max($dayStart);
+                $be = $date->copy()->setTimeFromTimeString(
+                    $otherEndDate->isSameDay($date) ? $other->end_time : $workingEnd->format('H:i:s')
+                )->min($dayEnd);
+                if ($bs->lt($be)) $blocks[] = ['start' => $bs, 'end' => $be];
+            }
+
+            usort($blocks, fn ($a, $b) => $a['start']->timestamp <=> $b['start']->timestamp);
+            $cursor = $dayStart->copy();
+            foreach ($blocks as $block) {
+                if ($block['end']->lte($cursor)) continue;
+                if ($block['start']->gt($cursor)) {
+                    $periodEnd = $block['start']->copy();
+                    $available = $cursor->diffInMinutes($periodEnd);
+                    $take = min($remaining, $available);
+                    if ($take > 0) {
+                        if (!$firstStart) $firstStart = $cursor->copy();
+                        $lastEnd = $cursor->copy()->addMinutes($take);
+                        $remaining -= $take;
+                        if ($remaining === 0) break 2;
+                    }
+                }
+                if ($block['end']->gt($cursor)) $cursor = $block['end']->copy();
+            }
+
+            if ($cursor->lt($dayEnd) && $remaining > 0) {
+                $available = $cursor->diffInMinutes($dayEnd);
+                $take = min($remaining, $available);
+                if ($take > 0) {
+                    if (!$firstStart) $firstStart = $cursor->copy();
+                    $lastEnd = $cursor->copy()->addMinutes($take);
+                    $remaining -= $take;
+                    if ($remaining === 0) break;
+                }
+            }
+        }
+
+        if ($remaining > 0 || !$firstStart || !$lastEnd) return null;
+
+        return [
+            'start_date' => $firstStart->format('Y-m-d'),
+            'start_time' => $firstStart->format('H:i:s'),
+            'end_date' => $lastEnd->format('Y-m-d'),
+            'end_time' => $lastEnd->format('H:i:s'),
+        ];
     }
 
     public function multidelete(Request $request) {

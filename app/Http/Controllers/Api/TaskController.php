@@ -567,7 +567,6 @@ class TaskController extends Controller
      */
     private function manualScheduleTask($request, $slotSetting)
     {
-        // Validate manual scheduling fields
         $validator = Validator::make($request->all(), [
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
@@ -580,86 +579,107 @@ class TaskController extends Controller
             ], 422);
         }
 
-        $startDateTime = Carbon::parse($request->start_date . ' ' . $request->start_time);
-        $endDateTime = Carbon::parse($request->end_date . ' ' . $request->end_time);
+        $startDate = Carbon::parse($request->start_date)->startOfDay();
+        $endDate = Carbon::parse($request->end_date)->startOfDay();
+        $startDateTime = $startDate->copy()->setTimeFromTimeString($request->start_time);
+        $endDateTime = $endDate->copy()->setTimeFromTimeString($request->end_time);
 
-        // Validate time range
-        if ($startDateTime->gte($endDateTime)) {
+        if ($startDate->gt($endDate) || $startDateTime->gte($endDateTime)) {
             return response()->json([
                 'success' => false,
-                'message' => 'End time must be after start time.'
+                'message' => 'End date and time must be after the start date and time.'
             ], 422);
         }
 
-        // Check if settings exist for validation
         if ($slotSetting) {
-            // Check working days
-            $workingDays = explode(',', $slotSetting->working_days);
-            $startDay = $startDateTime->dayOfWeekIso;
-            $endDay = $endDateTime->dayOfWeekIso;
+            $workingDays = collect(explode(',', (string) $slotSetting->working_days))
+                ->map(fn ($day) => (int) trim($day))
+                ->filter(fn ($day) => $day >= 1 && $day <= 7)
+                ->values()
+                ->all();
 
-            if (!in_array($startDay, $workingDays) || !in_array($endDay, $workingDays)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Selected date(s) are not working days.'
-                ], 422);
-            }
-
-            // Check holidays
-            $holidays = $slotSetting->holidays->pluck('holiday_date')->map(function($date) {
-                return Carbon::parse($date)->format('Y-m-d');
-            })->toArray();
-
-            if (in_array($startDateTime->format('Y-m-d'), $holidays) || 
-                in_array($endDateTime->format('Y-m-d'), $holidays)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Selected date(s) fall on holidays.'
-                ], 422);
-            }
-
-            // Check working hours
             $workingStart = Carbon::parse($slotSetting->start_work_time);
             $workingEnd = Carbon::parse($slotSetting->end_work_time);
+            $hasBreak = !empty($slotSetting->start_break_time) && !empty($slotSetting->end_break_time);
+            $breakStart = $hasBreak ? Carbon::parse($slotSetting->start_break_time)->format('H:i:s') : null;
+            $breakEnd = $hasBreak ? Carbon::parse($slotSetting->end_break_time)->format('H:i:s') : null;
+            $holidays = $slotSetting->holidays->pluck('holiday_date')->map(
+                fn ($date) => Carbon::parse($date)->format('Y-m-d')
+            )->all();
 
-            if ($startDateTime->format('H:i') < $workingStart->format('H:i') || 
-                $endDateTime->format('H:i') > $workingEnd->format('H:i')) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Time slot must be within working hours.'
-                ], 422);
+            for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                $dateKey = $date->format('Y-m-d');
+                if (!in_array($date->dayOfWeekIso, $workingDays, true)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "The selected range includes a non-working day ({$dateKey})."
+                    ], 422);
+                }
+                if (in_array($dateKey, $holidays, true)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "The selected range includes a holiday ({$dateKey})."
+                    ], 422);
+                }
+
+                $dailyStart = $date->copy()->setTimeFromTimeString(
+                    $date->isSameDay($startDate) ? $request->start_time : $workingStart->format('H:i:s')
+                );
+                $dailyEnd = $date->copy()->setTimeFromTimeString(
+                    $date->isSameDay($endDate) ? $request->end_time : $workingEnd->format('H:i:s')
+                );
+
+                if ($dailyStart->lt($date->copy()->setTimeFromTimeString($workingStart->format('H:i:s'))) ||
+                    $dailyEnd->gt($date->copy()->setTimeFromTimeString($workingEnd->format('H:i:s'))) ||
+                    !$dailyStart->lt($dailyEnd)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "The selected time is outside working hours on {$dateKey}."
+                    ], 422);
+                }
+
+                if ($hasBreak && $dailyStart->format('H:i:s') < $breakEnd &&
+                    $dailyEnd->format('H:i:s') > $breakStart) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "The selected range overlaps the configured break on {$dateKey}."
+                    ], 422);
+                }
+
+                // Compare the requested interval with every task occupying this date.
+                $existingTasks = Task::where('user_id', $request->user_id)
+                    ->whereNull('deleted_at')
+                    ->whereDate('start_date', '<=', $dateKey)
+                    ->whereDate('end_date', '>=', $dateKey)
+                    ->get();
+
+                foreach ($existingTasks as $existingTask) {
+                    $existingStart = $date->copy()->setTimeFromTimeString(
+                        Carbon::parse($existingTask->start_date)->isSameDay($date)
+                            ? $existingTask->start_time
+                            : $workingStart->format('H:i:s')
+                    );
+                    $existingEnd = $date->copy()->setTimeFromTimeString(
+                        Carbon::parse($existingTask->end_date)->isSameDay($date)
+                            ? $existingTask->end_time
+                            : $workingEnd->format('H:i:s')
+                    );
+
+                    // Half-open intervals: adjacent tasks (e.g. 10:00-11:00 and
+                    // 11:00-12:00) are valid; containment and exact matches conflict.
+                    if ($dailyStart->lt($existingEnd) && $dailyEnd->gt($existingStart)) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => "The selected time conflicts with task '{$existingTask->task_name}' on {$dateKey}."
+                        ], 422);
+                    }
+                }
             }
         }
 
-        // Check for overlapping tasks
-        $overlappingTasks = Task::where('user_id', $request->user_id)
-            ->whereNull('deleted_at')
-            ->where(function($query) use ($startDateTime, $endDateTime) {
-                $query->where(function($q) use ($startDateTime, $endDateTime) {
-                    $q->where('start_date', '<=', $startDateTime->format('Y-m-d'))
-                      ->where('end_date', '>=', $startDateTime->format('Y-m-d'))
-                      ->where('start_time', '<=', $startDateTime->format('H:i:s'))
-                      ->where('end_time', '>', $startDateTime->format('H:i:s'));
-                })->orWhere(function($q) use ($startDateTime, $endDateTime) {
-                    $q->where('start_date', '<=', $endDateTime->format('Y-m-d'))
-                      ->where('end_date', '>=', $endDateTime->format('Y-m-d'))
-                      ->where('start_time', '<', $endDateTime->format('H:i:s'))
-                      ->where('end_time', '>=', $endDateTime->format('H:i:s'));
-                });
-            })->count();
-
-        if ($overlappingTasks > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Time slot conflicts with existing tasks.'
-            ], 422);
-        }
-
-        // Calculate actual hours
         $actualMinutes = $startDateTime->diffInMinutes($endDateTime);
         $actualHours = round($actualMinutes / 60, 2);
 
-        // Create task
         $task = Task::create([
             'user_id' => $request->user_id,
             'task_name' => $request->task_name,

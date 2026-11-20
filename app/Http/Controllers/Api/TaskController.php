@@ -651,6 +651,8 @@ class TaskController extends Controller
                     ->whereNull('deleted_at')
                     ->whereDate('start_date', '<=', $dateKey)
                     ->whereDate('end_date', '>=', $dateKey)
+                    ->whereNotNull('start_time')
+                    ->whereNotNull('end_time')
                     ->get();
 
                 foreach ($existingTasks as $existingTask) {

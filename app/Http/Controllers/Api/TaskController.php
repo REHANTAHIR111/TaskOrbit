@@ -1427,7 +1427,7 @@ class TaskController extends Controller
             if ($hasBreak) {
                 $bs = $date->copy()->setTime($breakStart->hour, $breakStart->minute, 0)->max($dayStart);
                 $be = $date->copy()->setTime($breakEnd->hour, $breakEnd->minute, 0)->min($dayEnd);
-                if ($bs->lt($be)) $blocks[] = ['start' => $bs, 'end' => $be];
+                if ($bs->lt($be)) $blocks[] = ['start' => $bs, 'end' => $be, 'type' => 'break'];
             }
 
             $existing = Task::where('user_id', $userId)->whereNull('deleted_at')
@@ -1444,13 +1444,19 @@ class TaskController extends Controller
                 $be = $date->copy()->setTimeFromTimeString(
                     $otherEndDate->isSameDay($date) ? $other->end_time : $workingEnd->format('H:i:s')
                 )->min($dayEnd);
-                if ($bs->lt($be)) $blocks[] = ['start' => $bs, 'end' => $be];
+                if ($bs->lt($be)) $blocks[] = ['start' => $bs, 'end' => $be, 'type' => 'task'];
             }
 
             usort($blocks, fn ($a, $b) => $a['start']->timestamp <=> $b['start']->timestamp);
             $cursor = $dayStart->copy();
             foreach ($blocks as $block) {
                 if ($block['end']->lte($cursor)) continue;
+                // The current schema stores only one start/end interval per task.
+                // Do not compress a schedule across another task's occupied time:
+                // that would falsely make the rescheduled task overlap it.
+                if (($block['type'] ?? null) === 'task' && $firstStart && $remaining > 0) {
+                    return null;
+                }
                 if ($block['start']->gt($cursor)) {
                     $periodEnd = $block['start']->copy();
                     $available = $cursor->diffInMinutes($periodEnd);

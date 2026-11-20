@@ -1316,14 +1316,14 @@ class TaskController extends Controller
                 foreach ($laterTasks as $laterTask) {
                     $minutes = (int) round(((float) $laterTask->hour) * 60);
                     if ($minutes <= 0) {
-                        throw new \\RuntimeException(
+                        throw new \RuntimeException(
                             "Task '{$laterTask->task_name}' (task #{$laterTask->id}) has no valid duration and cannot be rescheduled."
                         );
                     }
 
                     $taskDeadline = Carbon::parse($laterTask->end_date)->startOfDay();
                     if ($taskDeadline->lt($deletedStart)) {
-                        throw new \\RuntimeException(
+                        throw new \RuntimeException(
                             "Task '{$laterTask->task_name}' (task #{$laterTask->id}) has an invalid scheduling deadline."
                         );
                     }

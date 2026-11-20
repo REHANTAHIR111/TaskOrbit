@@ -69,7 +69,7 @@ const CreateTask = (props: any) => {
 
     const handleCreatePriority = (inputValue: string) => {
         const newPriority = {
-            value: inputValue.toLowerCase().replace(/\\s+/g, '_'),
+            value: inputValue.toLowerCase().replace(/\s+/g, '_'),
             label: inputValue
         };
         setPriorityOptions([...priorityOptions, newPriority]);

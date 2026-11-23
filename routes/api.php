@@ -11,6 +11,7 @@ Route::post('account/login', [UserController::class, 'login'])->name('api.login'
 Route::post('account/logout', [UserController::class, 'logout'])->name('api.logout');
 
 //task management routes
+Route::post('/task/{id}/restore-preview', [TaskController::class, 'previewRestore'])->name('api.restorePreview');
 Route::customResource('/task', TaskController::class);
 Route::get('/getTask/{id}', [TaskController::class, 'getTask'])->name('api.getTask');
 Route::get('/deleted-tasks/{id}', [TaskController::class, 'getDeletedData'])->name('api.deleted-tasks');

@@ -13,7 +13,14 @@ use App\Http\Controllers\Api\TaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-$db = DB::connection();
+$testDatabase = getenv('TASKORBIT_TEST_DATABASE');
+$configuredDatabase = config('database.connections.mysql.database');
+if (!$testDatabase || strcasecmp($testDatabase, (string) $configuredDatabase) === 0) {
+    throw new RuntimeException('Set TASKORBIT_TEST_DATABASE to a dedicated MySQL test schema different from the configured application database.');
+}
+config(['database.default' => 'mysql', 'database.connections.mysql.database' => $testDatabase]);
+DB::purge('mysql');
+$db = DB::connection('mysql');
 if ($db->getDriverName() !== 'mysql') {
     throw new RuntimeException('This smoke suite requires the configured MySQL driver.');
 }

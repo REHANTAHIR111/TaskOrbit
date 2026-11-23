@@ -92,6 +92,46 @@ const TaskListing = (props: any) => {
         return `${hours ? `${hours}h` : ''}${remainder ? ` ${remainder}m` : ''}`.trim() || '0m';
     };
 
+    const schedulePoint = (date: string, time: string) => (
+        <div className="text-sm text-slate-300">
+            <div>{date || '—'}</div>
+            <div className="text-xs text-slate-400">{formatTime(time) || '—'}</div>
+        </div>
+    );
+
+    const escapeHtml = (value: any) => String(value ?? '').replace(/[&<>"']/g, (character) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;',
+    }[character] as string));
+
+    const describeSegmentsHtml = (segments: any[]) => (segments || []).length
+        ? `<ul class="list-disc pl-5 text-left">${segments.map((segment) => `<li>${escapeHtml(segment.segment_date)} ${escapeHtml(formatTime(segment.start_time))}–${escapeHtml(formatTime(segment.end_time))} (${escapeHtml(formatDuration(Number(segment.allocated_minutes)))})</li>`).join('')}</ul>`
+        : '<p>No saved segments</p>';
+
+    const showDeleteResult = (deletedLabel: string, responseJson: any) => {
+        const moved = responseJson?.rescheduled || [];
+        if (!moved.length) {
+            return Swal.fire({ title: 'Task deleted', text: `${deletedLabel} was moved to the recycle bin. Other task schedules stayed unchanged.`, icon: 'success', confirmButtonText: t('ok') });
+        }
+
+        const taskChanges = moved.map((task: any) => `
+            <section class="mb-4 text-left">
+                <strong>Task #${escapeHtml(task.id)}${task.task_name ? ` — ${escapeHtml(task.task_name)}` : ''}</strong>
+                <span> · ${escapeHtml(formatDuration(Number(task.total_allocated_minutes)))} preserved</span>
+                <p class="mt-1 mb-0"><strong>Before reflow</strong>${describeSegmentsHtml(task.previous_segments)}</p>
+                <p class="mt-1 mb-0"><strong>After reflow</strong>${describeSegmentsHtml(task.segments)}</p>
+            </section>`).join('');
+
+        return Swal.fire({
+            title: 'Task deleted and later tasks reflowed',
+            html: `<div class="space-y-3 text-left"><p>${escapeHtml(deletedLabel)} was moved to the recycle bin. ${moved.length} later task${moved.length === 1 ? '' : 's'} kept their full duration and original order. Earlier tasks were not changed. Segments can split around breaks and non-working time.</p>${taskChanges}</div>`,
+            icon: 'success',
+            confirmButtonText: t('ok'),
+            width: 760,
+            customClass: { confirmButton: 'btn btn-primary', popup: 'sweet-alerts' },
+            buttonsStyling: false,
+        });
+    };
+
     useEffect(() => {
         const from = (page - 1) * pageSize;
         const to = from + pageSize;
@@ -106,13 +146,13 @@ const TaskListing = (props: any) => {
 
     const deleteRow = async (id: any = null) => {
         const result = await Swal.fire({
-            title: 'Delete this task?',
-            text: 'Would you also like to move the following tasks earlier and automatically reschedule them?',
+            title: `Delete task #${id}?`,
+            text: 'Delete only keeps every other task at its current time. Delete and reflow moves later tasks earlier into the freed time, keeps their durations and order, and may split them around breaks or non-working periods. Earlier tasks stay unchanged. If any later task cannot fit its date limit, the whole reflow is canceled.',
             icon: 'warning',
             showDenyButton: true,
             showCancelButton: true,
-            confirmButtonText: 'Yes, move following tasks',
-            denyButtonText: 'No, delete only this task',
+            confirmButtonText: 'Delete and reflow later tasks',
+            denyButtonText: 'Delete only (keep schedules)',
             cancelButtonText: t('noCancel'),
             reverseButtons: true,
             customClass: {
@@ -133,12 +173,7 @@ const TaskListing = (props: any) => {
 
         if (responseJson?.success === true || responseJson?.success === 'true') {
             await getTask();
-            await Swal.fire({
-                title: 'Deleted',
-                text: responseJson.message || 'Task has been deleted successfully.',
-                icon: 'success',
-                confirmButtonText: t('ok'),
-            });
+            await showDeleteResult(`Task #${id}`, responseJson);
         } else {
             await Swal.fire({
                 title: 'Could not delete task',
@@ -151,52 +186,34 @@ const TaskListing = (props: any) => {
 
     const showAlert = async (type: number) => {
         if (type === 11) {
-            const swalWithBootstrapButtons = Swal.mixin({
-                customClass: {
-                    confirmButton: 'btn btn-secondary',
-                    cancelButton: 'btn btn-dark ltr:mr-3 rtl:ml-3',
-                    popup: 'sweet-alerts',
-                },
+            const count = selectedRecords.length;
+            if (!count) return;
+            const result = await Swal.fire({
+                title: `Delete ${count} selected task${count === 1 ? '' : 's'}?`,
+                text: 'Delete only keeps all other tasks at their current times. Delete and reflow moves later tasks earlier while preserving their duration and order; segments may split around breaks and non-working periods. Earlier tasks stay unchanged. If any later task cannot fit its date limit, no selected task is deleted.',
+                icon: 'warning',
+                showDenyButton: true,
+                showCancelButton: true,
+                confirmButtonText: 'Delete only (keep schedules)',
+                denyButtonText: 'Delete and reflow later tasks',
+                cancelButtonText: t('noCancel'),
+                reverseButtons: true,
+                customClass: { confirmButton: 'btn btn-secondary', denyButton: 'btn btn-primary', cancelButton: 'btn btn-dark', popup: 'sweet-alerts' },
                 buttonsStyling: false,
             });
-            swalWithBootstrapButtons
-                .fire({
-                    title: t('areyouSure'),
-                    text: t('youWontBeAbleToRevertThis'),
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: t('yesDeleteIt'),
-                    cancelButtonText: t('noCancel'),
-                    reverseButtons: true,
-                    padding: '2em',
-                })
-                .then((result) => {
-                    if (result.value) {
-                        post('task/multidelete', {
-                            id: selectedRecords.map(function (a: { id: any }) {
-                                return a.id;
-                            }),
-                        }).then((responseJson: any) => {
-                            if (responseJson.success === 'true') {
-                                getTask();
-                                setSelectedRecords([]);
-                                swalWithBootstrapButtons.fire({
-                                    title: 'Deleted',
-                                    text: 'Task has been Deleted',
-                                    icon: 'success',
-                                    confirmButtonText: t('ok'),
-                                });
-                            }
-                        });
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        swalWithBootstrapButtons.fire({
-                            title: 'Cancelled',
-                            text: 'Task is Safe :)',
-                            icon: 'error',
-                            confirmButtonText: t('ok'),
-                        });
-                    }
-                });
+            if (!result.isConfirmed && !result.isDenied) return;
+            const selectedLabel = `Selected tasks ${selectedRecords.map((task: any) => `#${task.id}`).join(', ')}`;
+            const responseJson: any = await post('task/multidelete', {
+                id: selectedRecords.map((task: { id: any }) => task.id),
+                reflow: result.isDenied,
+            });
+            if (responseJson?.success === true || responseJson?.success === 'true') {
+                await getTask();
+                setSelectedRecords([]);
+                await showDeleteResult(selectedLabel, responseJson);
+            } else {
+                await Swal.fire({ title: 'Deletion rolled back', text: responseJson?.message || 'No selected tasks were changed.', icon: 'error', confirmButtonText: t('ok') });
+            }
         }
     };
 
@@ -305,47 +322,24 @@ const TaskListing = (props: any) => {
                                 },
 
                                 {
-                                    accessor: 'Start date',
-                                    title: t('Start date'),
+                                    accessor: 'first_scheduled',
+                                    title: 'First scheduled',
                                     sortable: false,
-                                    render: ({ start_date }: any) => (
-                                        <span className="text-sm text-slate-300">
-                                            {start_date || '—'}
-                                        </span>
-                                    ),
+                                    render: ({ segments, start_date, start_time }: any) => {
+                                        const first = [...(segments || [])].sort((a, b) => `${a.segment_date} ${a.start_time}`.localeCompare(`${b.segment_date} ${b.start_time}`))[0];
+                                        return schedulePoint(first?.segment_date || start_date, first?.start_time || start_time);
+                                    },
                                 },
 
                                 {
-                                    accessor: 'End date',
-                                    title: t('End date'),
+                                    accessor: 'last_scheduled',
+                                    title: 'Last scheduled',
                                     sortable: false,
-                                    render: ({ end_date }: any) => (
-                                        <span className="text-sm text-slate-300">
-                                            {end_date || '—'}
-                                        </span>
-                                    ),
-                                },
-
-                                {
-                                    accessor: 'Start Time',
-                                    title: t('Start Time'),
-                                    sortable: false,
-                                    render: ({ start_time }: any) => (
-                                        <span className="text-sm text-slate-300">
-                                            {formatTime(start_time) || '—'}
-                                        </span>
-                                    ),
-                                },
-
-                                {
-                                    accessor: 'End time',
-                                    title: t('End time'),
-                                    sortable: false,
-                                    render: ({ end_time }: any) => (
-                                        <span className="text-sm text-slate-300">
-                                            {formatTime(end_time) || '—'}
-                                        </span>
-                                    ),
+                                    render: ({ segments, end_date, end_time }: any) => {
+                                        const ordered = [...(segments || [])].sort((a, b) => `${a.segment_date} ${a.start_time}`.localeCompare(`${b.segment_date} ${b.start_time}`));
+                                        const last = ordered[ordered.length - 1];
+                                        return schedulePoint(last?.segment_date || end_date, last?.end_time || end_time);
+                                    },
                                 },
 
                                 {

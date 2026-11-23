@@ -97,6 +97,21 @@ class TaskSchedulingService
         return false;
     }
 
+    public function hasInternalOverlap(array $segments): bool
+    {
+        $byDate = [];
+        foreach ($segments as $segment) {
+            $byDate[$segment['segment_date']][] = $segment;
+        }
+        foreach ($byDate as $dailySegments) {
+            usort($dailySegments, fn ($a, $b) => $a['start_time'] <=> $b['start_time']);
+            for ($index = 1; $index < count($dailySegments); $index++) {
+                if ($dailySegments[$index]['start_time'] < $dailySegments[$index - 1]['end_time']) return true;
+            }
+        }
+        return false;
+    }
+
     public function writeSegments($task, array $segments): void
     {
         foreach ($segments as $segment) {

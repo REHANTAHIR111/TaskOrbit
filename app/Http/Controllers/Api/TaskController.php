@@ -927,95 +927,19 @@ class TaskController extends Controller
                     $task->delete();
                     return response()->json(['success' => true, 'message' => 'Task has been deleted successfully.']);
                 }
-
-                $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->where('status', '1')->first();
-                if (!$setting) {
-                    return response()->json(['success' => false, 'message' => 'Active working-time settings are required to reschedule following tasks.'], 422);
-                }
-                $break = $this->getValidatedBreakSetting($setting);
-                if ($break['invalid']) {
-                    return response()->json(['success' => false, 'message' => $break['message']], 422);
-                }
-                if (empty($setting->working_days) || empty($setting->start_work_time) || empty($setting->end_work_time)) {
-                    return response()->json(['success' => false, 'message' => 'Complete working days and hours before rescheduling following tasks.'], 422);
-                }
-                try {
-                    $workStart = Carbon::parse($setting->start_work_time);
-                    $workEnd = Carbon::parse($setting->end_work_time);
-                } catch (\Throwable $e) {
-                    return response()->json(['success' => false, 'message' => 'Working-hour settings contain invalid times.'], 422);
-                }
-                if (!$workStart->lt($workEnd) || ($break['has_break'] && (
-                    $break['start']->format('H:i:s') < $workStart->format('H:i:s') ||
-                    $break['end']->format('H:i:s') > $workEnd->format('H:i:s')
-                ))) {
-                    return response()->json(['success' => false, 'message' => 'Working hours or break times are invalid.'], 422);
+                $anchor = $this->taskScheduleAnchor($task);
+                $laterTasks = $this->getLaterScheduledTasks((int) $task->user_id, $anchor, [(int) $task->id]);
+                $setting = null;
+                if ($laterTasks->isNotEmpty()) {
+                    $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->where('status', '1')->first();
+                    $problem = $this->schedulingSettingsProblem($setting);
+                    if ($problem) {
+                        return response()->json(['success' => false, 'message' => $problem], 422);
+                    }
                 }
 
-                $targetSegments = $task->segments->sortBy([['segment_date', 'asc'], ['start_time', 'asc']])->values();
-                $anchor = $targetSegments->isNotEmpty()
-                    ? Carbon::parse($targetSegments[0]->segment_date->format('Y-m-d') . ' ' . $targetSegments[0]->start_time)
-                    : Carbon::parse($task->start_date . ' ' . ($task->start_time ?: '00:00:00'));
-
-                $laterTasks = Task::with('segments')->where('user_id', $task->user_id)
-                    ->whereNull('deleted_at')->where('id', '<>', $task->id)
-                    ->lockForUpdate()->get()
-                    ->filter(function ($candidate) use ($anchor) {
-                        $first = $candidate->segments->sortBy([['segment_date', 'asc'], ['start_time', 'asc']])->first();
-                        if (!$first) return false;
-                        $candidateStart = Carbon::parse($first->segment_date->format('Y-m-d') . ' ' . $first->start_time);
-                        return $candidateStart->gt($anchor);
-                    })
-                    ->sortBy(function ($candidate) {
-                        $first = $candidate->segments->sortBy([['segment_date', 'asc'], ['start_time', 'asc']])->first();
-                        return $first ? $first->segment_date->format('Y-m-d') . ' ' . $first->start_time : '';
-                    })->values();
-
-                $durations = [];
-                foreach ($laterTasks as $laterTask) {
-                    $durations[$laterTask->id] = (int) $laterTask->segments->sum('allocated_minutes');
-                    $laterTask->segments()->delete();
-                }
                 $task->delete();
-
-                $scheduler = new \App\Services\TaskSchedulingService();
-                $moved = [];
-                foreach ($laterTasks as $laterTask) {
-                    // Use the duration captured before releasing the old segments.
-                    $duration = $durations[$laterTask->id] ?? 0;
-                    if ($duration <= 0) {
-                        throw new \RuntimeException("Task '{$laterTask->task_name}' (task #{$laterTask->id}) has no valid segment duration.");
-                    }
-                    $deadline = $laterTask->end_date ? Carbon::parse($laterTask->end_date)->startOfDay() : null;
-                    if (!$deadline) {
-                        throw new \RuntimeException("Task '{$laterTask->task_name}' (task #{$laterTask->id}) has no end-date deadline.");
-                    }
-
-                    $segments = $scheduler->allocate((int) $laterTask->user_id, $anchor->copy()->startOfDay(), $deadline, $duration, $setting, (int) $laterTask->id, $anchor);
-                    if (!$segments) {
-                        throw new \RuntimeException("Could not reschedule '{$laterTask->task_name}' (task #{$laterTask->id}) within its existing end date.");
-                    }
-
-                    $summary = $scheduler->summarize($segments);
-                    $laterTask->fill([
-                        'start_date' => $summary['start_date'],
-                        'start_time' => $summary['start_time'],
-                        'end_date' => $summary['end_date'],
-                        'end_time' => $summary['end_time'],
-                        'hour' => $summary['total_minutes'] / 60,
-                    ])->save();
-                    $scheduler->writeSegments($laterTask, $segments);
-                    $moved[] = [
-                        'id' => $laterTask->id,
-                        'task_name' => $laterTask->task_name,
-                        'start_date' => $summary['start_date'],
-                        'start_time' => $summary['start_time'],
-                        'end_date' => $summary['end_date'],
-                        'end_time' => $summary['end_time'],
-                        'segments' => $segments,
-                    ];
-                }
-
+                $moved = $setting ? $this->reflowTasks($laterTasks, $anchor, $setting) : [];
                 return response()->json(['success' => true, 'message' => 'Task deleted and following tasks rescheduled successfully.', 'rescheduled' => $moved]);
             });
         } catch (\Throwable $e) {
@@ -1023,28 +947,347 @@ class TaskController extends Controller
         }
     }
 
-    public function multidelete(Request $request) {
-        $ids = $request->id;
-        
-        if (empty($ids)) {
-            return response()->json([
-                'success' => 'false',
-                'message' => 'No tasks selected!'
-            ], 400);
+    public function multidelete(Request $request)
+    {
+        $ids = $this->normalizeTaskIds($request->input('id'));
+        if (!$ids) {
+            return response()->json(['success' => false, 'message' => 'Select at least one task.'], 400);
         }
 
-        if (is_string($ids)) {
-            $idsArray = explode(',', $ids);
-        } else {
-            $idsArray = $ids;
+        try {
+            return DB::transaction(function () use ($ids, $request) {
+                $userIds = Task::whereIn('id', $ids)->whereNull('deleted_at')->pluck('user_id')->unique()->sort()->values();
+                foreach ($userIds as $userId) {
+                    DB::table('users')->where('id', $userId)->lockForUpdate()->first();
+                }
+                $tasks = Task::with('segments')->whereIn('id', $ids)->whereNull('deleted_at')->orderBy('user_id')->orderBy('id')->lockForUpdate()->get();
+                if ($tasks->count() !== count($ids)) {
+                    return response()->json(['success' => false, 'message' => 'One or more selected tasks are no longer active. Refresh the list and try again.'], 409);
+                }
+
+                $reflow = $request->boolean('reflow');
+                if (!$reflow) {
+                    foreach ($tasks as $task) $task->delete();
+                    return response()->json(['success' => true, 'message' => 'Selected tasks were moved to the recycle bin.']);
+                }
+
+                $moved = [];
+                foreach ($tasks->groupBy('user_id') as $userId => $userTasks) {
+                    $anchors = $userTasks->map(fn ($task) => $this->taskScheduleAnchor($task));
+                    $anchor = $anchors->sortBy(fn ($date) => $date->timestamp)->first();
+                    $selectedIds = $userTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all();
+                    $laterTasks = $this->getLaterScheduledTasks((int) $userId, $anchor, $selectedIds);
+                    $setting = null;
+                    if ($laterTasks->isNotEmpty()) {
+                        $setting = SlotSetting::with('holidays')->where('user_id', $userId)->where('status', '1')->first();
+                        $problem = $this->schedulingSettingsProblem($setting);
+                        if ($problem) throw new \RuntimeException($problem);
+                    }
+                    foreach ($userTasks as $task) $task->delete();
+                    if ($setting) $moved = array_merge($moved, $this->reflowTasks($laterTasks, $anchor, $setting));
+                }
+
+                return response()->json(['success' => true, 'message' => 'Selected tasks were deleted and following tasks were rescheduled.', 'rescheduled' => $moved]);
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Bulk deletion was rolled back. ' . $e->getMessage()], 422);
         }
-        
-        Task::whereIn('id', $idsArray)->delete();
-        
-        return response()->json([
-            'success' => 'true',
-            'message' => 'Tasks deleted successfully!'
-        ]);
+    }
+
+    private function normalizeTaskIds($ids): array
+    {
+        $values = is_string($ids) ? explode(',', $ids) : (array) $ids;
+        return array_values(array_unique(array_filter(array_map('intval', $values), fn ($id) => $id > 0)));
+    }
+
+    private function taskScheduleAnchor(Task $task): Carbon
+    {
+        $first = $task->segments->sortBy(fn ($segment) => $segment->segment_date->format('Y-m-d') . ' ' . $segment->start_time)->first();
+        if ($first) {
+            return Carbon::parse($first->segment_date->format('Y-m-d') . ' ' . $first->start_time);
+        }
+        return Carbon::parse(($task->start_date ?: now()->format('Y-m-d')) . ' ' . ($task->start_time ?: '00:00:00'));
+    }
+
+    private function taskDurationMinutes(Task $task): int
+    {
+        $allocated = (int) $task->segments->sum('allocated_minutes');
+        return $allocated > 0 ? $allocated : (int) round(((float) $task->hour) * 60);
+    }
+
+    private function taskAllocationLimit(Task $task, Carbon $anchor): Carbon
+    {
+        return $task->end_date
+            ? Carbon::parse($task->end_date)->startOfDay()
+            : $anchor->copy()->addYears(10)->startOfDay();
+    }
+
+    private function validateRestorePlan($segments, int $userId, int $taskId, int $duration, Carbon $anchor, Carbon $limit, $setting, \App\Services\TaskSchedulingService $scheduler): ?array
+    {
+        if (!is_array($segments) || !$segments) return null;
+
+        try {
+            $normalized = [];
+            foreach ($segments as $segment) {
+                if (!is_array($segment) || empty($segment['segment_date']) || empty($segment['start_time']) || empty($segment['end_time'])) return null;
+                $date = Carbon::parse($segment['segment_date'])->startOfDay();
+                $start = Carbon::parse($segment['segment_date'] . ' ' . $segment['start_time']);
+                $end = Carbon::parse($segment['segment_date'] . ' ' . $segment['end_time']);
+                $minutes = (int) ($segment['allocated_minutes'] ?? 0);
+                if ($date->lt($anchor->copy()->startOfDay()) || $date->gt($limit->copy()->startOfDay()) || !$start->lt($end) || $minutes <= 0) return null;
+                if ($date->isSameDay($anchor) && $start->lt($anchor)) return null;
+                $normalized[] = [
+                    'segment_date' => $date->format('Y-m-d'),
+                    'start_time' => $start->format('H:i:s'),
+                    'end_time' => $end->format('H:i:s'),
+                    'allocated_minutes' => $minutes,
+                ];
+            }
+
+            usort($normalized, fn ($left, $right) => [$left['segment_date'], $left['start_time']] <=> [$right['segment_date'], $right['start_time']]);
+            $dailySequence = [];
+            foreach ($normalized as &$segment) {
+                $dailySequence[$segment['segment_date']] = ($dailySequence[$segment['segment_date']] ?? 0) + 1;
+                $segment['sequence'] = $dailySequence[$segment['segment_date']];
+            }
+            unset($segment);
+
+            if (array_sum(array_column($normalized, 'allocated_minutes')) !== $duration || $scheduler->hasInternalOverlap($normalized)) return null;
+            if ($this->segmentsSchedulingProblem($normalized, $setting) || $scheduler->hasOverlap($userId, $normalized, $taskId)) return null;
+            return $normalized;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    private function schedulingSettingsProblem($setting): ?string
+    {
+        if (!$setting) return 'Active working-time settings are required to reschedule these tasks.';
+        if (empty($setting->working_days) || empty($setting->start_work_time) || empty($setting->end_work_time)) {
+            return 'Complete working days and hours before rescheduling these tasks.';
+        }
+        $break = $this->getValidatedBreakSetting($setting);
+        if ($break['invalid']) return $break['message'];
+        try {
+            $workStart = Carbon::parse($setting->start_work_time);
+            $workEnd = Carbon::parse($setting->end_work_time);
+        } catch (\Throwable $e) {
+            return 'Working-hour settings contain invalid times.';
+        }
+        if (!$workStart->lt($workEnd) || ($break['has_break'] && (
+            $break['start']->format('H:i:s') < $workStart->format('H:i:s') ||
+            $break['end']->format('H:i:s') > $workEnd->format('H:i:s')
+        ))) return 'Working hours or break times are invalid.';
+        return null;
+    }
+
+    private function segmentsSchedulingProblem(array $segments, $setting): ?string
+    {
+        if (!$setting) return null;
+        $problem = $this->schedulingSettingsProblem($setting);
+        if ($problem) return $problem;
+        $workingDays = collect(explode(',', (string) $setting->working_days))->map(fn ($day) => (int) trim($day))->filter(fn ($day) => $day >= 1 && $day <= 7)->all();
+        $holidays = $setting->holidays->pluck('holiday_date')->map(fn ($date) => Carbon::parse($date)->format('Y-m-d'))->all();
+        $workStart = Carbon::parse($setting->start_work_time)->format('H:i:s');
+        $workEnd = Carbon::parse($setting->end_work_time)->format('H:i:s');
+        $break = $this->getValidatedBreakSetting($setting);
+        foreach ($segments as $segment) {
+            $date = Carbon::parse($segment['segment_date']);
+            $startTime = Carbon::parse($segment['start_time'])->format('H:i:s');
+            $endTime = Carbon::parse($segment['end_time'])->format('H:i:s');
+            if ($startTime >= $endTime) return 'An original segment has an invalid time range.';
+            if (!in_array($date->dayOfWeekIso, $workingDays, true) || in_array($date->format('Y-m-d'), $holidays, true)) {
+                return 'An original segment falls on a non-working day or holiday.';
+            }
+            if ($startTime < $workStart || $endTime > $workEnd) return 'An original segment falls outside configured working hours.';
+            if ($break['has_break'] && $startTime < $break['end']->format('H:i:s') && $endTime > $break['start']->format('H:i:s')) {
+                return 'An original segment overlaps the configured break.';
+            }
+            $minutes = (int) Carbon::parse($date->format('Y-m-d') . ' ' . $startTime)->diffInMinutes(Carbon::parse($date->format('Y-m-d') . ' ' . $endTime));
+            if ($minutes !== (int) $segment['allocated_minutes']) return 'An original segment duration does not match its stored interval.';
+        }
+        return null;
+    }
+
+    private function originalRestoreProblem(Task $task, array $segments, $setting, \App\Services\TaskSchedulingService $scheduler): ?string
+    {
+        if (!$segments) return 'No saved schedule segments were found for this task.';
+
+        $problem = $this->segmentsSchedulingProblem($segments, $setting);
+        if ($problem) return $problem;
+        if ($scheduler->hasInternalOverlap($segments)) return 'The saved segments overlap each other.';
+
+        $conflicts = [];
+        foreach ($segments as $segment) {
+            $occupants = DB::table('task_segments')
+                ->join('task', 'task.id', '=', 'task_segments.task_id')
+                ->where('task.user_id', $task->user_id)
+                ->whereNull('task.deleted_at')
+                ->whereDate('task_segments.segment_date', $segment['segment_date'])
+                ->where('task_segments.start_time', '<', $segment['end_time'])
+                ->where('task_segments.end_time', '>', $segment['start_time'])
+                ->select(['task.id', 'task.task_name', 'task_segments.segment_date', 'task_segments.start_time', 'task_segments.end_time'])
+                ->get();
+
+            foreach ($occupants as $occupant) {
+                $date = Carbon::parse($occupant->segment_date)->format('M j, Y');
+                $busyStart = Carbon::parse($occupant->start_time)->format('g:i A');
+                $busyEnd = Carbon::parse($occupant->end_time)->format('g:i A');
+                $taskName = trim((string) $occupant->task_name);
+                $label = $taskName !== '' ? " '{$taskName}'" : '';
+                $conflicts[] = "Task #{$occupant->id}{$label} is scheduled on {$date} from {$busyStart} to {$busyEnd}.";
+            }
+        }
+
+        if ($conflicts) {
+            return 'An active task already occupies part of this saved time: ' . implode(' ', array_values(array_unique($conflicts)));
+        }
+        return null;
+    }
+
+    private function restoreReflowCandidates(Task $restoreTask, array $originalSegments, array $excludedTaskIds = [])
+    {
+        $anchor = $this->taskScheduleAnchor($restoreTask);
+        return Task::with('segments')->where('user_id', $restoreTask->user_id)
+            ->whereNull('deleted_at')->whereNotIn('id', array_merge([$restoreTask->id], $excludedTaskIds))
+            ->orderBy('id')->lockForUpdate()->get()
+            ->filter(function ($candidate) use ($anchor, $originalSegments) {
+                if ($candidate->segments->isEmpty()) return false;
+                if ($this->taskScheduleAnchor($candidate)->gte($anchor)) return true;
+                foreach ($candidate->segments as $segment) {
+                    foreach ($originalSegments as $original) {
+                        if ($segment->segment_date->format('Y-m-d') === Carbon::parse($original['segment_date'])->format('Y-m-d')
+                            && $segment->start_time < $original['end_time'] && $segment->end_time > $original['start_time']) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            })
+            ->sortBy(fn ($candidate) => $this->taskScheduleAnchor($candidate)->format('Y-m-d H:i:s') . '|' . str_pad((string) $candidate->id, 12, '0', STR_PAD_LEFT))
+            ->values();
+    }
+
+    /** Reflow conflicting and later tasks while the restored task's original segments reserve their time. */
+    private function reflowForOriginalRestore(Task $restoreTask, array $originalSegments, $setting, array $excludedTaskIds = []): array
+    {
+        $tasks = $this->restoreReflowCandidates($restoreTask, $originalSegments, $excludedTaskIds);
+        if ($tasks->isEmpty()) return [];
+
+        $anchor = $this->taskScheduleAnchor($restoreTask);
+        $scheduler = new \App\Services\TaskSchedulingService();
+        $plans = [];
+        foreach ($tasks as $task) {
+            $duration = $this->taskDurationMinutes($task);
+            if ($duration <= 0) throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) has no valid stored duration.");
+            $plans[$task->id] = ['duration' => $duration, 'deadline' => $this->taskAllocationLimit($task, $anchor)];
+            $task->segments()->delete();
+        }
+
+        $moved = [];
+        foreach ($tasks as $task) {
+            $plan = $plans[$task->id];
+            $segments = $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $anchor);
+            if (!$segments) {
+                throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) cannot fit its full {$plan['duration']}-minute duration by {$plan['deadline']->format('M j, Y')}. No task schedules were changed.");
+            }
+            $summary = $scheduler->summarize($segments);
+            $task->fill([
+                'start_date' => $summary['start_date'], 'start_time' => $summary['start_time'],
+                'end_date' => $summary['end_date'], 'end_time' => $summary['end_time'],
+                'hour' => $summary['total_minutes'] / 60,
+            ])->save();
+            $scheduler->writeSegments($task, $segments);
+            $moved[] = ['id' => $task->id, 'task_name' => $task->task_name, 'segments' => $segments, 'total_allocated_minutes' => $plan['duration']];
+        }
+        return $moved;
+    }
+
+    /** Build a safe preview by applying the proposed reflow inside a transaction, then always rolling it back. */
+    private function previewOriginalRestoreReflow(int $taskId): array
+    {
+        $db = DB::connection();
+        $db->beginTransaction();
+        try {
+            $initial = Task::onlyTrashed()->whereKey($taskId)->first();
+            if (!$initial) return ['tasks' => null, 'message' => 'This deleted task is no longer available. Refresh the recycle bin.'];
+            DB::table('users')->where('id', $initial->user_id)->lockForUpdate()->first();
+            $task = Task::onlyTrashed()->with('segments')->whereKey($taskId)->lockForUpdate()->first();
+            if (!$task) return ['tasks' => null, 'message' => 'This deleted task is no longer available. Refresh the recycle bin.'];
+            $segments = $task?->segments->map(fn ($segment) => $segment->toArray())->all() ?? [];
+            $scheduler = new \App\Services\TaskSchedulingService();
+            $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->where('status', '1')->first();
+            $settingsProblem = $this->schedulingSettingsProblem($setting);
+            if ($settingsProblem) return ['tasks' => null, 'message' => $settingsProblem];
+            $segmentProblem = $this->segmentsSchedulingProblem($segments, $setting);
+            if ($segmentProblem) return ['tasks' => null, 'message' => "The saved times do not fit current working settings: {$segmentProblem}"];
+            if ($scheduler->hasInternalOverlap($segments)) return ['tasks' => null, 'message' => 'The saved segments overlap each other, so they cannot be restored as saved.'];
+            $liveProblem = $this->originalRestoreProblem($task, $segments, $setting, $scheduler);
+            if (!$liveProblem || !str_starts_with($liveProblem, 'An active task already occupies')) {
+                return ['tasks' => null, 'message' => 'The schedule changed while this preview was being prepared. Refresh the preview and try again.'];
+            }
+
+            $task->restore();
+            $moved = $this->reflowForOriginalRestore($task, $segments, $setting);
+            return ['tasks' => $moved, 'message' => null];
+        } catch (\Throwable $e) {
+            return ['tasks' => null, 'message' => $e->getMessage()];
+        } finally {
+            if ($db->transactionLevel() > 0) $db->rollBack();
+        }
+    }
+
+    private function getLaterScheduledTasks(int $userId, Carbon $anchor, array $excludedIds)
+    {
+        return Task::with('segments')->where('user_id', $userId)->whereNull('deleted_at')
+            ->whereNotIn('id', $excludedIds)->orderBy('id')->lockForUpdate()->get()
+            ->filter(fn ($task) => $task->segments->isNotEmpty() && $this->taskScheduleAnchor($task)->gt($anchor))
+            ->sortBy(fn ($task) => $this->taskScheduleAnchor($task)->format('Y-m-d H:i:s') . '|' . str_pad((string) $task->id, 12, '0', STR_PAD_LEFT))
+            ->values();
+    }
+
+    private function reflowTasks($tasks, Carbon $anchor, $setting): array
+    {
+        if ($tasks->isEmpty()) return [];
+        $scheduler = new \App\Services\TaskSchedulingService();
+        $plans = [];
+        foreach ($tasks as $task) {
+            $duration = $this->taskDurationMinutes($task);
+            if ($duration <= 0) {
+                throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) has no valid allocated duration.");
+            }
+            $plans[$task->id] = [
+                'duration' => $duration,
+                'deadline' => $this->taskAllocationLimit($task, $anchor),
+                'previous_segments' => $task->segments->map(fn ($segment) => $segment->toArray())->all(),
+            ];
+            $task->segments()->delete();
+        }
+
+        $moved = [];
+        foreach ($tasks as $task) {
+            $plan = $plans[$task->id];
+            $segments = $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $anchor);
+            if (!$segments) {
+                $limit = $task->end_date ? " by its end-date limit ({$task->end_date})" : ' within the available working periods';
+                throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) could not fit {$plan['duration']} minutes{$limit}.");
+            }
+            $summary = $scheduler->summarize($segments);
+            $task->fill([
+                'start_date' => $summary['start_date'], 'start_time' => $summary['start_time'],
+                'end_date' => $summary['end_date'], 'end_time' => $summary['end_time'],
+                'hour' => $summary['total_minutes'] / 60,
+            ])->save();
+            $scheduler->writeSegments($task, $segments);
+            $moved[] = [
+                'id' => $task->id,
+                'task_name' => $task->task_name,
+                'previous_segments' => $plan['previous_segments'],
+                'segments' => $segments,
+                'total_allocated_minutes' => $plan['duration'],
+            ];
+        }
+        return $moved;
     }
 
     public function getDeletedData(Request $request) {
@@ -1056,92 +1299,301 @@ class TaskController extends Controller
         ]);
     }
 
-    public function restoreData($id)
+    public function previewRestore(Request $request, $id)
     {
-        return DB::transaction(function () use ($id) {
-            $initial = Task::onlyTrashed()->whereKey($id)->first();
-            if (!$initial) {
-                return response()->json(['success' => false, 'message' => 'Deleted task not found.'], 404);
+        $task = Task::onlyTrashed()->with('segments')->whereKey($id)->first();
+        if (!$task) return response()->json(['success' => false, 'message' => 'Deleted task not found.'], 404);
+
+        $scheduler = new \App\Services\TaskSchedulingService();
+        $original = $task->segments->map(fn ($segment) => $segment->toArray())->all();
+        $duration = $this->taskDurationMinutes($task);
+        $anchor = $this->taskScheduleAnchor($task);
+        $originalSetting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->first();
+        $originalProblem = $this->originalRestoreProblem($task, $original, $originalSetting, $scheduler);
+        $originalAvailable = $originalProblem === null;
+        $restoreWithReflow = ['tasks' => null, 'message' => 'The original time is not blocked by an active task.'];
+        if ($originalProblem && str_starts_with($originalProblem, 'An active task already occupies')) {
+            $restoreWithReflow = $this->previewOriginalRestoreReflow((int) $task->id);
+        }
+        $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->where('status', '1')->first();
+        $settingProblem = $this->schedulingSettingsProblem($setting);
+        $proposed = null;
+        $extendedProposed = null;
+        $rescheduleMessage = $settingProblem;
+        if ($duration <= 0) {
+            $rescheduleMessage = 'This task has no valid stored duration.';
+        } elseif (!$settingProblem) {
+            $proposed = $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $this->taskAllocationLimit($task, $anchor), $duration, $setting, (int) $task->id, $anchor);
+            if ($proposed) $rescheduleMessage = null;
+            else $rescheduleMessage = 'The full task duration cannot fit before its end-date limit.';
+            if (!$proposed && $task->end_date) {
+                $extendedProposed = $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $anchor->copy()->addYears(10)->startOfDay(), $duration, $setting, (int) $task->id, $anchor);
             }
-            DB::table('users')->where('id', $initial->user_id)->lockForUpdate()->first();
-            $task = Task::onlyTrashed()->with('segments')->whereKey($id)->lockForUpdate()->first();
-            if (!$task || (int) $task->user_id !== (int) $initial->user_id) {
-                return response()->json(['success' => false, 'message' => 'Task changed while restore was starting. Please retry.'], 409);
-            }
-            $segments = $task->segments->map(fn ($segment) => $segment->toArray())->all();
-            if ((new \App\Services\TaskSchedulingService())->hasOverlap((int) $task->user_id, $segments)) {
-                return response()->json(['success' => false, 'message' => 'The task cannot be restored because one or more scheduled segments are now occupied.'], 422);
-            }
-            $task->restore();
-            return response()->json(['success' => true, 'message' => 'Task restored successfully.']);
-        });
+        }
+
+        return response()->json([
+            'success' => true,
+            'task' => ['id' => $task->id, 'task_name' => $task->task_name, 'start_date' => $task->start_date, 'end_date' => $task->end_date],
+            'duration_minutes' => $duration,
+            'original_segments' => $original,
+            'can_restore_original' => $originalAvailable,
+            'original_conflict' => $originalProblem,
+            'can_restore_original_by_moving_tasks' => $restoreWithReflow['tasks'] !== null,
+            'original_reflow_tasks' => $restoreWithReflow['tasks'],
+            'original_reflow_message' => $restoreWithReflow['message'],
+            'rescheduled_segments' => $proposed,
+            'reschedule_message' => $rescheduleMessage,
+            'extended_rescheduled_segments' => $extendedProposed,
+            'extended_end_date' => $extendedProposed ? $scheduler->summarize($extendedProposed)['end_date'] : null,
+        ]);
+    }
+
+    public function restoreData(Request $request, $id)
+    {
+        try {
+            return DB::transaction(function () use ($request, $id) {
+                $initial = Task::onlyTrashed()->whereKey($id)->first();
+                if (!$initial) return response()->json(['success' => false, 'message' => 'Deleted task not found.'], 404);
+                DB::table('users')->where('id', $initial->user_id)->lockForUpdate()->first();
+                $task = Task::onlyTrashed()->with('segments')->whereKey($id)->lockForUpdate()->first();
+                if (!$task || (int) $task->user_id !== (int) $initial->user_id) {
+                    return response()->json(['success' => false, 'message' => 'Task changed while restore was starting. Please retry.'], 409);
+                }
+
+                $mode = $request->input('mode', 'original');
+                if (!in_array($mode, ['original', 'original_reflow', 'reschedule', 'reschedule_extend'], true)) {
+                    return response()->json(['success' => false, 'message' => 'Choose a valid restore option.'], 422);
+                }
+                $scheduler = new \App\Services\TaskSchedulingService();
+                $segments = $task->segments->map(fn ($segment) => $segment->toArray())->all();
+                if ($mode === 'original') {
+                    $originalSetting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->first();
+                    $problem = $this->originalRestoreProblem($task, $segments, $originalSetting, $scheduler);
+                    if ($problem) {
+                        return response()->json(['success' => false, 'message' => "Cannot restore to the saved times. {$problem} No changes were made. Review the preview and choose Restore & Reschedule if you want to use the proposed times."], 422);
+                    }
+                    $task->restore();
+                    return response()->json(['success' => true, 'message' => 'Task restored to its original schedule.', 'segments' => $segments]);
+                }
+
+                if ($mode === 'original_reflow') {
+                    $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->where('status', '1')->first();
+                    $settingProblem = $this->schedulingSettingsProblem($setting);
+                    if ($settingProblem) return response()->json(['success' => false, 'message' => "Cannot move the blocking tasks: {$settingProblem} The deleted task remains in the recycle bin."], 422);
+                    $problem = $this->segmentsSchedulingProblem($segments, $setting);
+                    if ($problem) return response()->json(['success' => false, 'message' => "The saved times do not fit current working settings: {$problem} The deleted task remains in the recycle bin."], 422);
+                    if (!$segments || $scheduler->hasInternalOverlap($segments)) return response()->json(['success' => false, 'message' => 'The saved segments are missing or overlap each other. The deleted task remains in the recycle bin.'], 422);
+
+                    $liveProblem = $this->originalRestoreProblem($task, $segments, $setting, $scheduler);
+                    if (!$liveProblem) {
+                        $task->restore();
+                        return response()->json(['success' => true, 'message' => 'The original time became available. Task restored without moving any other tasks.', 'segments' => $segments, 'rescheduled_tasks' => []]);
+                    }
+                    if (!str_starts_with($liveProblem, 'An active task already occupies')) {
+                        return response()->json(['success' => false, 'message' => "The saved times cannot currently be restored. {$liveProblem} No changes were made."], 422);
+                    }
+
+                    $task->restore();
+                    $moved = $this->reflowForOriginalRestore($task, $segments, $setting);
+                    return response()->json([
+                        'success' => true,
+                        'message' => $moved
+                            ? 'Task restored to its original times. The overlapping and later tasks were moved to available times.'
+                            : 'Task restored to its original times. No other tasks needed to move.',
+                        'segments' => $segments,
+                        'rescheduled_tasks' => $moved,
+                    ]);
+                }
+
+                $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->where('status', '1')->first();
+                $problem = $this->schedulingSettingsProblem($setting);
+                if ($problem) return response()->json(['success' => false, 'message' => $problem . ' The task remains in the recycle bin.'], 422);
+                $duration = $this->taskDurationMinutes($task);
+                if ($duration <= 0) return response()->json(['success' => false, 'message' => 'This task has no valid stored duration and remains in the recycle bin.'], 422);
+                if ($mode === 'reschedule_extend' && !$task->end_date) {
+                    return response()->json(['success' => false, 'message' => 'This task has no end-date limit to extend. It remains in the recycle bin.'], 422);
+                }
+                $anchor = $this->taskScheduleAnchor($task);
+                $allocationLimit = $mode === 'reschedule_extend'
+                    ? $anchor->copy()->addYears(10)->startOfDay()
+                    : $this->taskAllocationLimit($task, $anchor);
+                $newSegments = $this->validateRestorePlan(
+                    $request->input('segments'), (int) $task->user_id, (int) $task->id,
+                    $duration, $anchor, $allocationLimit, $setting, $scheduler
+                ) ?? $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $allocationLimit, $duration, $setting, (int) $task->id, $anchor);
+                if (!$newSegments) return response()->json(['success' => false, 'message' => "The full {$duration}-minute task cannot fit within available working time. It remains in the recycle bin."], 422);
+
+                $summary = $scheduler->summarize($newSegments);
+                $task->segments()->delete();
+                $task->fill([
+                    'start_date' => $summary['start_date'], 'start_time' => $summary['start_time'],
+                    'end_date' => $summary['end_date'], 'end_time' => $summary['end_time'],
+                    'hour' => $summary['total_minutes'] / 60,
+                ])->save();
+                $task->restore();
+                $scheduler->writeSegments($task, $newSegments);
+                return response()->json([
+                    'success' => true,
+                    'message' => $mode === 'reschedule_extend'
+                        ? "Task restored at available times. Its end date was extended to {$summary['end_date']}."
+                        : 'Task restored and rescheduled.',
+                    'segments' => $newSegments,
+                    'end_date' => $summary['end_date'],
+                ]);
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Restore was rolled back. ' . $e->getMessage()], 422);
+        }
     }
 
     public function restoreMultiData(Request $request)
     {
-        $ids = is_string($request->id) ? explode(',', $request->id) : (array) $request->id;
-        $ids = array_values(array_filter(array_map('intval', $ids)));
+        $ids = $this->normalizeTaskIds($request->input('id'));
         if (!$ids) {
             return response()->json(['success' => false, 'message' => 'No tasks selected.'], 400);
         }
 
-        return DB::transaction(function () use ($ids) {
-            $userIds = Task::onlyTrashed()->whereIn('id', $ids)->pluck('user_id')->unique()->sort();
-            foreach ($userIds as $userId) {
-                DB::table('users')->where('id', $userId)->lockForUpdate()->first();
-            }
-            $tasks = Task::onlyTrashed()->with('segments')->whereIn('id', $ids)->orderBy('user_id')->orderBy('id')->lockForUpdate()->get();
-
-            $scheduler = new \App\Services\TaskSchedulingService();
-            $selectedSegments = [];
-            foreach ($tasks as $task) {
-                $segments = $task->segments->map(fn ($segment) => $segment->toArray())->all();
-                if ($scheduler->hasOverlap((int) $task->user_id, $segments)) {
-                    return response()->json(['success' => false, 'message' => "Task {$task->id} conflicts with an active scheduled segment and cannot be restored."], 422);
+        try {
+            return DB::transaction(function () use ($ids, $request) {
+                $userIds = Task::onlyTrashed()->whereIn('id', $ids)->pluck('user_id')->unique()->sort();
+                foreach ($userIds as $userId) DB::table('users')->where('id', $userId)->lockForUpdate()->first();
+                $tasks = Task::onlyTrashed()->with('segments')->whereIn('id', $ids)->orderBy('user_id')->orderBy('id')->lockForUpdate()->get();
+                if ($tasks->count() !== count($ids)) {
+                    return response()->json(['success' => false, 'message' => 'One or more selected deleted tasks could not be found.'], 409);
                 }
-                foreach ($segments as $segment) {
-                    $key = $task->user_id . '|' . $segment['segment_date'];
-                    foreach ($selectedSegments[$key] ?? [] as $other) {
-                        if ($segment['start_time'] < $other['end_time'] && $segment['end_time'] > $other['start_time']) {
-                            return response()->json(['success' => false, 'message' => 'Selected tasks contain overlapping segments and cannot be restored together.'], 422);
+
+                $modes = $request->input('modes', []);
+                $defaultMode = $request->input('mode', 'original');
+                $validModes = ['original', 'original_reflow', 'reschedule', 'reschedule_extend'];
+                if (!is_array($modes) || !in_array($defaultMode, $validModes, true)) {
+                    return response()->json(['success' => false, 'message' => 'Choose original or reschedule restore mode.'], 422);
+                }
+                $scheduler = new \App\Services\TaskSchedulingService();
+                $selectedSegments = [];
+                $restoreModes = [];
+                foreach ($tasks as $task) {
+                    $mode = $modes[(string) $task->id] ?? $defaultMode;
+                    if (!in_array($mode, $validModes, true)) {
+                        return response()->json(['success' => false, 'message' => "Invalid restore choice for task {$task->id}."], 422);
+                    }
+                    if ($mode === 'reschedule_extend' && !$task->end_date) {
+                        return response()->json(['success' => false, 'message' => "Task #{$task->id} has no end-date limit to extend."], 422);
+                    }
+                    $restoreModes[$task->id] = $mode;
+                    if ($mode === 'original' || $mode === 'original_reflow') {
+                        $segments = $task->segments->map(fn ($segment) => $segment->toArray())->all();
+                        $originalSetting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->first();
+                        $problem = $mode === 'original'
+                            ? $this->originalRestoreProblem($task, $segments, $originalSetting, $scheduler)
+                            : ($this->segmentsSchedulingProblem($segments, $originalSetting) ?: (!$segments ? 'No saved schedule segments were found.' : ($scheduler->hasInternalOverlap($segments) ? 'The saved segments overlap each other.' : null)));
+                        if ($problem) {
+                            return response()->json(['success' => false, 'message' => "Task #{$task->id} cannot be restored to its saved times. {$problem} No tasks were restored."], 422);
+                        }
+                        foreach ($segments as $segment) {
+                            $key = $task->user_id . '|' . $segment['segment_date'];
+                            foreach ($selectedSegments[$key] ?? [] as $other) {
+                                if ($segment['start_time'] < $other['end_time'] && $segment['end_time'] > $other['start_time']) {
+                                    return response()->json(['success' => false, 'message' => 'Selected tasks contain overlapping segments and cannot be restored together.'], 422);
+                                }
+                            }
+                            $selectedSegments[$key][] = $segment;
                         }
                     }
-                    $selectedSegments[$key][] = $segment;
                 }
-            }
 
-            foreach ($tasks as $task) {
-                $task->restore();
-            }
-            return response()->json(['success' => true, 'message' => 'Tasks restored successfully.']);
-        });
+                $restored = [];
+                foreach ($tasks->groupBy('user_id') as $userId => $userTasks) {
+                    $userTasks = $userTasks->sortBy(fn ($task) => $this->taskScheduleAnchor($task)->format('Y-m-d H:i:s') . '|' . str_pad((string) $task->id, 12, '0', STR_PAD_LEFT))->values();
+                    foreach ($userTasks as $task) {
+                        if ($restoreModes[$task->id] === 'original') {
+                            $task->restore();
+                            $restored[] = ['id' => $task->id, 'mode' => 'original', 'segments' => $task->segments->map(fn ($segment) => $segment->toArray())->all()];
+                            continue;
+                        }
+                        if ($restoreModes[$task->id] === 'original_reflow') {
+                            $setting = SlotSetting::with('holidays')->where('user_id', $userId)->where('status', '1')->first();
+                            $problem = $this->schedulingSettingsProblem($setting);
+                            if ($problem) throw new \RuntimeException("Task #{$task->id}: {$problem}");
+                            $segments = $task->segments->map(fn ($segment) => $segment->toArray())->all();
+                            $problem = $this->segmentsSchedulingProblem($segments, $setting);
+                            if ($problem) throw new \RuntimeException("Task #{$task->id} saved times no longer fit current settings: {$problem}");
+                            if (!$segments || $scheduler->hasInternalOverlap($segments)) throw new \RuntimeException("Task #{$task->id} has missing or overlapping saved segments.");
+                            $liveProblem = $this->originalRestoreProblem($task, $segments, $setting, $scheduler);
+                            if (!$liveProblem) {
+                                $task->restore();
+                                $restored[] = ['id' => $task->id, 'mode' => 'original', 'segments' => $segments, 'rescheduled_tasks' => []];
+                                continue;
+                            }
+                            if (!str_starts_with($liveProblem, 'An active task already occupies')) {
+                                throw new \RuntimeException("Task #{$task->id} cannot be restored: {$liveProblem}");
+                            }
+                            $task->restore();
+                            $moved = $this->reflowForOriginalRestore($task, $segments, $setting, $ids);
+                            $restored[] = ['id' => $task->id, 'mode' => 'original_reflow', 'segments' => $segments, 'rescheduled_tasks' => $moved];
+                            continue;
+                        }
+                        $setting = SlotSetting::with('holidays')->where('user_id', $userId)->where('status', '1')->first();
+                        $problem = $this->schedulingSettingsProblem($setting);
+                        if ($problem) throw new \RuntimeException($problem . ' Selected tasks remain in the recycle bin.');
+                        $duration = $this->taskDurationMinutes($task);
+                        $anchor = $this->taskScheduleAnchor($task);
+                        $allocationLimit = $restoreModes[$task->id] === 'reschedule_extend'
+                            ? $anchor->copy()->addYears(10)->startOfDay()
+                            : $this->taskAllocationLimit($task, $anchor);
+                        $segments = $duration > 0
+                            ? $scheduler->allocate((int) $userId, $anchor->copy()->startOfDay(), $allocationLimit, $duration, $setting, (int) $task->id, $anchor)
+                            : null;
+                        if (!$segments) throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) could not fit its full duration within its end-date limit.");
+                        $summary = $scheduler->summarize($segments);
+                        $task->segments()->delete();
+                        $task->fill([
+                            'start_date' => $summary['start_date'], 'start_time' => $summary['start_time'],
+                            'end_date' => $summary['end_date'], 'end_time' => $summary['end_time'],
+                            'hour' => $summary['total_minutes'] / 60,
+                        ])->save();
+                        $task->restore();
+                        $scheduler->writeSegments($task, $segments);
+                        $restored[] = ['id' => $task->id, 'mode' => $restoreModes[$task->id], 'segments' => $segments, 'total_allocated_minutes' => $duration, 'end_date' => $summary['end_date']];
+                    }
+                }
+                return response()->json(['success' => true, 'message' => 'Selected tasks restored successfully.', 'restored' => $restored]);
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Bulk restore was rolled back. ' . $e->getMessage()], 422);
+        }
     }
 
     public function taskDeletePermanant($id) {
-        $task = Task::onlyTrashed()->find($id);
-
-        $task->forceDelete();
-
-        return response()->json([
-            'success' => 'true',
-            'message' => 'Task has been Deleted Permanantly!'
-        ]);
+        try {
+            return DB::transaction(function () use ($id) {
+                $initial = Task::onlyTrashed()->whereKey($id)->first();
+                if (!$initial) return response()->json(['success' => false, 'message' => 'Deleted task not found.'], 404);
+                DB::table('users')->where('id', $initial->user_id)->lockForUpdate()->first();
+                $task = Task::onlyTrashed()->whereKey($id)->lockForUpdate()->first();
+                if (!$task) return response()->json(['success' => false, 'message' => 'Deleted task not found.'], 404);
+                $task->forceDelete(); // task_segments are removed by the FK cascade.
+                return response()->json(['success' => true, 'message' => 'Task and its scheduled segments were permanently deleted.']);
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Permanent deletion failed. ' . $e->getMessage()], 422);
+        }
     }
 
     public function taskMultiDeletePermanant(Request $request) {
-        $ids = $request->id;
-
-        if (is_string($ids)) {
-            $idsArray = explode(',',  $ids);
-        } else{
-            $idsArray = $ids;
+        $ids = $this->normalizeTaskIds($request->input('id'));
+        if (!$ids) return response()->json(['success' => false, 'message' => 'Select at least one deleted task.'], 400);
+        try {
+            return DB::transaction(function () use ($ids) {
+                $userIds = Task::onlyTrashed()->whereIn('id', $ids)->pluck('user_id')->unique()->sort();
+                foreach ($userIds as $userId) DB::table('users')->where('id', $userId)->lockForUpdate()->first();
+                $tasks = Task::onlyTrashed()->whereIn('id', $ids)->orderBy('user_id')->orderBy('id')->lockForUpdate()->get();
+                if ($tasks->count() !== count($ids)) return response()->json(['success' => false, 'message' => 'One or more selected deleted tasks could not be found.'], 409);
+                foreach ($tasks as $task) $task->forceDelete();
+                return response()->json(['success' => true, 'message' => 'Selected tasks and their scheduled segments were permanently deleted.']);
+            });
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Permanent deletion was rolled back. ' . $e->getMessage()], 422);
         }
-        
-        $task = Task::whereIn('id', $idsArray)->forceDelete();
-        return response()->json([
-            'success' => 'true',
-            'message' => 'Task has been Deleted Permanantly!'
-        ]);
     }
 
     //slot setting 

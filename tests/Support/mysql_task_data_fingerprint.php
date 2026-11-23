@@ -8,6 +8,24 @@ $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use Illuminate\Support\Facades\DB;
 
+if (($argv[1] ?? null) === '--targets') {
+    $targets = DB::select("SELECT SCHEMA_NAME AS database_name FROM INFORMATION_SCHEMA.SCHEMATA WHERE LOWER(SCHEMA_NAME) LIKE '%taskorbit%' ORDER BY SCHEMA_NAME");
+    echo json_encode(['current_database' => DB::connection()->getDatabaseName(), 'taskorbit_databases' => $targets]) . PHP_EOL;
+    exit(0);
+}
+if (($argv[1] ?? null) === '--ids') {
+    $rows = DB::table('task')->orderBy('id')->get(['id', 'user_id', 'created_at', 'deleted_at']);
+    $records = $rows->map(fn ($task) => [
+        'id' => $task->id,
+        'user_id' => $task->user_id,
+        'created_at' => $task->created_at,
+        'deleted_at' => $task->deleted_at,
+        'segment_count' => DB::table('task_segments')->where('task_id', $task->id)->count(),
+    ]);
+    echo json_encode(['database' => DB::connection()->getDatabaseName(), 'tasks' => $records]) . PHP_EOL;
+    exit(0);
+}
+
 $rows = DB::table('task')->orderBy('id')->get([
     'id', 'user_id', 'task_name', 'hour', 'start_date', 'end_date', 'start_time', 'end_time',
     'description', 'priority', 'status', 'deleted_at', 'created_at', 'updated_at',

@@ -54,6 +54,18 @@ const RecycleBin = (props: any) => {
         verifyAuth();
     }, [props]);
 
+    const formatTime = (time: string) => {
+        if (!time) return '';
+        const [hours, minutes] = time.split(':');
+        const hour = Number(hours);
+        return `${hour % 12 || 12}:${minutes} ${hour >= 12 ? 'PM' : 'AM'}`;
+    };
+    const formatDuration = (minutes: number) => {
+        const hours = Math.floor((minutes || 0) / 60);
+        const remainder = (minutes || 0) % 60;
+        return `${hours ? `${hours}h` : ''}${remainder ? ` ${remainder}m` : ''}`.trim() || '0m';
+    };
+
     useEffect(() => {
         setInitialRecords(taskData);
     }, [taskData]);
@@ -359,16 +371,32 @@ const RecycleBin = (props: any) => {
                                 title: t('Hour'),
                                 titleClassName: 'uppercase',
                                 sortable: false,
-                                render: ({ hour }: any) => {
-                                    if (hour) {
+                                render: ({ hour, total_allocated_minutes }: any) => {
+                                    if (total_allocated_minutes != null || hour) {
                                         return (
                                             <div className="font-semibold bg-green-200 border border-green-300 text-green-900 rounded-full px-3 py-1.5 w-[fit-content]">
-                                                {hour + 'h'}
+                                                {formatDuration(total_allocated_minutes != null ? Number(total_allocated_minutes) : Math.round(Number(hour) * 60))}
                                             </div>
                                         );
                                     }
                                     return <span className="text-gray-400">- - -</span>;
                                 },
+                            },
+                            {
+                                accessor: 'segments',
+                                title: 'Scheduled segments',
+                                titleClassName: 'uppercase',
+                                sortable: false,
+                                render: ({ segments }: any) => (
+                                    <div className="space-y-1 whitespace-normal">
+                                        {(segments || []).map((segment: any, index: number) => (
+                                            <div key={segment.id || index} className="text-xs">
+                                                {segment.segment_date} {formatTime(segment.start_time)}–{formatTime(segment.end_time)} ({formatDuration(Number(segment.allocated_minutes))})
+                                            </div>
+                                        ))}
+                                        {(!segments || segments.length === 0) && <span className="text-gray-400">- - -</span>}
+                                    </div>
+                                ),
                             },
                             {
                                 accessor: 'Start date',

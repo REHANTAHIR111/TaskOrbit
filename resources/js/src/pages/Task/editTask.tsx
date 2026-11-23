@@ -25,6 +25,8 @@ const EditTask = (props: any) => {
     const [endTime, setEndTime] = useState<any>('');
     const [priority, setPriority] = useState<any>(null); // Changed to null for single select
     const [status, setStatus] = useState<any>(false);
+    const [segments, setSegments] = useState<any[]>([]);
+    const [autoSchedule, setAutoSchedule] = useState(false);
     const [priorityOptions, setPriorityOptions] = useState<any>([
         { value: 'low', label: 'Low' },
         { value: 'medium', label: 'Medium' },
@@ -62,7 +64,10 @@ const EditTask = (props: any) => {
             setEndDate(edit?.end_date)
             setStartTime(edit?.start_time)
             setEndTime(edit?.end_time)
-            setHours(edit?.hour)
+            setSegments(responseJson?.segments || edit?.segments || []);
+            setAutoSchedule(Boolean(responseJson?.auto_schedule_available));
+            const allocatedMinutes = Number(responseJson?.total_allocated_minutes || 0);
+            setHours(allocatedMinutes ? String(allocatedMinutes / 60) : edit?.hour)
 
             if (edit?.priority) {
             const existingPriority = priorityOptions.find(
@@ -91,9 +96,12 @@ const EditTask = (props: any) => {
             hour: hours,
             start_date: startDate,
             end_date: endDate,
-            start_time: startTime,
-            end_time: endTime,
+            auto_schedule: autoSchedule,
         };
+        if (!autoSchedule) {
+            sendData.start_time = startTime;
+            sendData.end_time = endTime;
+        }
 
         if (!name) {
             coloredToast('danger', 'Please fill ' + (!name ? 'Name ' : '') + '!');
@@ -107,7 +115,7 @@ const EditTask = (props: any) => {
         }
 
         post('task/' + id + '/update', sendData).then((responseJson: any) => {
-            if (responseJson.success == 'true') {
+            if (responseJson.success == 'true' || responseJson.success === true) {
                 navigate('/tasklist');
                 coloredToast('success', responseJson?.message);
             } else {
@@ -182,6 +190,7 @@ const EditTask = (props: any) => {
                                     type="time"
                                     name="startTime"
                                     value={startTime}
+                                    disabled={autoSchedule}
                                     onChange={(e: any) => { setStartTime(e.target.value); }}
                                     className="form-input"
                                     placeholder='Enter Start Time'
@@ -194,6 +203,7 @@ const EditTask = (props: any) => {
                                     type="time"
                                     name="endTime"
                                     value={endTime}
+                                    disabled={autoSchedule}
                                     onChange={(e: any) => { setEndTime(e.target.value); }}
                                     className="form-input"
                                     placeholder='Enter End Time'
@@ -211,6 +221,18 @@ const EditTask = (props: any) => {
                                 className="form-input min-h-[100px]"
                                 placeholder='Enter task description'
                             />
+                        </div>
+                        <div className="panel mt-4">
+                            <h3 className="mb-2 font-semibold">Scheduled segments ({segments.reduce((sum, segment) => sum + Number(segment.allocated_minutes || 0), 0)} minutes)</h3>
+                            {segments.length ? (
+                                <ol className="space-y-2">
+                                    {segments.map((segment, index) => (
+                                        <li key={segment.id || `${segment.segment_date}-${index}`} className="rounded border p-3">
+                                            <strong>{segment.segment_date}</strong>: {segment.start_time?.slice(0, 5)}–{segment.end_time?.slice(0, 5)} ({segment.allocated_minutes} min)
+                                        </li>
+                                    ))}
+                                </ol>
+                            ) : <p className="text-sm text-slate-500">Save to calculate the updated segments.</p>}
                         </div>
                     </div>
                 </div>
@@ -249,6 +271,13 @@ const EditTask = (props: any) => {
                                 <span className="bg-[#ebedf2] dark:bg-black-light block h-full rounded-full before:absolute before:left-1 before:bg-[#060606] dark:before:bg-white-dark dark:peer-checked:before:bg-white before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-[#377fbe] before:transition-all before:duration-300"></span>
                             </label>
                             <label htmlFor="status" className=''>Enable this Task</label>
+                        </div>
+                        <div className="flex gap-3 mt-4 items-center">
+                            <label className="w-12 h-6 relative">
+                                <input type="checkbox" className="custom_switch absolute w-full h-full opacity-0 z-10 cursor-pointer peer" checked={autoSchedule} onChange={(e) => setAutoSchedule(e.target.checked)} />
+                                <span className="bg-[#ebedf2] dark:bg-black-light block h-full rounded-full before:absolute before:left-1 before:bg-[#060606] dark:before:bg-white-dark dark:peer-checked:before:bg-white before:bottom-1 before:w-4 before:h-4 before:rounded-full peer-checked:before:left-7 peer-checked:bg-[#377fbe] before:transition-all before:duration-300"></span>
+                            </label>
+                            <label>Automatically reschedule within the selected date range</label>
                         </div>
                         {/* Priority Field - Creatable */}
                         <div className="w-full flex items-center gap-3 mt-3">

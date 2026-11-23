@@ -86,6 +86,12 @@ const TaskListing = (props: any) => {
         return `${String(displayHour).padStart(2, '0')}:${minutes} ${period}`;
     };
 
+    const formatDuration = (minutes: number) => {
+        const hours = Math.floor((minutes || 0) / 60);
+        const remainder = (minutes || 0) % 60;
+        return `${hours ? `${hours}h` : ''}${remainder ? ` ${remainder}m` : ''}`.trim() || '0m';
+    };
+
     useEffect(() => {
         const from = (page - 1) * pageSize;
         const to = from + pageSize;
@@ -279,8 +285,8 @@ const TaskListing = (props: any) => {
                                     title: t('Hour'),
                                     sortable: false,
                                     width: 100,
-                                    render: ({ hour }: any) => (
-                                        hour ? (
+                                    render: ({ hour, total_allocated_minutes }: any) => (
+                                        total_allocated_minutes != null || hour ? (
                                             <span className="
                                                 inline-flex items-center
                                                 rounded-md
@@ -290,7 +296,7 @@ const TaskListing = (props: any) => {
                                                 text-xs font-medium
                                                 text-slate-300
                                             ">
-                                                {hour}h
+                                                {formatDuration(total_allocated_minutes != null ? total_allocated_minutes : Math.round(Number(hour) * 60))}
                                             </span>
                                         ) : (
                                             <span className="text-slate-500">—</span>
@@ -339,6 +345,25 @@ const TaskListing = (props: any) => {
                                         <span className="text-sm text-slate-300">
                                             {formatTime(end_time) || '—'}
                                         </span>
+                                    ),
+                                },
+
+                                {
+                                    accessor: 'segments',
+                                    title: 'Scheduled segments',
+                                    sortable: false,
+                                    width: 300,
+                                    render: ({ segments }: any) => (
+                                        <div className="space-y-1 whitespace-normal">
+                                            {(segments || []).map((segment: any, index: number) => (
+                                                <div key={segment.id || index} className="text-xs text-slate-300">
+                                                    <span className="text-slate-400">{segment.segment_date}</span>{' '}
+                                                    {formatTime(segment.start_time)}–{formatTime(segment.end_time)}{' '}
+                                                    <span className="text-slate-500">({formatDuration(Number(segment.allocated_minutes))})</span>
+                                                </div>
+                                            ))}
+                                            {(!segments || segments.length === 0) && <span className="text-slate-500">—</span>}
+                                        </div>
                                     ),
                                 },
 

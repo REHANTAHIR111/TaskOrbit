@@ -13,4 +13,9 @@ class Task extends Model
     protected $guarded = [];
 
     protected $dates = ['deleted_at'];
+
+    public function segments()
+    {
+        return $this->hasMany(TaskSegment::class, 'task_id')->orderBy('segment_date')->orderBy('sequence');
+    }
 }

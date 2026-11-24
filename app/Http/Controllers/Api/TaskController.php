@@ -1102,14 +1102,30 @@ class TaskController extends Controller
         $updatedTask = $this->saveTaskAndSegments($request, $segments, (int) $task->id);
         $moved = [];
         if ($laterTasks->isNotEmpty()) {
-            $summary = $scheduler->summarize($segments);
-            $reflowAnchor = $mode === 'forward' || $mode === 'manual'
-                ? Carbon::parse($summary['end_date'] . ' ' . $summary['end_time'])
-                : Carbon::parse($summary['start_date'] . ' ' . $summary['start_time']);
-            $needsBackwardAllocation = $mode === 'backfill' && $duration > array_sum(array_column($oldSegments, 'allocated_minutes'));
-            $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation);
-            foreach ($moved as &$item) $item['previous_segments'] = $previousTaskSegments[$item['id']] ?? [];
-            unset($item);
+            if ($mode === 'manual' && $isPreview && !$manualStarts) {
+                // The first manual preview is a placement editor, not an automatic
+                // reflow attempt. Return current task times so the user can choose
+                // dates/times even when the default automatic placement cannot fit.
+                foreach ($laterTasks as $laterTask) {
+                    $originalTaskSegments = $previousTaskSegments[$laterTask->id] ?? [];
+                    $moved[] = [
+                        'id' => (int) $laterTask->id,
+                        'task_name' => $laterTask->task_name,
+                        'previous_segments' => $originalTaskSegments,
+                        'segments' => $originalTaskSegments,
+                        'total_allocated_minutes' => array_sum(array_column($originalTaskSegments, 'allocated_minutes')),
+                    ];
+                }
+            } else {
+                $summary = $scheduler->summarize($segments);
+                $reflowAnchor = $mode === 'forward' || $mode === 'manual'
+                    ? Carbon::parse($summary['end_date'] . ' ' . $summary['end_time'])
+                    : Carbon::parse($summary['start_date'] . ' ' . $summary['start_time']);
+                $needsBackwardAllocation = $mode === 'backfill' && $duration > array_sum(array_column($oldSegments, 'allocated_minutes'));
+                $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation);
+                foreach ($moved as &$item) $item['previous_segments'] = $previousTaskSegments[$item['id']] ?? [];
+                unset($item);
+            }
         }
 
         return [

@@ -401,6 +401,41 @@ try {
     );
     echo "PASS 24: backward allocation never schedules before the current instant\n";
 
+    // 25. Backward reflow must not move an affected task before its original start date.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $dateBoundBlocker = $createTask($user, 'Date-bound blocker', 120, [
+        $seg('2030-02-13', '09:00:00', '11:00:00', 120),
+    ], '2030-02-13');
+    $dateBoundTarget = $createTask($user, 'Date-bound edit target', 120, [
+        $seg('2030-02-13', '11:00:00', '13:00:00', 120),
+    ], '2030-02-13');
+    $dateBoundLater = $createTask($user, 'Cannot move before start date', 120, [
+        $seg('2030-02-13', '13:00:00', '15:00:00', 120),
+    ], '2030-02-13');
+    $dateBoundTargetBefore = $segmentSnapshot($dateBoundTarget->id);
+    $dateBoundLaterBefore = $segmentSnapshot($dateBoundLater->id);
+    $dateBoundEdit = [
+        'task_name' => $dateBoundTarget->task_name, 'hour' => 4,
+        'start_date' => '2030-02-13', 'end_date' => '2030-02-13', 'start_time' => '11:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'backfill',
+    ];
+    $dateBoundPreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $dateBoundTarget->id . '/schedule-preview', 'POST', $dateBoundEdit),
+        $dateBoundTarget->id
+    ));
+    $dateBoundSave = $responseData($controller->update(
+        Request::create('/api/task/' . $dateBoundTarget->id . '/update', 'POST', $dateBoundEdit),
+        $dateBoundTarget->id
+    ));
+    $assert(
+        !$dateBoundPreview['success'] && !$dateBoundSave['success'] &&
+        $segmentSnapshot($dateBoundTarget->id) == $dateBoundTargetBefore &&
+        $segmentSnapshot($dateBoundLater->id) == $dateBoundLaterBefore &&
+        $segmentSnapshot($dateBoundBlocker->id)[0]->start_time === '09:00:00',
+        'Backward reflow moved a task outside its original start-date range or failed to roll back.'
+    );
+    echo "PASS 25: backward reflow respects affected task start-date limits and rolls back when no valid slot exists\n";
+
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";
     if ($verificationFailures) exit(1);

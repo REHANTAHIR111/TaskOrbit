@@ -582,7 +582,7 @@ try {
         $seg('2030-02-20', '15:00:00', '17:00:00', 120),
     ], '2030-02-20');
     $manualFallbackEdit = [
-        'task_name' => $manualFallbackTarget->task_name, 'hour' => 6,
+        'task_name' => $manualFallbackTarget->task_name, 'hour' => 5,
         'start_date' => '2030-02-20', 'end_date' => '2030-02-20', 'start_time' => '11:00',
         'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual',
     ];

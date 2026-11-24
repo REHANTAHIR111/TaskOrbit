@@ -1484,6 +1484,18 @@ class TaskController extends Controller
             if (isset($manualStarts[$task->id])) {
                 $preferred = $manualStarts[$task->id];
                 $taskStart = Carbon::parse($preferred['start_date'] . ' ' . $preferred['start_time']);
+                $earliestAllowed = $task->start_date
+                    ? Carbon::parse($task->start_date)->startOfDay()
+                    : Carbon::today();
+                if ($earliestAllowed->lt(Carbon::today())) {
+                    $earliestAllowed = Carbon::today();
+                }
+                if ($taskStart->lt(Carbon::now())) {
+                    throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) cannot be manually moved into the past.");
+                }
+                if ($taskStart->copy()->startOfDay()->lt($earliestAllowed) || $taskStart->copy()->startOfDay()->gt($plan['deadline'])) {
+                    throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) must stay between its allowed dates ({$earliestAllowed->format('Y-m-d')} and {$plan['deadline']->format('Y-m-d')}).");
+                }
                 $segments = $scheduler->allocate((int) $task->user_id, $taskStart->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $taskStart);
             } elseif ($backward) {
                 // A backward move may use earlier working time, but must stay inside

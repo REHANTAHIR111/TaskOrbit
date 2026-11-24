@@ -383,16 +383,16 @@ try {
     // 24. Backward reflow may use only time at or after the current instant on today.
     [$user, $settingId] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
     $backwardSetting = SlotSetting::with('holidays')->findOrFail($settingId);
-    $backwardScheduler = new \\App\\Services\\TaskSchedulingService();
-    $backwardDate = \\Carbon\\Carbon::parse('2030-02-12');
-    $backwardAnchor = \\Carbon\\Carbon::parse('2030-02-12 15:00:00');
+    $backwardScheduler = new \App\Services\TaskSchedulingService();
+    $backwardDate = \Carbon\Carbon::parse('2030-02-12');
+    $backwardAnchor = \Carbon\Carbon::parse('2030-02-12 15:00:00');
     $availableAfterNow = $backwardScheduler->allocateBackward(
         $user, $backwardDate, $backwardAnchor, 60, $backwardSetting, null,
-        \\Carbon\\Carbon::parse('2030-02-12 14:00:00')
+        \Carbon\Carbon::parse('2030-02-12 14:00:00')
     );
     $pastOnly = $backwardScheduler->allocateBackward(
         $user, $backwardDate, $backwardAnchor, 60, $backwardSetting, null,
-        \\Carbon\\Carbon::parse('2030-02-12 15:30:00')
+        \Carbon\Carbon::parse('2030-02-12 15:30:00')
     );
     $assert(
         $availableAfterNow !== null && $availableAfterNow[0]['start_time'] === '14:00:00' &&

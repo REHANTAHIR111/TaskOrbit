@@ -51,7 +51,7 @@ const EditTask = (props: any) => {
     useEffect(() => {
         dispatch(setPageTitle('Edit Task'));
         getData()
-    }, [props]);
+    }, [props, id]);
 
     // Handle creating new priority
     const handleCreatePriority = (inputValue: string) => {

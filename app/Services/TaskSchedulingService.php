@@ -45,6 +45,47 @@ class TaskSchedulingService
         return $remaining === 0 ? $segments : null;
     }
 
+    /** Allocate from the latest available working time, moving backward from the anchor. */
+    public function allocateBackward(int $userId, Carbon $earliestDate, Carbon $anchor, int $requiredMinutes, $setting, ?int $excludeTaskId = null): ?array
+    {
+        if ($requiredMinutes <= 0 || $anchor->copy()->startOfDay()->lt($earliestDate->copy()->startOfDay())) {
+            return null;
+        }
+
+        $segments = [];
+        $remaining = $requiredMinutes;
+        for ($date = $anchor->copy()->startOfDay(); $date->gte($earliestDate->copy()->startOfDay()) && $remaining > 0; $date->subDay()) {
+            $windows = array_reverse($this->workingWindows($date, $setting, null, $anchor->isSameDay($date) ? $anchor : null));
+            foreach ($windows as $window) {
+                $freeWindows = array_reverse($this->freeWindows($userId, $date, $window, $excludeTaskId));
+                foreach ($freeWindows as $free) {
+                    $available = (int) $free['start']->diffInMinutes($free['end']);
+                    if ($available <= 0) continue;
+
+                    $take = min($remaining, $available);
+                    $segmentEnd = $free['end']->copy();
+                    $segmentStart = $segmentEnd->copy()->subMinutes($take);
+                    $segments[] = [
+                        'segment_date' => $date->format('Y-m-d'),
+                        'start_time' => $segmentStart->format('H:i:s'),
+                        'end_time' => $segmentEnd->format('H:i:s'),
+                        'allocated_minutes' => $take,
+                    ];
+                    $remaining -= $take;
+                    if ($remaining === 0) break 3;
+                }
+            }
+        }
+
+        if ($remaining > 0) return null;
+        $segments = array_reverse($segments);
+        foreach ($segments as $index => &$segment) {
+            $segment['sequence'] = 1 + count(array_filter(array_slice($segments, 0, $index), fn ($item) => $item['segment_date'] === $segment['segment_date']));
+        }
+        unset($segment);
+        return $segments;
+    }
+
     public function allocateManual(int $userId, Carbon $startAt, Carbon $endAt, int $requiredMinutes, $setting, ?int $excludeTaskId = null): ?array
     {
         if ($requiredMinutes <= 0 || !$startAt->lt($endAt)) {
@@ -95,6 +136,41 @@ class TaskSchedulingService
         }
 
         return false;
+    }
+
+    /** Explain available working capacity and the active segments occupying it. */
+    public function availabilityReport(int $userId, Carbon $startDate, Carbon $endDate, $setting, ?int $excludeTaskId = null, ?Carbon $startAt = null, ?Carbon $rangeEnd = null): array
+    {
+        $availableMinutes = 0;
+        $conflicts = [];
+        for ($date = $startDate->copy()->startOfDay(); $date->lte($endDate->copy()->startOfDay()); $date->addDay()) {
+            foreach ($this->workingWindows($date, $setting, $startAt, $rangeEnd) as $window) {
+                foreach ($this->freeWindows($userId, $date, $window, $excludeTaskId) as $free) {
+                    $availableMinutes += (int) $free['start']->diffInMinutes($free['end']);
+                }
+                $occupied = TaskSegment::query()
+                    ->join('task', 'task.id', '=', 'task_segments.task_id')
+                    ->where('task.user_id', $userId)
+                    ->whereNull('task.deleted_at')
+                    ->whereDate('task_segments.segment_date', $date->format('Y-m-d'))
+                    ->where('task_segments.start_time', '<', $window['end']->format('H:i:s'))
+                    ->where('task_segments.end_time', '>', $window['start']->format('H:i:s'))
+                    ->when($excludeTaskId, fn ($query) => $query->where('task.id', '<>', $excludeTaskId))
+                    ->orderBy('task_segments.start_time')
+                    ->get(['task.id as task_id', 'task.task_name', 'task_segments.segment_date', 'task_segments.start_time', 'task_segments.end_time']);
+                foreach ($occupied as $segment) {
+                    $key = $segment->task_id . '|' . $segment->segment_date . '|' . $segment->start_time . '|' . $segment->end_time;
+                    $conflicts[$key] = [
+                        'id' => (int) $segment->task_id,
+                        'task_name' => $segment->task_name,
+                        'segment_date' => Carbon::parse($segment->segment_date)->format('Y-m-d'),
+                        'start_time' => $segment->start_time,
+                        'end_time' => $segment->end_time,
+                    ];
+                }
+            }
+        }
+        return ['available_minutes' => $availableMinutes, 'conflicts' => array_values($conflicts)];
     }
 
     public function hasInternalOverlap(array $segments): bool

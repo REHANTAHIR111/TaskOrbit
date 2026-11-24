@@ -30,7 +30,12 @@ $assert = static function (bool $condition, string $message): void {
 $controller = new TaskController();
 $newUser = static function (array $settings = []) use ($db): array {
     $userId = random_int(100000, 1900000000);
-    $db->table('users')->insert(['id' => $userId]);
+    $db->table('users')->insert([
+        'id' => $userId,
+        'first_name' => 'Task',
+        'last_name' => 'Regression',
+        'password' => 'isolated-test-only',
+    ]);
     $now = now();
     $settingId = $db->table('slot_setting')->insertGetId(array_merge([
         'user_id' => $userId, 'working_days' => '1,2,3,4,5,6,7',
@@ -57,6 +62,7 @@ $seg = static fn (string $date, string $start, string $end, int $minutes): array
 $responseData = static fn ($response): array => $response->getData(true);
 $segmentSnapshot = static fn (int $taskId) => DB::table('task_segments')->where('task_id', $taskId)->orderBy('segment_date')->orderBy('sequence')->get(['segment_date', 'start_time', 'end_time', 'allocated_minutes'])->toArray();
 
+$verificationFailures = [];
 $db->beginTransaction();
 try {
     // 1. Delete only soft-deletes one task and preserves every other segment.
@@ -247,9 +253,137 @@ try {
     }
     echo "PASS 14b: cross-owner bulk reflow failure rolls back all groups\n";
 
+    // 15. Edit previews ignore the edited task's own saved segments and never persist preview rows.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $editTarget = $createTask($user, 'Edit target', 300, [$seg('2030-01-27', '09:00:00', '14:00:00', 300)], '2030-01-28');
+    $editOther = $createTask($user, 'Other task', 60, [$seg('2030-01-27', '14:00:00', '15:00:00', 60)], '2030-01-28');
+    $editOriginal = $segmentSnapshot($editTarget->id);
+    $editPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', [
+        'hour' => 4, 'start_date' => '2030-01-27', 'end_date' => '2030-01-28', 'start_time' => '09:00', 'auto_schedule' => true, 'reflow_mode' => 'keep',
+    ]), $editTarget->id));
+    $assert($editPreview['success'] && $editPreview['total_allocated_minutes'] === 240 && $segmentSnapshot($editTarget->id) == $editOriginal && $editOther->fresh()->segments->first()->start_time === '14:00:00', 'Edit preview counted the task itself or changed saved data.');
+    echo "PASS 15: edit preview excludes self and rolls preview writes back\n";
+
+    // 16. A duration reduction can backfill later tasks into the released slot.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $editTarget = $createTask($user, 'Duration reduced', 300, [$seg('2030-01-29', '09:00:00', '14:00:00', 300)], '2030-01-30');
+    $backfillTask = $createTask($user, 'Move earlier', 120, [$seg('2030-01-29', '14:00:00', '16:00:00', 120)], '2030-01-30');
+    $editData = ['task_name' => $editTarget->task_name, 'hour' => 4, 'start_date' => '2030-01-29', 'end_date' => '2030-01-30', 'start_time' => '09:00', 'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'backfill'];
+    $keepPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', array_merge($editData, ['reflow_mode' => 'keep'])), $editTarget->id));
+    $keepSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', array_merge($editData, ['reflow_mode' => 'keep'])), $editTarget->id));
+    $assert($keepPreview['success'] && $keepPreview['affected_tasks'] === [] && $keepSaved['success'] && $backfillTask->fresh()->segments->first()->start_time === '14:00:00', 'Duration decrease keep mode changed another task.');
+    $backfillPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $editData), $editTarget->id));
+    $backfillAfterPreview = $segmentSnapshot($backfillTask->id);
+    $backfillSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $editData), $editTarget->id));
+    $assert($keepPreview['success'] && $keepPreview['affected_tasks'] === [] && $backfillAfterPreview[0]->start_time === '14:00:00' && $backfillPreview['success'] && $backfillPreview['affected_tasks'][0]['segments'][0]['start_time'] === '13:00:00' && $backfillSaved['success'] && $backfillTask->fresh()->segments->first()->start_time === '13:00:00', 'Duration decrease failed: ' . json_encode(['after_preview' => $backfillAfterPreview, 'keep' => $keepPreview, 'preview' => $backfillPreview, 'save' => $backfillSaved, 'stored' => $segmentSnapshot($backfillTask->id)]));
+    echo "PASS 16: duration decrease backfills later tasks into released working time\n";
+
+    // 17. A duration increase cascades later tasks forward across the next date.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $editTarget = $createTask($user, 'Duration increased', 240, [$seg('2030-01-31', '09:00:00', '13:00:00', 240)], '2030-02-01');
+    $forwardOne = $createTask($user, 'Forward one', 120, [$seg('2030-01-31', '13:00:00', '15:00:00', 120)], '2030-02-01');
+    $forwardTwo = $createTask($user, 'Forward two', 60, [$seg('2030-01-31', '15:00:00', '16:00:00', 60)], '2030-02-01');
+    $editData = ['task_name' => $editTarget->task_name, 'hour' => 6, 'start_date' => '2030-01-31', 'end_date' => '2030-02-01', 'start_time' => '09:00', 'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'forward'];
+    $forwardPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $editData), $editTarget->id));
+    $forwardSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $editData), $editTarget->id));
+    $assert($forwardPreview['success'] && count($forwardPreview['affected_tasks']) === 2 && $forwardSaved['success'] && $forwardOne->fresh()->segments->first()->start_time === '15:00:00' && $forwardTwo->fresh()->segments->first()->segment_date->format('Y-m-d') === '2030-02-01', 'Duration increase did not cascade later tasks forward.');
+    echo "PASS 17: duration increase cascades tasks forward across dates\n";
+
+    // 18. A failed edit cascade restores the edited task and every later segment.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $editTarget = $createTask($user, 'Rollback edit', 60, [$seg('2030-02-02', '09:00:00', '10:00:00', 60)], '2030-02-02');
+    $cannotMove = $createTask($user, 'Cannot fit deadline', 600, [$seg('2030-02-02', '10:00:00', '20:00:00', 600)], '2030-02-02');
+    $oldTargetSegments = $segmentSnapshot($editTarget->id);
+    $oldBlockedSegments = $segmentSnapshot($cannotMove->id);
+    $failedEdit = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', [
+        'task_name' => $editTarget->task_name, 'hour' => 6, 'start_date' => '2030-02-02', 'end_date' => '2030-02-02', 'start_time' => '09:00', 'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'forward',
+    ]), $editTarget->id));
+    $assert(!$failedEdit['success'] && $segmentSnapshot($editTarget->id) == $oldTargetSegments && $segmentSnapshot($cannotMove->id) == $oldBlockedSegments, 'Failed edit cascade did not roll back all schedule changes.');
+    echo "PASS 18: failed edit cascade rolls back every affected task\n";
+
+    // 19. Manual edit preview preserves the chosen range and splits around the configured break.
+    [$user] = $newUser();
+    $editTarget = $createTask($user, 'Manual edit', 60, [$seg('2030-02-04', '09:00:00', '10:00:00', 60)]);
+    $manualEdit = ['task_name' => $editTarget->task_name, 'hour' => 3, 'start_date' => '2030-02-04', 'end_date' => '2030-02-04', 'start_time' => '11:00', 'end_time' => '15:00', 'auto_schedule' => false, 'schedule_changed' => true, 'reflow_mode' => 'keep'];
+    $manualPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $manualEdit), $editTarget->id));
+    $manualSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $manualEdit), $editTarget->id));
+    $assert($manualPreview['success'] && count($manualPreview['segments']) === 2 && $manualPreview['segments'][0]['end_time'] === '13:00:00' && $manualPreview['segments'][1]['start_time'] === '14:00:00' && $manualSaved['success'] && $editTarget->fresh()->segments->sum('allocated_minutes') === 180, 'Manual edit did not preview/save the exact range with the break respected.');
+    echo "PASS 19: manual edit previews and saves break-safe segments\n";
+
+    // 20. Manually chosen affected-task starts are previewed and applied through the shared allocator.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $editTarget = $createTask($user, 'Manual target', 60, [$seg('2030-02-05', '09:00:00', '10:00:00', 60)], '2030-02-06');
+    $manualMove = $createTask($user, 'Chosen task', 60, [$seg('2030-02-05', '10:00:00', '11:00:00', 60)], '2030-02-06');
+    $unselectedMove = $createTask($user, 'Leave this task', 60, [$seg('2030-02-05', '11:00:00', '12:00:00', 60)], '2030-02-06');
+    $manualMoveData = [
+        'task_name' => $editTarget->task_name, 'hour' => 1, 'start_date' => '2030-02-05', 'end_date' => '2030-02-06', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual', 'reflow_task_ids' => [$manualMove->id],
+        'reflow_task_schedules' => [['task_id' => $manualMove->id, 'start_date' => '2030-02-05', 'start_time' => '12:00']],
+    ];
+    $manualMovePreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $manualMoveData), $editTarget->id));
+    $manualMoveSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $manualMoveData), $editTarget->id));
+    $assert($manualMovePreview['success'] && count($manualMovePreview['affected_tasks']) === 1 && $manualMovePreview['affected_tasks'][0]['segments'][0]['start_time'] === '12:00:00' && $manualMoveSaved['success'] && $manualMove->fresh()->segments->first()->start_time === '12:00:00' && $unselectedMove->fresh()->segments->first()->start_time === '11:00:00', 'Manual task start adjustment or selected-only reflow was not previewed/applied.');
+    echo "PASS 20: selected affected task can be manually placed at a preferred time\n";
+
+    // 21. Editing only task details leaves its multi-segment schedule untouched.
+    [$user] = $newUser();
+    $detailsOnly = $createTask($user, 'Details only', 120, [
+        $seg('2030-02-07', '09:00:00', '11:00:00', 120),
+    ]);
+    $detailsBefore = $segmentSnapshot($detailsOnly->id);
+    $detailsUpdate = $responseData($controller->update(Request::create('/api/task/' . $detailsOnly->id . '/update', 'POST', [
+        'task_name' => 'Renamed task', 'hour' => 2, 'start_date' => '2030-02-07', 'end_date' => '2030-02-07', 'start_time' => '09:00', 'end_time' => '11:00',
+        'auto_schedule' => false, 'schedule_changed' => false,
+    ]), $detailsOnly->id));
+    $assert($detailsUpdate['success'] && $detailsOnly->fresh()->task_name === 'Renamed task' && $segmentSnapshot($detailsOnly->id) == $detailsBefore, 'Metadata-only task edit recalculated or altered saved segments.');
+    echo "PASS 21: metadata-only edit preserves task segments\n";
+
+    // 22. Increasing a task with backward reflow should use earlier free time when available.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $editTarget = $createTask($user, 'Increase and backfill', 240, [$seg('2030-02-09', '11:00:00', '15:00:00', 240)], '2030-02-10');
+    $backwardTask = $createTask($user, 'Move before target', 120, [$seg('2030-02-09', '15:00:00', '17:00:00', 120)], '2030-02-10');
+    $backwardData = ['task_name' => $editTarget->task_name, 'hour' => 6, 'start_date' => '2030-02-09', 'end_date' => '2030-02-10', 'start_time' => '11:00', 'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'backfill'];
+    $backwardPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $backwardData), $editTarget->id));
+    $backwardSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $backwardData), $editTarget->id));
+    try {
+        $previewBackwardSegment = $backwardPreview['affected_tasks'][0]['segments'][0] ?? [];
+        $previewUpdatedSegment = $backwardPreview['segments'][0] ?? [];
+        $savedBackwardSegments = $backwardTask->fresh()->segments->sortBy('sequence')->values();
+        $assert(
+            $backwardPreview['success'] && $previewBackwardSegment['segment_date'] === '2030-02-09' &&
+            $previewBackwardSegment['start_time'] === '09:00:00' && $previewBackwardSegment['end_time'] === '11:00:00' &&
+            (int) $previewBackwardSegment['allocated_minutes'] === 120 &&
+            $previewUpdatedSegment['start_time'] === '11:00:00' && $previewUpdatedSegment['end_time'] === '17:00:00' &&
+            $backwardSaved['success'] && $savedBackwardSegments->sum('allocated_minutes') === 120 &&
+            $savedBackwardSegments->first()->start_time === '09:00:00' && $savedBackwardSegments->first()->end_time === '11:00:00',
+            'Backward reflow failed: ' . json_encode(['preview' => $backwardPreview, 'save' => $backwardSaved, 'stored' => $segmentSnapshot($backwardTask->id)])
+        );
+        echo "PASS 22: duration increase moves the next task backward into earlier free time\n";
+    } catch (Throwable $failure) {
+        $verificationFailures[] = $failure->getMessage();
+        fwrite(STDERR, 'FAIL 22: ' . $failure->getMessage() . PHP_EOL);
+    }
+
+    // 23. A manual adjustment that encounters another task is recalculated into the next free slot.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $editTarget = $createTask($user, 'Conflict target', 60, [$seg('2030-02-11', '09:00:00', '10:00:00', 60)], '2030-02-11');
+    $manualMove = $createTask($user, 'Manually moved task', 60, [$seg('2030-02-11', '10:00:00', '11:00:00', 60)], '2030-02-11');
+    $conflictTask = $createTask($user, 'Existing occupant', 60, [$seg('2030-02-11', '14:00:00', '15:00:00', 60)], '2030-02-11');
+    $conflictData = [
+        'task_name' => $editTarget->task_name, 'hour' => 1, 'start_date' => '2030-02-11', 'end_date' => '2030-02-11', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual', 'reflow_task_ids' => [$manualMove->id],
+        'reflow_task_schedules' => [['task_id' => $manualMove->id, 'start_date' => '2030-02-11', 'start_time' => '14:00']],
+    ];
+    $conflictPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $conflictData), $editTarget->id));
+    $conflictSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $conflictData), $editTarget->id));
+    $assert($conflictPreview['success'] && $conflictPreview['affected_tasks'][0]['segments'][0]['start_time'] === '15:00:00' && $conflictSaved['success'] && $manualMove->fresh()->segments->first()->start_time === '15:00:00' && $conflictTask->fresh()->segments->first()->start_time === '14:00:00', 'Manual adjustment did not recalculate around the additional conflict.');
+    echo "PASS 23: manual adjustment resolves a newly occupied preferred slot without moving the occupant\n";
+
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";
+    if ($verificationFailures) exit(1);
 } catch (Throwable $error) {
     if ($db->transactionLevel() > 0) $db->rollBack();
-    throw $error;
+    fwrite(STDERR, 'FAIL: ' . $error->getMessage() . PHP_EOL);
+    exit(1);
 }

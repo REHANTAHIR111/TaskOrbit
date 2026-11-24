@@ -217,6 +217,73 @@ class TaskSegmentationTest extends TestCase
         $this->assertSame(3, DB::table('task_segments')->where('task_id', $task->id)->count());
     }
 
+    public function test_edit_preview_excludes_the_task_own_segments_and_rolls_back_preview_changes(): void
+    {
+        $this->setting('1,2,3,4,5,6,7', null, null);
+        $task = $this->createTask('Editable', 300, [[
+            'segment_date' => '2030-01-07', 'start_time' => '09:00:00', 'end_time' => '14:00:00', 'allocated_minutes' => 300,
+        ]]);
+        $preview = $this->data((new TaskController())->previewTaskSchedule($this->request([
+            'hour' => 4, 'start_date' => '2030-01-07', 'end_date' => '2030-01-07', 'start_time' => '09:00', 'auto_schedule' => true, 'reflow_mode' => 'keep',
+        ]), $task->id));
+
+        $this->assertTrue($preview['success']);
+        $this->assertSame(240, $preview['total_allocated_minutes']);
+        $this->assertSame('09:00:00', $preview['segments'][0]['start_time']);
+        $this->assertSame(300, (int) $task->fresh()->segments->sum('allocated_minutes'), 'Preview must not alter saved schedule segments.');
+    }
+
+    public function test_edit_can_preview_and_apply_forward_cascade_without_partial_changes(): void
+    {
+        $this->setting('1,2,3,4,5,6,7', null, null);
+        $editable = $this->createTask('Editable', 240, [[
+            'segment_date' => '2030-01-07', 'start_time' => '09:00:00', 'end_time' => '13:00:00', 'allocated_minutes' => 240,
+        ]], ['end_date' => '2030-01-08']);
+        $laterOne = $this->createTask('Later one', 60, [[
+            'segment_date' => '2030-01-07', 'start_time' => '14:00:00', 'end_time' => '15:00:00', 'allocated_minutes' => 60,
+        ]], ['end_date' => '2030-01-08']);
+        $laterTwo = $this->createTask('Later two', 60, [[
+            'segment_date' => '2030-01-07', 'start_time' => '15:00:00', 'end_time' => '16:00:00', 'allocated_minutes' => 60,
+        ]], ['end_date' => '2030-01-08']);
+        $edit = [
+            'task_name' => 'Editable', 'hour' => 6, 'start_date' => '2030-01-07', 'end_date' => '2030-01-08',
+            'start_time' => '09:00', 'auto_schedule' => true, 'reflow_mode' => 'forward',
+        ];
+
+        $preview = $this->data((new TaskController())->previewTaskSchedule($this->request($edit), $editable->id));
+        $this->assertTrue($preview['success']);
+        $this->assertCount(2, $preview['affected_tasks']);
+        $this->assertSame('09:00:00', $preview['segments'][0]['start_time']);
+        $this->assertSame('14:00:00', $laterOne->fresh()->segments->first()->start_time, 'Preview must leave later task positions untouched.');
+
+        $saved = $this->data((new TaskController())->update($this->request($edit), $editable->id));
+        $this->assertTrue($saved['success']);
+        $this->assertSame(360, (int) $editable->fresh()->segments->sum('allocated_minutes'));
+        $this->assertSame(60, (int) $laterOne->fresh()->segments->sum('allocated_minutes'));
+        $this->assertSame(60, (int) $laterTwo->fresh()->segments->sum('allocated_minutes'));
+        $this->assertGreaterThanOrEqual('15:00:00', $laterOne->fresh()->segments->first()->start_time);
+    }
+
+    public function test_edit_preserve_mode_reports_other_task_conflicts_without_moving_anything(): void
+    {
+        $this->setting('1,2,3,4,5,6,7', null, null);
+        $editable = $this->createTask('Editable', 60, [[
+            'segment_date' => '2030-01-07', 'start_time' => '09:00:00', 'end_time' => '10:00:00', 'allocated_minutes' => 60,
+        ]], ['end_date' => '2030-01-07']);
+        $blocker = $this->createTask('Busy', 420, [[
+            'segment_date' => '2030-01-07', 'start_time' => '10:00:00', 'end_time' => '17:00:00', 'allocated_minutes' => 420,
+        ]]);
+
+        $preview = $this->data((new TaskController())->previewTaskSchedule($this->request([
+            'hour' => 8, 'start_date' => '2030-01-07', 'end_date' => '2030-01-07', 'start_time' => '09:00', 'auto_schedule' => true, 'reflow_mode' => 'keep',
+        ]), $editable->id));
+
+        $this->assertFalse($preview['success']);
+        $this->assertSame($blocker->id, $preview['conflicts'][0]['id']);
+        $this->assertSame('10:00:00', $blocker->fresh()->segments->first()->start_time);
+        $this->assertSame(60, (int) $editable->fresh()->segments->sum('allocated_minutes'));
+    }
+
     public function test_incomplete_break_settings_fail_safely(): void
     {
         $this->setting('1,2,3,4,5,6,7', '13:00:00', null);

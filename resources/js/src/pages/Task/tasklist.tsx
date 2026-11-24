@@ -1,6 +1,5 @@
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { useEffect, useState, useContext } from 'react';
-import sortBy from 'lodash/sortBy';
 import { useDispatch } from 'react-redux';
 import { setPageTitle } from '../../store/themeConfigSlice';
 import IconPencil from '../../components/Icon/IconPencil';
@@ -29,9 +28,9 @@ const TaskListing = (props: any) => {
     const [page, setPage] = useState(1);
     const PAGE_SIZES = [10, 20, 30, 50, 100];
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
-    const [initialRecords, setInitialRecords] = useState(sortBy(rowData, 'id'));
+    const [initialRecords, setInitialRecords] = useState<any[]>(rowData || []);
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
-    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'id', direction: 'asc' });
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'first_scheduled', direction: 'desc' });
     const [loader, setLoader] = useState(false);
     const [permissionsData, setpermissionsData] = useState<any>([]);
     const [taskData, setTaskData] = useState<any>([]);
@@ -56,9 +55,26 @@ const TaskListing = (props: any) => {
         verifyAuth();
     }, [props]);
 
+    const scheduledStartKey = (task: any) => {
+        const firstSegment = [...(task?.segments || [])]
+            .sort((left: any, right: any) => `${left.segment_date} ${left.start_time}`.localeCompare(`${right.segment_date} ${right.start_time}`))[0];
+        const date = firstSegment?.segment_date || task?.start_date || '9999-12-31';
+        const time = firstSegment?.start_time || task?.start_time || '23:59:59';
+        return `${date} ${time}`;
+    };
+
     useEffect(() => {
-        setInitialRecords(taskData);
-    }, [taskData]);
+        const sorted = [...taskData].sort((left: any, right: any) => {
+            const leftValue = sortStatus.columnAccessor === 'first_scheduled' ? scheduledStartKey(left) : left?.[sortStatus.columnAccessor];
+            const rightValue = sortStatus.columnAccessor === 'first_scheduled' ? scheduledStartKey(right) : right?.[sortStatus.columnAccessor];
+            const comparison = typeof leftValue === 'number' && typeof rightValue === 'number'
+                ? leftValue - rightValue
+                : String(leftValue ?? '').localeCompare(String(rightValue ?? ''), undefined, { numeric: true, sensitivity: 'base' });
+            return (sortStatus.direction === 'desc' ? -comparison : comparison) || Number(left.id) - Number(right.id);
+        });
+        setInitialRecords(sorted);
+        setPage(1);
+    }, [taskData, sortStatus]);
 
     const handleSearch = () => {
         var filterData = taskData.filter((item: any) => {
@@ -137,12 +153,6 @@ const TaskListing = (props: any) => {
         const to = from + pageSize;
         setRecordsData([...initialRecords?.slice(from, to)]);
     }, [page, pageSize, initialRecords]);
-
-    useEffect(() => {
-        const data = sortBy(initialRecords, sortStatus.columnAccessor);
-        setInitialRecords(sortStatus.direction === 'desc' ? data.reverse() : data);
-        setPage(1);
-    }, [sortStatus]);
 
     const deleteRow = async (id: any = null) => {
         const result = await Swal.fire({
@@ -324,7 +334,7 @@ const TaskListing = (props: any) => {
                                 {
                                     accessor: 'first_scheduled',
                                     title: 'First scheduled',
-                                    sortable: false,
+                                    sortable: true,
                                     render: ({ segments, start_date, start_time }: any) => {
                                         const first = [...(segments || [])].sort((a, b) => `${a.segment_date} ${a.start_time}`.localeCompare(`${b.segment_date} ${b.start_time}`))[0];
                                         return schedulePoint(first?.segment_date || start_date, first?.start_time || start_time);

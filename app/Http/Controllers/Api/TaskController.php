@@ -966,6 +966,10 @@ class TaskController extends Controller
             }
             DB::table('users')->where('id', $initial->user_id)->lockForUpdate()->first();
             $task = Task::with('segments')->whereKey($id)->lockForUpdate()->first();
+            if (!$task || (int) $task->user_id !== (int) $initial->user_id) {
+                $connection->rollBack();
+                return response()->json(['success' => false, 'message' => 'Task changed while the schedule preview was starting. Please retry.'], 409);
+            }
             $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->first();
             if ($request->boolean('auto_schedule') && (!$setting || (string) $setting->status !== '1')) {
                 $connection->rollBack();

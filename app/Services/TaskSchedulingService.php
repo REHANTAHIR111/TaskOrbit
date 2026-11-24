@@ -46,7 +46,7 @@ class TaskSchedulingService
     }
 
     /** Allocate from the latest available working time, moving backward from the anchor. */
-    public function allocateBackward(int $userId, Carbon $earliestDate, Carbon $anchor, int $requiredMinutes, $setting, ?int $excludeTaskId = null): ?array
+    public function allocateBackward(int $userId, Carbon $earliestDate, Carbon $anchor, int $requiredMinutes, $setting, ?int $excludeTaskId = null, ?Carbon $notBefore = null): ?array
     {
         if ($requiredMinutes <= 0 || $anchor->copy()->startOfDay()->lt($earliestDate->copy()->startOfDay())) {
             return null;
@@ -55,7 +55,8 @@ class TaskSchedulingService
         $segments = [];
         $remaining = $requiredMinutes;
         for ($date = $anchor->copy()->startOfDay(); $date->gte($earliestDate->copy()->startOfDay()) && $remaining > 0; $date->subDay()) {
-            $windows = array_reverse($this->workingWindows($date, $setting, null, $anchor->isSameDay($date) ? $anchor : null));
+            $rangeStart = $notBefore && $notBefore->isSameDay($date) ? $notBefore : null;
+            $windows = array_reverse($this->workingWindows($date, $setting, $rangeStart, $anchor->isSameDay($date) ? $anchor : null));
             foreach ($windows as $window) {
                 $freeWindows = array_reverse($this->freeWindows($userId, $date, $window, $excludeTaskId));
                 foreach ($freeWindows as $free) {

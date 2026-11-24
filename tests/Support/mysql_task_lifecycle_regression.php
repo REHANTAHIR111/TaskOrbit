@@ -471,6 +471,38 @@ try {
     );
     echo "PASS 26: manual reflow enforces task date bounds and rolls back invalid choices\n";
 
+    // 27. Manual reflow must not silently fall back to automatic placement when a preferred start is missing.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $manualRequiredTarget = $createTask($user, 'Manual placement required target', 60, [
+        $seg('2030-02-16', '09:00:00', '10:00:00', 60),
+    ], '2030-02-16');
+    $manualRequiredLater = $createTask($user, 'Manual placement required task', 60, [
+        $seg('2030-02-16', '10:00:00', '11:00:00', 60),
+    ], '2030-02-16');
+    $manualRequiredTargetBefore = $segmentSnapshot($manualRequiredTarget->id);
+    $manualRequiredLaterBefore = $segmentSnapshot($manualRequiredLater->id);
+    $manualRequiredEdit = [
+        'task_name' => $manualRequiredTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-02-16', 'end_date' => '2030-02-16', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual',
+        'reflow_task_ids' => [$manualRequiredLater->id],
+    ];
+    $manualRequiredPreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $manualRequiredTarget->id . '/schedule-preview', 'POST', $manualRequiredEdit),
+        $manualRequiredTarget->id
+    ));
+    $manualRequiredSave = $responseData($controller->update(
+        Request::create('/api/task/' . $manualRequiredTarget->id . '/update', 'POST', $manualRequiredEdit),
+        $manualRequiredTarget->id
+    ));
+    $assert(
+        !$manualRequiredPreview['success'] && !$manualRequiredSave['success'] &&
+        $segmentSnapshot($manualRequiredTarget->id) == $manualRequiredTargetBefore &&
+        $segmentSnapshot($manualRequiredLater->id) == $manualRequiredLaterBefore,
+        'Manual reflow silently auto-placed a selected task without an explicit preferred start or failed to roll back.'
+    );
+    echo "PASS 27: manual reflow requires explicit selected-task placements and rolls back incomplete plans\n";
+
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";
     if ($verificationFailures) exit(1);

@@ -8,6 +8,7 @@ $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 use App\Http\Controllers\Api\TaskController;
 use App\Models\Task;
+use App\Models\SlotSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -378,6 +379,27 @@ try {
     $conflictSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $conflictData), $editTarget->id));
     $assert($conflictPreview['success'] && $conflictPreview['affected_tasks'][0]['segments'][0]['start_time'] === '15:00:00' && $conflictSaved['success'] && $manualMove->fresh()->segments->first()->start_time === '15:00:00' && $conflictTask->fresh()->segments->first()->start_time === '14:00:00', 'Manual adjustment did not recalculate around the additional conflict.');
     echo "PASS 23: manual adjustment resolves a newly occupied preferred slot without moving the occupant\n";
+
+    // 24. Backward reflow may use only time at or after the current instant on today.
+    [$user, $settingId] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $backwardSetting = SlotSetting::with('holidays')->findOrFail($settingId);
+    $backwardScheduler = new \\App\\Services\\TaskSchedulingService();
+    $backwardDate = \\Carbon\\Carbon::parse('2030-02-12');
+    $backwardAnchor = \\Carbon\\Carbon::parse('2030-02-12 15:00:00');
+    $availableAfterNow = $backwardScheduler->allocateBackward(
+        $user, $backwardDate, $backwardAnchor, 60, $backwardSetting, null,
+        \\Carbon\\Carbon::parse('2030-02-12 14:00:00')
+    );
+    $pastOnly = $backwardScheduler->allocateBackward(
+        $user, $backwardDate, $backwardAnchor, 60, $backwardSetting, null,
+        \\Carbon\\Carbon::parse('2030-02-12 15:30:00')
+    );
+    $assert(
+        $availableAfterNow !== null && $availableAfterNow[0]['start_time'] === '14:00:00' &&
+        $availableAfterNow[0]['end_time'] === '15:00:00' && $pastOnly === null,
+        'Backward allocation used time before the current instant or ignored valid remaining time.'
+    );
+    echo "PASS 24: backward allocation never schedules before the current instant\n";
 
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";

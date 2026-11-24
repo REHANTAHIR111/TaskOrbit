@@ -536,6 +536,42 @@ try {
     );
     echo "PASS 28: edit reflow requires active working-time settings even for manual primary schedules\n";
 
+    // 29. A stale or unrelated task ID must not be silently ignored during selected reflow.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $staleTarget = $createTask($user, 'Stale selection target', 60, [
+        $seg('2030-02-19', '09:00:00', '10:00:00', 60),
+    ], '2030-02-19');
+    $staleAffected = $createTask($user, 'Actually affected task', 60, [
+        $seg('2030-02-19', '10:00:00', '11:00:00', 60),
+    ], '2030-02-19');
+    $staleUnrelated = $createTask($user, 'Unrelated earlier task', 60, [
+        $seg('2030-02-19', '08:00:00', '09:00:00', 60),
+    ], '2030-02-19');
+    $staleTargetBefore = $segmentSnapshot($staleTarget->id);
+    $staleAffectedBefore = $segmentSnapshot($staleAffected->id);
+    $staleEdit = [
+        'task_name' => $staleTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-02-19', 'end_date' => '2030-02-19', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'forward',
+        'reflow_task_ids' => [$staleUnrelated->id],
+    ];
+    $stalePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $staleTarget->id . '/schedule-preview', 'POST', $staleEdit),
+        $staleTarget->id
+    ));
+    $staleSave = $responseData($controller->update(
+        Request::create('/api/task/' . $staleTarget->id . '/update', 'POST', $staleEdit),
+        $staleTarget->id
+    ));
+    $assert(
+        !$stalePreview['success'] && !$staleSave['success'] &&
+        $segmentSnapshot($staleTarget->id) == $staleTargetBefore &&
+        $segmentSnapshot($staleAffected->id) == $staleAffectedBefore &&
+        $segmentSnapshot($staleUnrelated->id)[0]->start_time === '08:00:00',
+        'Edit reflow silently ignored a stale/unrelated selected task ID or changed schedules.'
+    );
+    echo "PASS 29: stale selected-task IDs are rejected without changing any schedule\n";
+
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";
     if ($verificationFailures) exit(1);

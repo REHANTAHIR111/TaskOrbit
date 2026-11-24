@@ -577,15 +577,13 @@ try {
     [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
     $manualFallbackTarget = $createTask($user, 'Manual fallback target', 120, [
         $seg('2030-02-20', '11:00:00', '13:00:00', 120),
-    ], '2030-02-21');
+    ], '2030-02-20');
     $manualFallbackLater = $createTask($user, 'Manual fallback later task', 120, [
-        $seg('2030-02-21', '15:00:00', '17:00:00', 120),
-    ], '2030-02-21');
-    $manualFallbackLater->start_date = '2030-02-20';
-    $manualFallbackLater->save();
+        $seg('2030-02-20', '15:00:00', '17:00:00', 120),
+    ], '2030-02-20');
     $manualFallbackEdit = [
         'task_name' => $manualFallbackTarget->task_name, 'hour' => 6,
-        'start_date' => '2030-02-20', 'end_date' => '2030-02-21', 'start_time' => '11:00',
+        'start_date' => '2030-02-20', 'end_date' => '2030-02-20', 'start_time' => '11:00',
         'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual',
     ];
     $manualFallbackPreview = $responseData($controller->previewTaskSchedule(

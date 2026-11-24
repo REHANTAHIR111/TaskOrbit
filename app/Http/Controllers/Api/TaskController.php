@@ -998,8 +998,8 @@ class TaskController extends Controller
         if (!in_array($mode, ['keep', 'backfill', 'forward', 'manual'], true)) {
             return ['success' => false, 'message' => 'Choose how later tasks should be handled.'];
         }
-        if ($mode !== 'keep' && !$setting) {
-            return ['success' => false, 'message' => 'Add working hours before moving other tasks.'];
+        if ($mode !== 'keep' && (!$setting || (string) $setting->status !== '1')) {
+            return ['success' => false, 'message' => 'Active working-time settings are required before moving other tasks.'];
         }
         $request->merge([
             'user_id' => $task->user_id,

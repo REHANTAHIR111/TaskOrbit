@@ -436,6 +436,41 @@ try {
     );
     echo "PASS 25: backward reflow respects affected task start-date limits and rolls back when no valid slot exists\n";
 
+    // 26. Manually selected reflow starts must stay within the task's original date range.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $manualDateTarget = $createTask($user, 'Manual date target', 60, [
+        $seg('2030-02-14', '09:00:00', '10:00:00', 60),
+    ], '2030-02-15');
+    $manualDateLater = $createTask($user, 'Manual date bounded task', 60, [
+        $seg('2030-02-15', '09:00:00', '10:00:00', 60),
+    ], '2030-02-15');
+    $manualDateTargetBefore = $segmentSnapshot($manualDateTarget->id);
+    $manualDateLaterBefore = $segmentSnapshot($manualDateLater->id);
+    $manualDateEdit = [
+        'task_name' => $manualDateTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-02-14', 'end_date' => '2030-02-15', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual',
+        'reflow_task_ids' => [$manualDateLater->id],
+        'reflow_task_schedules' => [[
+            'task_id' => $manualDateLater->id, 'start_date' => '2030-02-14', 'start_time' => '11:00',
+        ]],
+    ];
+    $manualDatePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $manualDateTarget->id . '/schedule-preview', 'POST', $manualDateEdit),
+        $manualDateTarget->id
+    ));
+    $manualDateSave = $responseData($controller->update(
+        Request::create('/api/task/' . $manualDateTarget->id . '/update', 'POST', $manualDateEdit),
+        $manualDateTarget->id
+    ));
+    $assert(
+        !$manualDatePreview['success'] && !$manualDateSave['success'] &&
+        $segmentSnapshot($manualDateTarget->id) == $manualDateTargetBefore &&
+        $segmentSnapshot($manualDateLater->id) == $manualDateLaterBefore,
+        'Manual reflow allowed a task to move before its original start date or failed to roll back.'
+    );
+    echo "PASS 26: manual reflow enforces task date bounds and rolls back invalid choices\n";
+
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";
     if ($verificationFailures) exit(1);

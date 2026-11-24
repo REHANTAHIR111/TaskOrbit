@@ -496,12 +496,13 @@ try {
         $manualRequiredTarget->id
     ));
     $assert(
-        !$manualRequiredPreview['success'] && !$manualRequiredSave['success'] &&
+        $manualRequiredPreview['success'] && count($manualRequiredPreview['affected_tasks']) === 1 &&
+        !$manualRequiredSave['success'] &&
         $segmentSnapshot($manualRequiredTarget->id) == $manualRequiredTargetBefore &&
         $segmentSnapshot($manualRequiredLater->id) == $manualRequiredLaterBefore,
-        'Manual reflow silently auto-placed a selected task without an explicit preferred start or failed to roll back.'
+        'Manual reflow preview did not expose tasks for placement, or save accepted an incomplete placement plan.'
     );
-    echo "PASS 27: manual reflow requires explicit selected-task placements and rolls back incomplete plans\n";
+    echo "PASS 27: manual reflow previews placement choices but rejects incomplete saves without changes\n";
 
     // 28. Edit reflow must not use disabled working-time settings for manual primary schedules.
     [$user, $inactiveSettingId] = $newUser(['start_break_time' => null, 'end_break_time' => null]);

@@ -503,6 +503,39 @@ try {
     );
     echo "PASS 27: manual reflow requires explicit selected-task placements and rolls back incomplete plans\n";
 
+    // 28. Edit reflow must not use disabled working-time settings for manual primary schedules.
+    [$user, $inactiveSettingId] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $db->table('slot_setting')->where('id', $inactiveSettingId)->update(['status' => 0]);
+    $inactiveTarget = $createTask($user, 'Inactive settings target', 60, [
+        $seg('2030-02-18', '09:00:00', '10:00:00', 60),
+    ], '2030-02-18');
+    $inactiveLater = $createTask($user, 'Inactive settings later task', 60, [
+        $seg('2030-02-18', '10:00:00', '11:00:00', 60),
+    ], '2030-02-18');
+    $inactiveTargetBefore = $segmentSnapshot($inactiveTarget->id);
+    $inactiveLaterBefore = $segmentSnapshot($inactiveLater->id);
+    $inactiveEdit = [
+        'task_name' => $inactiveTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-02-18', 'end_date' => '2030-02-18',
+        'start_time' => '09:00', 'end_time' => '11:00',
+        'auto_schedule' => false, 'schedule_changed' => true, 'reflow_mode' => 'forward',
+    ];
+    $inactivePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $inactiveTarget->id . '/schedule-preview', 'POST', $inactiveEdit),
+        $inactiveTarget->id
+    ));
+    $inactiveSave = $responseData($controller->update(
+        Request::create('/api/task/' . $inactiveTarget->id . '/update', 'POST', $inactiveEdit),
+        $inactiveTarget->id
+    ));
+    $assert(
+        !$inactivePreview['success'] && !$inactiveSave['success'] &&
+        $segmentSnapshot($inactiveTarget->id) == $inactiveTargetBefore &&
+        $segmentSnapshot($inactiveLater->id) == $inactiveLaterBefore,
+        'Edit reflow used inactive working-time settings or failed to roll back.'
+    );
+    echo "PASS 28: edit reflow requires active working-time settings even for manual primary schedules\n";
+
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";
     if ($verificationFailures) exit(1);

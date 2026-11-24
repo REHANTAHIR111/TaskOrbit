@@ -1031,6 +1031,23 @@ class TaskController extends Controller
             $selectedTaskIds = array_map('intval', (array) $request->input('reflow_task_ids'));
             $laterTasks = $laterTasks->filter(fn ($laterTask) => in_array((int) $laterTask->id, $selectedTaskIds, true))->values();
         }
+        $manualStarts = collect($request->input('reflow_task_schedules', []))
+            ->keyBy(fn ($item) => (int) $item['task_id'])
+            ->all();
+        if ($mode === 'manual') {
+            $missingManualStart = $laterTasks->first(fn ($laterTask) => !isset($manualStarts[(int) $laterTask->id]));
+            if ($missingManualStart) {
+                return ['success' => false, 'message' => "Choose a preferred date and start time for task '{$missingManualStart->task_name}' (#{$missingManualStart->id})."];
+            }
+            $selectedIds = $laterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all();
+            foreach (array_keys($manualStarts) as $manualTaskId) {
+                if (!in_array((int) $manualTaskId, $selectedIds, true)) {
+                    return ['success' => false, 'message' => 'A manual schedule was supplied for a task that is not selected to move.'];
+                }
+            }
+        } elseif ($manualStarts) {
+            return ['success' => false, 'message' => 'Preferred task schedules can only be supplied in manual reflow mode.'];
+        }
         $previousTaskSegments = [];
         foreach ($laterTasks as $laterTask) {
             $previousTaskSegments[$laterTask->id] = $laterTask->segments->map(fn ($segment) => [
@@ -1083,7 +1100,6 @@ class TaskController extends Controller
             $reflowAnchor = $mode === 'forward' || $mode === 'manual'
                 ? Carbon::parse($summary['end_date'] . ' ' . $summary['end_time'])
                 : Carbon::parse($summary['start_date'] . ' ' . $summary['start_time']);
-            $manualStarts = collect($request->input('reflow_task_schedules', []))->keyBy(fn ($item) => (int) $item['task_id'])->all();
             $needsBackwardAllocation = $mode === 'backfill' && $duration > array_sum(array_column($oldSegments, 'allocated_minutes'));
             $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation);
             foreach ($moved as &$item) $item['previous_segments'] = $previousTaskSegments[$item['id']] ?? [];

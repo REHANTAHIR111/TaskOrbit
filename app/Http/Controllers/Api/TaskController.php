@@ -1025,7 +1025,11 @@ class TaskController extends Controller
             ? collect()
             : $this->getTasksWithSegmentsAfter((int) $task->user_id, $anchor, [(int) $task->id]);
         if ($request->exists('reflow_task_ids') && $mode !== 'keep') {
-            $selectedTaskIds = array_map('intval', (array) $request->input('reflow_task_ids'));
+            $selectedTaskIds = array_values(array_unique(array_map('intval', (array) $request->input('reflow_task_ids'))));
+            $availableTaskIds = $laterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all();
+            if (array_diff($selectedTaskIds, $availableTaskIds)) {
+                return ['success' => false, 'message' => 'One or more selected tasks have changed since the preview. Refresh the schedule preview and try again.'];
+            }
             $laterTasks = $laterTasks->filter(fn ($laterTask) => in_array((int) $laterTask->id, $selectedTaskIds, true))->values();
         }
         if ($laterTasks->isNotEmpty() && (!$setting || (string) $setting->status !== '1')) {

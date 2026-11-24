@@ -1486,7 +1486,15 @@ class TaskController extends Controller
                 $taskStart = Carbon::parse($preferred['start_date'] . ' ' . $preferred['start_time']);
                 $segments = $scheduler->allocate((int) $task->user_id, $taskStart->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $taskStart);
             } elseif ($backward) {
-                $segments = $scheduler->allocateBackward((int) $task->user_id, Carbon::today(), $anchor, $plan['duration'], $setting, (int) $task->id, Carbon::now());
+                // A backward move may use earlier working time, but must stay inside
+                // the task's original date range (and never schedule before today).
+                $earliestDate = $task->start_date
+                    ? Carbon::parse($task->start_date)->startOfDay()
+                    : Carbon::today();
+                if ($earliestDate->lt(Carbon::today())) {
+                    $earliestDate = Carbon::today();
+                }
+                $segments = $scheduler->allocateBackward((int) $task->user_id, $earliestDate, $anchor, $plan['duration'], $setting, (int) $task->id, Carbon::now());
             } else {
                 $segments = $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $anchor);
             }

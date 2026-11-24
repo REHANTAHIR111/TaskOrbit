@@ -573,6 +573,44 @@ try {
     );
     echo "PASS 29: stale selected-task IDs are rejected without changing any schedule\n";
 
+    // 30. Manual placement preview must remain usable when automatic reflow cannot fit by the task deadline.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $manualFallbackTarget = $createTask($user, 'Manual fallback target', 120, [
+        $seg('2030-02-20', '11:00:00', '13:00:00', 120),
+    ], '2030-02-21');
+    $manualFallbackLater = $createTask($user, 'Manual fallback later task', 120, [
+        $seg('2030-02-21', '15:00:00', '17:00:00', 120),
+    ], '2030-02-21');
+    $manualFallbackLater->start_date = '2030-02-20';
+    $manualFallbackLater->save();
+    $manualFallbackEdit = [
+        'task_name' => $manualFallbackTarget->task_name, 'hour' => 6,
+        'start_date' => '2030-02-20', 'end_date' => '2030-02-21', 'start_time' => '11:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual',
+    ];
+    $manualFallbackPreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $manualFallbackTarget->id . '/schedule-preview', 'POST', $manualFallbackEdit),
+        $manualFallbackTarget->id
+    ));
+    $manualFallbackSave = $responseData($controller->update(
+        Request::create('/api/task/' . $manualFallbackTarget->id . '/update', 'POST', array_merge($manualFallbackEdit, [
+            'reflow_task_ids' => [$manualFallbackLater->id],
+            'reflow_task_schedules' => [[
+                'task_id' => $manualFallbackLater->id, 'start_date' => '2030-02-20', 'start_time' => '09:00',
+            ]],
+        ])),
+        $manualFallbackTarget->id
+    ));
+    $manualFallbackSegments = $manualFallbackLater->fresh()->segments->sortBy('sequence')->values();
+    $assert(
+        $manualFallbackPreview['success'] && count($manualFallbackPreview['affected_tasks']) === 1 &&
+        $manualFallbackSave['success'] && $manualFallbackSegments->first()->segment_date->format('Y-m-d') === '2030-02-20' &&
+        $manualFallbackSegments->first()->start_time === '09:00:00' &&
+        $manualFallbackSegments->sum('allocated_minutes') === 120,
+        'Manual placement preview did not expose a task when automatic reflow could not fit, or the selected manual placement failed.'
+    );
+    echo "PASS 30: manual placement remains available when automatic reflow cannot fit by deadline\n";
+
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";
     if ($verificationFailures) exit(1);

@@ -51,7 +51,7 @@ const EditTask = (props: any) => {
     useEffect(() => {
         dispatch(setPageTitle('Edit Task'));
         getData()
-    }, [props]);
+    }, [props, id]);
 
     // Handle creating new priority
     const handleCreatePriority = (inputValue: string) => {
@@ -438,7 +438,7 @@ const EditTask = (props: any) => {
                         {needsSchedulePreview && (
                             <div className="mt-4">
                                 <label htmlFor="reflowMode" className="mb-1">When another task needs this time</label>
-                                <select id="reflowMode" className="form-select" value={reflowMode} onChange={(event) => setReflowMode(event.target.value as 'keep' | 'backfill' | 'forward')}>
+                                <select id="reflowMode" className="form-select" value={reflowMode} onChange={(event) => setReflowMode(event.target.value as 'keep' | 'backfill' | 'forward' | 'manual')}>
                                     <option value="keep">Keep other tasks in place</option>
                                     <option value="backfill">Move later tasks earlier into free time</option>
                                     <option value="forward">Move later tasks forward</option>

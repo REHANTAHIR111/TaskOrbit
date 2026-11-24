@@ -401,6 +401,214 @@ try {
     );
     echo "PASS 24: backward allocation never schedules before the current instant\n";
 
+    // 25. Backward reflow must not move an affected task before its original start date.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $dateBoundBlocker = $createTask($user, 'Date-bound blocker', 120, [
+        $seg('2030-02-13', '09:00:00', '11:00:00', 120),
+    ], '2030-02-13');
+    $dateBoundTarget = $createTask($user, 'Date-bound edit target', 120, [
+        $seg('2030-02-13', '11:00:00', '13:00:00', 120),
+    ], '2030-02-13');
+    $dateBoundLater = $createTask($user, 'Cannot move before start date', 120, [
+        $seg('2030-02-13', '13:00:00', '15:00:00', 120),
+    ], '2030-02-13');
+    $dateBoundTargetBefore = $segmentSnapshot($dateBoundTarget->id);
+    $dateBoundLaterBefore = $segmentSnapshot($dateBoundLater->id);
+    $dateBoundEdit = [
+        'task_name' => $dateBoundTarget->task_name, 'hour' => 4,
+        'start_date' => '2030-02-13', 'end_date' => '2030-02-13', 'start_time' => '11:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'backfill',
+    ];
+    $dateBoundPreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $dateBoundTarget->id . '/schedule-preview', 'POST', $dateBoundEdit),
+        $dateBoundTarget->id
+    ));
+    $dateBoundSave = $responseData($controller->update(
+        Request::create('/api/task/' . $dateBoundTarget->id . '/update', 'POST', $dateBoundEdit),
+        $dateBoundTarget->id
+    ));
+    $assert(
+        !$dateBoundPreview['success'] && !$dateBoundSave['success'] &&
+        $segmentSnapshot($dateBoundTarget->id) == $dateBoundTargetBefore &&
+        $segmentSnapshot($dateBoundLater->id) == $dateBoundLaterBefore &&
+        $segmentSnapshot($dateBoundBlocker->id)[0]->start_time === '09:00:00',
+        'Backward reflow moved a task outside its original start-date range or failed to roll back.'
+    );
+    echo "PASS 25: backward reflow respects affected task start-date limits and rolls back when no valid slot exists\n";
+
+    // 26. Manually selected reflow starts must stay within the task's original date range.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $manualDateTarget = $createTask($user, 'Manual date target', 60, [
+        $seg('2030-02-14', '09:00:00', '10:00:00', 60),
+    ], '2030-02-15');
+    $manualDateLater = $createTask($user, 'Manual date bounded task', 60, [
+        $seg('2030-02-15', '09:00:00', '10:00:00', 60),
+    ], '2030-02-15');
+    $manualDateTargetBefore = $segmentSnapshot($manualDateTarget->id);
+    $manualDateLaterBefore = $segmentSnapshot($manualDateLater->id);
+    $manualDateEdit = [
+        'task_name' => $manualDateTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-02-14', 'end_date' => '2030-02-15', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual',
+        'reflow_task_ids' => [$manualDateLater->id],
+        'reflow_task_schedules' => [[
+            'task_id' => $manualDateLater->id, 'start_date' => '2030-02-14', 'start_time' => '11:00',
+        ]],
+    ];
+    $manualDatePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $manualDateTarget->id . '/schedule-preview', 'POST', $manualDateEdit),
+        $manualDateTarget->id
+    ));
+    $manualDateSave = $responseData($controller->update(
+        Request::create('/api/task/' . $manualDateTarget->id . '/update', 'POST', $manualDateEdit),
+        $manualDateTarget->id
+    ));
+    $assert(
+        !$manualDatePreview['success'] && !$manualDateSave['success'] &&
+        $segmentSnapshot($manualDateTarget->id) == $manualDateTargetBefore &&
+        $segmentSnapshot($manualDateLater->id) == $manualDateLaterBefore,
+        'Manual reflow allowed a task to move before its original start date or failed to roll back.'
+    );
+    echo "PASS 26: manual reflow enforces task date bounds and rolls back invalid choices\n";
+
+    // 27. Manual reflow must not silently fall back to automatic placement when a preferred start is missing.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $manualRequiredTarget = $createTask($user, 'Manual placement required target', 60, [
+        $seg('2030-02-16', '09:00:00', '10:00:00', 60),
+    ], '2030-02-16');
+    $manualRequiredLater = $createTask($user, 'Manual placement required task', 60, [
+        $seg('2030-02-16', '10:00:00', '11:00:00', 60),
+    ], '2030-02-16');
+    $manualRequiredTargetBefore = $segmentSnapshot($manualRequiredTarget->id);
+    $manualRequiredLaterBefore = $segmentSnapshot($manualRequiredLater->id);
+    $manualRequiredEdit = [
+        'task_name' => $manualRequiredTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-02-16', 'end_date' => '2030-02-16', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual',
+        'reflow_task_ids' => [$manualRequiredLater->id],
+    ];
+    $manualRequiredPreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $manualRequiredTarget->id . '/schedule-preview', 'POST', $manualRequiredEdit),
+        $manualRequiredTarget->id
+    ));
+    $manualRequiredSave = $responseData($controller->update(
+        Request::create('/api/task/' . $manualRequiredTarget->id . '/update', 'POST', $manualRequiredEdit),
+        $manualRequiredTarget->id
+    ));
+    $assert(
+        $manualRequiredPreview['success'] && count($manualRequiredPreview['affected_tasks']) === 1 &&
+        !$manualRequiredSave['success'] &&
+        $segmentSnapshot($manualRequiredTarget->id) == $manualRequiredTargetBefore &&
+        $segmentSnapshot($manualRequiredLater->id) == $manualRequiredLaterBefore,
+        'Manual reflow preview did not expose tasks for placement, or save accepted an incomplete placement plan.'
+    );
+    echo "PASS 27: manual reflow previews placement choices but rejects incomplete saves without changes\n";
+
+    // 28. Edit reflow must not use disabled working-time settings for manual primary schedules.
+    [$user, $inactiveSettingId] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $db->table('slot_setting')->where('id', $inactiveSettingId)->update(['status' => 0]);
+    $inactiveTarget = $createTask($user, 'Inactive settings target', 60, [
+        $seg('2030-02-18', '09:00:00', '10:00:00', 60),
+    ], '2030-02-18');
+    $inactiveLater = $createTask($user, 'Inactive settings later task', 60, [
+        $seg('2030-02-18', '10:00:00', '11:00:00', 60),
+    ], '2030-02-18');
+    $inactiveTargetBefore = $segmentSnapshot($inactiveTarget->id);
+    $inactiveLaterBefore = $segmentSnapshot($inactiveLater->id);
+    $inactiveEdit = [
+        'task_name' => $inactiveTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-02-18', 'end_date' => '2030-02-18',
+        'start_time' => '09:00', 'end_time' => '11:00',
+        'auto_schedule' => false, 'schedule_changed' => true, 'reflow_mode' => 'forward',
+    ];
+    $inactivePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $inactiveTarget->id . '/schedule-preview', 'POST', $inactiveEdit),
+        $inactiveTarget->id
+    ));
+    $inactiveSave = $responseData($controller->update(
+        Request::create('/api/task/' . $inactiveTarget->id . '/update', 'POST', $inactiveEdit),
+        $inactiveTarget->id
+    ));
+    $assert(
+        !$inactivePreview['success'] && !$inactiveSave['success'] &&
+        $segmentSnapshot($inactiveTarget->id) == $inactiveTargetBefore &&
+        $segmentSnapshot($inactiveLater->id) == $inactiveLaterBefore,
+        'Edit reflow used inactive working-time settings or failed to roll back.'
+    );
+    echo "PASS 28: edit reflow requires active working-time settings even for manual primary schedules\n";
+
+    // 29. A stale or unrelated task ID must not be silently ignored during selected reflow.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $staleTarget = $createTask($user, 'Stale selection target', 60, [
+        $seg('2030-02-19', '09:00:00', '10:00:00', 60),
+    ], '2030-02-19');
+    $staleAffected = $createTask($user, 'Actually affected task', 60, [
+        $seg('2030-02-19', '10:00:00', '11:00:00', 60),
+    ], '2030-02-19');
+    $staleUnrelated = $createTask($user, 'Unrelated earlier task', 60, [
+        $seg('2030-02-19', '08:00:00', '09:00:00', 60),
+    ], '2030-02-19');
+    $staleTargetBefore = $segmentSnapshot($staleTarget->id);
+    $staleAffectedBefore = $segmentSnapshot($staleAffected->id);
+    $staleEdit = [
+        'task_name' => $staleTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-02-19', 'end_date' => '2030-02-19', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'forward',
+        'reflow_task_ids' => [$staleUnrelated->id],
+    ];
+    $stalePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $staleTarget->id . '/schedule-preview', 'POST', $staleEdit),
+        $staleTarget->id
+    ));
+    $staleSave = $responseData($controller->update(
+        Request::create('/api/task/' . $staleTarget->id . '/update', 'POST', $staleEdit),
+        $staleTarget->id
+    ));
+    $assert(
+        !$stalePreview['success'] && !$staleSave['success'] &&
+        $segmentSnapshot($staleTarget->id) == $staleTargetBefore &&
+        $segmentSnapshot($staleAffected->id) == $staleAffectedBefore &&
+        $segmentSnapshot($staleUnrelated->id)[0]->start_time === '08:00:00',
+        'Edit reflow silently ignored a stale/unrelated selected task ID or changed schedules.'
+    );
+    echo "PASS 29: stale selected-task IDs are rejected without changing any schedule\n";
+
+    // 30. Manual placement preview must remain usable when automatic reflow cannot fit by the task deadline.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $manualFallbackTarget = $createTask($user, 'Manual fallback target', 120, [
+        $seg('2030-02-20', '11:00:00', '13:00:00', 120),
+    ], '2030-02-20');
+    $manualFallbackLater = $createTask($user, 'Manual fallback later task', 120, [
+        $seg('2030-02-20', '15:00:00', '17:00:00', 120),
+    ], '2030-02-20');
+    $manualFallbackEdit = [
+        'task_name' => $manualFallbackTarget->task_name, 'hour' => 5,
+        'start_date' => '2030-02-20', 'end_date' => '2030-02-20', 'start_time' => '11:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'manual',
+    ];
+    $manualFallbackPreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $manualFallbackTarget->id . '/schedule-preview', 'POST', $manualFallbackEdit),
+        $manualFallbackTarget->id
+    ));
+    $manualFallbackSave = $responseData($controller->update(
+        Request::create('/api/task/' . $manualFallbackTarget->id . '/update', 'POST', array_merge($manualFallbackEdit, [
+            'reflow_task_ids' => [$manualFallbackLater->id],
+            'reflow_task_schedules' => [[
+                'task_id' => $manualFallbackLater->id, 'start_date' => '2030-02-20', 'start_time' => '09:00',
+            ]],
+        ])),
+        $manualFallbackTarget->id
+    ));
+    $manualFallbackSegments = $manualFallbackLater->fresh()->segments->sortBy('sequence')->values();
+    $assert(
+        $manualFallbackPreview['success'] && count($manualFallbackPreview['affected_tasks']) === 1 &&
+        $manualFallbackSave['success'] && $manualFallbackSegments->first()->segment_date->format('Y-m-d') === '2030-02-20' &&
+        $manualFallbackSegments->first()->start_time === '09:00:00' &&
+        $manualFallbackSegments->sum('allocated_minutes') === 120,
+        'Manual placement preview did not expose a task when automatic reflow could not fit, or the selected manual placement failed.'
+    );
+    echo "PASS 30: manual placement remains available when automatic reflow cannot fit by deadline\n";
+
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";
     if ($verificationFailures) exit(1);

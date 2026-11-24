@@ -966,6 +966,10 @@ class TaskController extends Controller
             }
             DB::table('users')->where('id', $initial->user_id)->lockForUpdate()->first();
             $task = Task::with('segments')->whereKey($id)->lockForUpdate()->first();
+            if (!$task || (int) $task->user_id !== (int) $initial->user_id) {
+                $connection->rollBack();
+                return response()->json(['success' => false, 'message' => 'Task changed while the schedule preview was starting. Please retry.'], 409);
+            }
             $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->first();
             if ($request->boolean('auto_schedule') && (!$setting || (string) $setting->status !== '1')) {
                 $connection->rollBack();
@@ -979,7 +983,7 @@ class TaskController extends Controller
                 }
             }
             $request->merge(['user_id' => $task->user_id]);
-            $result = $this->buildEditedTaskPlan($request, $task, $setting, (string) $request->input('reflow_mode', 'keep'));
+            $result = $this->buildEditedTaskPlan($request, $task, $setting, (string) $request->input('reflow_mode', 'keep'), true);
             $connection->rollBack();
             return response()->json($result, $result['success'] ? 200 : 422);
         } catch (\Throwable $e) {
@@ -989,13 +993,10 @@ class TaskController extends Controller
     }
 
     /** Build and apply an edit plan inside the caller's transaction. Preview callers always roll it back. */
-    private function buildEditedTaskPlan(Request $request, Task $task, $setting, string $mode): array
+    private function buildEditedTaskPlan(Request $request, Task $task, $setting, string $mode, bool $isPreview = false): array
     {
         if (!in_array($mode, ['keep', 'backfill', 'forward', 'manual'], true)) {
             return ['success' => false, 'message' => 'Choose how later tasks should be handled.'];
-        }
-        if ($mode !== 'keep' && !$setting) {
-            return ['success' => false, 'message' => 'Add working hours before moving other tasks.'];
         }
         $request->merge([
             'user_id' => $task->user_id,
@@ -1024,8 +1025,34 @@ class TaskController extends Controller
             ? collect()
             : $this->getTasksWithSegmentsAfter((int) $task->user_id, $anchor, [(int) $task->id]);
         if ($request->exists('reflow_task_ids') && $mode !== 'keep') {
-            $selectedTaskIds = array_map('intval', (array) $request->input('reflow_task_ids'));
+            $selectedTaskIds = array_values(array_unique(array_map('intval', (array) $request->input('reflow_task_ids'))));
+            $availableTaskIds = $laterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all();
+            if (array_diff($selectedTaskIds, $availableTaskIds)) {
+                return ['success' => false, 'message' => 'One or more selected tasks have changed since the preview. Refresh the schedule preview and try again.'];
+            }
             $laterTasks = $laterTasks->filter(fn ($laterTask) => in_array((int) $laterTask->id, $selectedTaskIds, true))->values();
+        }
+        if ($laterTasks->isNotEmpty() && (!$setting || (string) $setting->status !== '1')) {
+            return ['success' => false, 'message' => 'Active working-time settings are required before moving other tasks.'];
+        }
+        $manualStarts = collect($request->input('reflow_task_schedules', []))
+            ->keyBy(fn ($item) => (int) $item['task_id'])
+            ->all();
+        if ($mode === 'manual' && $manualStarts) {
+            $missingManualStart = $laterTasks->first(fn ($laterTask) => !isset($manualStarts[(int) $laterTask->id]));
+            if ($missingManualStart) {
+                return ['success' => false, 'message' => "Choose a preferred date and start time for task '{$missingManualStart->task_name}' (#{$missingManualStart->id})."];
+            }
+            $selectedIds = $laterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all();
+            foreach (array_keys($manualStarts) as $manualTaskId) {
+                if (!in_array((int) $manualTaskId, $selectedIds, true)) {
+                    return ['success' => false, 'message' => 'A manual schedule was supplied for a task that is not selected to move.'];
+                }
+            }
+        } elseif ($mode === 'manual' && !$isPreview && $laterTasks->isNotEmpty()) {
+            return ['success' => false, 'message' => 'Choose a preferred date and start time for every selected task before saving manual reflow.'];
+        } elseif ($mode !== 'manual' && $manualStarts) {
+            return ['success' => false, 'message' => 'Preferred task schedules can only be supplied in manual reflow mode.'];
         }
         $previousTaskSegments = [];
         foreach ($laterTasks as $laterTask) {
@@ -1075,15 +1102,30 @@ class TaskController extends Controller
         $updatedTask = $this->saveTaskAndSegments($request, $segments, (int) $task->id);
         $moved = [];
         if ($laterTasks->isNotEmpty()) {
-            $summary = $scheduler->summarize($segments);
-            $reflowAnchor = $mode === 'forward' || $mode === 'manual'
-                ? Carbon::parse($summary['end_date'] . ' ' . $summary['end_time'])
-                : Carbon::parse($summary['start_date'] . ' ' . $summary['start_time']);
-            $manualStarts = collect($request->input('reflow_task_schedules', []))->keyBy(fn ($item) => (int) $item['task_id'])->all();
-            $needsBackwardAllocation = $mode === 'backfill' && $duration > array_sum(array_column($oldSegments, 'allocated_minutes'));
-            $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation);
-            foreach ($moved as &$item) $item['previous_segments'] = $previousTaskSegments[$item['id']] ?? [];
-            unset($item);
+            if ($mode === 'manual' && $isPreview && !$manualStarts) {
+                // The first manual preview is a placement editor, not an automatic
+                // reflow attempt. Return current task times so the user can choose
+                // dates/times even when the default automatic placement cannot fit.
+                foreach ($laterTasks as $laterTask) {
+                    $originalTaskSegments = $previousTaskSegments[$laterTask->id] ?? [];
+                    $moved[] = [
+                        'id' => (int) $laterTask->id,
+                        'task_name' => $laterTask->task_name,
+                        'previous_segments' => $originalTaskSegments,
+                        'segments' => $originalTaskSegments,
+                        'total_allocated_minutes' => array_sum(array_column($originalTaskSegments, 'allocated_minutes')),
+                    ];
+                }
+            } else {
+                $summary = $scheduler->summarize($segments);
+                $reflowAnchor = $mode === 'forward' || $mode === 'manual'
+                    ? Carbon::parse($summary['end_date'] . ' ' . $summary['end_time'])
+                    : Carbon::parse($summary['start_date'] . ' ' . $summary['start_time']);
+                $needsBackwardAllocation = $mode === 'backfill' && $duration > array_sum(array_column($oldSegments, 'allocated_minutes'));
+                $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation);
+                foreach ($moved as &$item) $item['previous_segments'] = $previousTaskSegments[$item['id']] ?? [];
+                unset($item);
+            }
         }
 
         return [
@@ -1484,9 +1526,29 @@ class TaskController extends Controller
             if (isset($manualStarts[$task->id])) {
                 $preferred = $manualStarts[$task->id];
                 $taskStart = Carbon::parse($preferred['start_date'] . ' ' . $preferred['start_time']);
+                $earliestAllowed = $task->start_date
+                    ? Carbon::parse($task->start_date)->startOfDay()
+                    : Carbon::today();
+                if ($earliestAllowed->lt(Carbon::today())) {
+                    $earliestAllowed = Carbon::today();
+                }
+                if ($taskStart->lt(Carbon::now())) {
+                    throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) cannot be manually moved into the past.");
+                }
+                if ($taskStart->copy()->startOfDay()->lt($earliestAllowed) || $taskStart->copy()->startOfDay()->gt($plan['deadline'])) {
+                    throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) must stay between its allowed dates ({$earliestAllowed->format('Y-m-d')} and {$plan['deadline']->format('Y-m-d')}).");
+                }
                 $segments = $scheduler->allocate((int) $task->user_id, $taskStart->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $taskStart);
             } elseif ($backward) {
-                $segments = $scheduler->allocateBackward((int) $task->user_id, Carbon::today(), $anchor, $plan['duration'], $setting, (int) $task->id, Carbon::now());
+                // A backward move may use earlier working time, but must stay inside
+                // the task's original date range (and never schedule before today).
+                $earliestDate = $task->start_date
+                    ? Carbon::parse($task->start_date)->startOfDay()
+                    : Carbon::today();
+                if ($earliestDate->lt(Carbon::today())) {
+                    $earliestDate = Carbon::today();
+                }
+                $segments = $scheduler->allocateBackward((int) $task->user_id, $earliestDate, $anchor, $plan['duration'], $setting, (int) $task->id, Carbon::now());
             } else {
                 $segments = $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $anchor);
             }

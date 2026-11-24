@@ -1486,7 +1486,7 @@ class TaskController extends Controller
                 $taskStart = Carbon::parse($preferred['start_date'] . ' ' . $preferred['start_time']);
                 $segments = $scheduler->allocate((int) $task->user_id, $taskStart->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $taskStart);
             } elseif ($backward) {
-                $segments = $scheduler->allocateBackward((int) $task->user_id, Carbon::today(), $anchor, $plan['duration'], $setting, (int) $task->id);
+                $segments = $scheduler->allocateBackward((int) $task->user_id, Carbon::today(), $anchor, $plan['duration'], $setting, (int) $task->id, Carbon::now());
             } else {
                 $segments = $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $anchor);
             }

@@ -998,9 +998,6 @@ class TaskController extends Controller
         if (!in_array($mode, ['keep', 'backfill', 'forward', 'manual'], true)) {
             return ['success' => false, 'message' => 'Choose how later tasks should be handled.'];
         }
-        if ($mode !== 'keep' && (!$setting || (string) $setting->status !== '1')) {
-            return ['success' => false, 'message' => 'Active working-time settings are required before moving other tasks.'];
-        }
         $request->merge([
             'user_id' => $task->user_id,
             'task_name' => $request->input('task_name', $task->task_name),
@@ -1030,6 +1027,9 @@ class TaskController extends Controller
         if ($request->exists('reflow_task_ids') && $mode !== 'keep') {
             $selectedTaskIds = array_map('intval', (array) $request->input('reflow_task_ids'));
             $laterTasks = $laterTasks->filter(fn ($laterTask) => in_array((int) $laterTask->id, $selectedTaskIds, true))->values();
+        }
+        if ($laterTasks->isNotEmpty() && (!$setting || (string) $setting->status !== '1')) {
+            return ['success' => false, 'message' => 'Active working-time settings are required before moving other tasks.'];
         }
         $manualStarts = collect($request->input('reflow_task_schedules', []))
             ->keyBy(fn ($item) => (int) $item['task_id'])

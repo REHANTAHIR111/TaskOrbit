@@ -983,7 +983,7 @@ class TaskController extends Controller
                 }
             }
             $request->merge(['user_id' => $task->user_id]);
-            $result = $this->buildEditedTaskPlan($request, $task, $setting, (string) $request->input('reflow_mode', 'keep'));
+            $result = $this->buildEditedTaskPlan($request, $task, $setting, (string) $request->input('reflow_mode', 'keep'), true);
             $connection->rollBack();
             return response()->json($result, $result['success'] ? 200 : 422);
         } catch (\Throwable $e) {
@@ -993,7 +993,7 @@ class TaskController extends Controller
     }
 
     /** Build and apply an edit plan inside the caller's transaction. Preview callers always roll it back. */
-    private function buildEditedTaskPlan(Request $request, Task $task, $setting, string $mode): array
+    private function buildEditedTaskPlan(Request $request, Task $task, $setting, string $mode, bool $isPreview = false): array
     {
         if (!in_array($mode, ['keep', 'backfill', 'forward', 'manual'], true)) {
             return ['success' => false, 'message' => 'Choose how later tasks should be handled.'];
@@ -1038,7 +1038,7 @@ class TaskController extends Controller
         $manualStarts = collect($request->input('reflow_task_schedules', []))
             ->keyBy(fn ($item) => (int) $item['task_id'])
             ->all();
-        if ($mode === 'manual') {
+        if ($mode === 'manual' && $manualStarts) {
             $missingManualStart = $laterTasks->first(fn ($laterTask) => !isset($manualStarts[(int) $laterTask->id]));
             if ($missingManualStart) {
                 return ['success' => false, 'message' => "Choose a preferred date and start time for task '{$missingManualStart->task_name}' (#{$missingManualStart->id})."];
@@ -1049,7 +1049,9 @@ class TaskController extends Controller
                     return ['success' => false, 'message' => 'A manual schedule was supplied for a task that is not selected to move.'];
                 }
             }
-        } elseif ($manualStarts) {
+        } elseif ($mode === 'manual' && !$isPreview && $laterTasks->isNotEmpty()) {
+            return ['success' => false, 'message' => 'Choose a preferred date and start time for every selected task before saving manual reflow.'];
+        } elseif ($mode !== 'manual' && $manualStarts) {
             return ['success' => false, 'message' => 'Preferred task schedules can only be supplied in manual reflow mode.'];
         }
         $previousTaskSegments = [];

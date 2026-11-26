@@ -15,6 +15,8 @@ use App\Models\CompanyAnalytics;
 use Mail;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Facades\Validator;
 use Log;
 class UserController extends Controller
@@ -79,6 +81,70 @@ class UserController extends Controller
             'user_data' => $userData,
             'message' => 'You Are Successfully Logged In!',
         ]);
+    }
+
+
+    public function sendPasswordResetLink(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+
+        try {
+            Password::sendResetLink($request->only('email'));
+
+            // Keep the response generic so account existence is not disclosed.
+            return response()->json([
+                'success' => true,
+                'message' => 'If an account exists for that email, a password reset link will be sent shortly.',
+            ]);
+        } catch (\Throwable $exception) {
+            Log::warning('Password reset email could not be sent.');
+            return response()->json([
+                'success' => false,
+                'message' => 'We could not send a reset link right now. Please try again later.',
+            ], 503);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'email' => 'required|email',
+            'password' => [
+                'required',
+                'confirmed',
+                'string',
+                'min:6',
+                'max:16',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,16}$/',
+            ],
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user, string $password) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Your password has been updated. You can now sign in.',
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'This password reset link is invalid or has expired. Request a new link and try again.',
+        ], 422);
     }
 
     public function customLogout(Request $request)

@@ -163,7 +163,8 @@ const CreateTask = (props: any) => {
 
     return (
         <>
-            <div className="flex xl:flex-row flex-col gap-2">
+            <div className="flex xl:flex-row flex-col gap-2">            <div className="to-page-heading"><div><span>PLAN YOUR WORK</span><h1>Create a task</h1><p>Add a task and choose when it should fit into your schedule.</p></div></div>
+
                 <div className="px-0 flex-1 py-0 ltr:xl:mr-1 rtl:xl:ml-1">
                     <div className="panel mb-3">
                         <div className="w-full flex items-center gap-3 mb-3">

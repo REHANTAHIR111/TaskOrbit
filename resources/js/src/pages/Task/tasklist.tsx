@@ -225,17 +225,14 @@ const TaskListing = (props: any) => {
 
     return (
         <div className="to-task-list">
-            <div className="panel">
-                <div className="to-task-list-heading">
-                    <div>
-                        <h1>
-                            All tasks
-                        </h1>
-
-                        <p>
-                            Review your tasks, scheduled time, and upcoming work.
-                        </p>
-                    </div>
+            <div className="to-listing-intro">
+                <div className="to-listing-title">
+                    <span className="to-listing-kicker">WORKSPACE / TASK MANAGEMENT</span>
+                    <h1>Tasks</h1>
+                    <p>Everything you're working on, organized in one place.</p>
+                </div>
+                <div className="to-listing-intro-actions">
+                    <span className="to-listing-total"><strong>{taskData.length}</strong><small>Total tasks</small></span>
                     <div className="flex items-center gap-2">
                         <button
                             type="button"
@@ -256,6 +253,11 @@ const TaskListing = (props: any) => {
                             <span>{t('Add Task')}</span>
                         </Link>
                     </div>
+                </div>
+                <div className="to-listing-stats">
+                    <div><span className="to-listing-stat-icon">▤</span><span><small>All tasks</small><strong>{taskData.length}</strong></span></div>
+                    <div><span className="to-listing-stat-icon is-scheduled">◷</span><span><small>Scheduled</small><strong>{taskData.filter((task: any) => (task.segments || []).length > 0).length}</strong></span></div>
+                    <div><span className="to-listing-stat-icon is-pending">＋</span><span><small>Needs planning</small><strong>{taskData.filter((task: any) => !(task.segments || []).length).length}</strong></span></div>
                 </div>
                 <div className="to-task-list-toolbar">
                     <div className="to-task-search">

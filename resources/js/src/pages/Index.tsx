@@ -55,7 +55,7 @@ const Dashboard = () => {
     const priorityTasks = tasks.filter(task => ['urgent', 'high'].includes(String(task.priority || '').toLowerCase()));
     const upcomingTasks = useMemo(() => scheduledTasks.map(task => {
         const segments = [...(task.segments || [])].sort((a, b) => `${a.segment_date} ${a.start_time}`.localeCompare(`${b.segment_date} ${b.start_time}`));
-        return { ...task, nextSegment: segments.find(segment => `${segment.segment_date} ${segment.start_time}` >= `${today} 00:00`) || segments[0] };
+        return { ...task, nextSegment: segments.find(segment => `${segment.segment_date} ${segment.start_time}` >= `${today} 00:00`) };
     }).filter(task => task.nextSegment).sort((a, b) => `${a.nextSegment?.segment_date} ${a.nextSegment?.start_time}`.localeCompare(`${b.nextSegment?.segment_date} ${b.nextSegment?.start_time}`)).slice(0, 6), [scheduledTasks, today]);
 
     const formatTime = (value?: string) => {

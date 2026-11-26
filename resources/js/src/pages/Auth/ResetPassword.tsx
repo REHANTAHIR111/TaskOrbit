@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { post } from '../api/ApiCalls';
 import Alerts from '../../components/Alerts';
+import TaskOrbitMark from '../../components/TaskOrbitMark';
 
 const ResetPassword = () => {
     const [params] = useSearchParams();
@@ -46,12 +47,12 @@ const ResetPassword = () => {
         <main className="to-auth-page">
             <section className="to-auth-shell">
                 <aside className="to-auth-story">
-                    <a href="/auth/login" className="to-brand"><span className="to-brand-mark">T</span><span>TaskOrbit</span></a>
+                    <a href="/auth/login" className="to-brand"><TaskOrbitMark /><span>TaskOrbit</span></a>
                     <div className="to-story-copy"><span className="to-eyebrow">SECURE YOUR WORKSPACE</span><h1>A fresh start<br/><span>starts here.</span></h1><p>Choose a strong password to keep your tasks, schedule and account protected.</p></div>
                     <div className="to-story-foot">Keep your account secure.</div>
                 </aside>
                 <section className="to-auth-form-panel">
-                    <div className="to-auth-mobile-brand"><span className="to-brand-mark">T</span><strong>TaskOrbit</strong></div>
+                    <div className="to-auth-mobile-brand"><TaskOrbitMark /><strong>TaskOrbit</strong></div>
                     <div className="to-auth-form-wrap">
                         <span className="to-eyebrow to-eyebrow-light">NEW PASSWORD</span>
                         <h2>Choose a new password</h2>

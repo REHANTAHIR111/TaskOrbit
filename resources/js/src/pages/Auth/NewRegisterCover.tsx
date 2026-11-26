@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Alerts from '../../components/Alerts';
 import { useNavigate } from 'react-router-dom';
 import { post } from '../api/ApiCalls';
+import TaskOrbitMark from '../../components/TaskOrbitMark';
 
 const NewRegisterCover = () => {
     const navigate = useNavigate();
@@ -160,7 +161,7 @@ const NewRegisterCover = () => {
         <main className="to-auth-page to-auth-register">
             <section className="to-auth-shell">
                 <aside className="to-auth-story">
-                    <a href="/auth/login" className="to-brand" aria-label="TaskOrbit home"><span className="to-brand-mark">T</span><span>TaskOrbit</span></a>
+                    <a href="/auth/login" className="to-brand" aria-label="TaskOrbit home"><TaskOrbitMark /><span>TaskOrbit</span></a>
                     <div className="to-story-copy">
                         <span className="to-eyebrow">A BETTER WAY TO PLAN</span>
                         <h1>Your time.<br/><span>Your priorities.</span></h1>
@@ -174,7 +175,7 @@ const NewRegisterCover = () => {
                     <div className="to-story-foot">Start with a plan. Make progress every day.</div>
                 </aside>
                 <section className="to-auth-form-panel">
-                    <div className="to-auth-mobile-brand"><span className="to-brand-mark">T</span><strong>TaskOrbit</strong></div>
+                    <div className="to-auth-mobile-brand"><TaskOrbitMark /><strong>TaskOrbit</strong></div>
                     <div className="to-auth-form-wrap to-register-wrap">
                         <span className="to-eyebrow to-eyebrow-light">GET STARTED</span>
                         <h2>Create your account</h2>

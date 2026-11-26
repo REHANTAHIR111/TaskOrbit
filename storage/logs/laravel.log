@@ -914,3 +914,5 @@ Did you mean one of these?
 #16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\tests\\Support\\mysql_task_lifecycle_regression.php(24): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
 #17 {main}
 "} 
+[2026-11-26 20:26:44] local.WARNING: Password reset email could not be sent.  
+[2026-11-26 20:27:39] local.WARNING: Password reset email could not be sent.  

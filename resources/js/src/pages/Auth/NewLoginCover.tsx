@@ -5,6 +5,7 @@ import { setPageTitle } from '../../store/themeConfigSlice';
 import { post } from "../api/ApiCalls";
 import { useTranslation } from 'react-i18next';
 import Alerts from '../../components/Alerts';
+import TaskOrbitMark from '../../components/TaskOrbitMark';
 
 const NewLoginConver = () => {
     const dispatch = useDispatch();
@@ -140,7 +141,7 @@ const NewLoginConver = () => {
             <section className="to-auth-shell">
                 <aside className="to-auth-story">
                     <a href="/auth/login" className="to-brand" aria-label="TaskOrbit home">
-                        <span className="to-brand-mark">T</span><span>TaskOrbit</span>
+                        <TaskOrbitMark /><span>TaskOrbit</span>
                     </a>
                     <div className="to-story-copy">
                         <span className="to-eyebrow">PLAN WITH PURPOSE</span>
@@ -155,7 +156,7 @@ const NewLoginConver = () => {
                     <div className="to-story-foot">A calmer way to get things done.</div>
                 </aside>
                 <section className="to-auth-form-panel">
-                    <div className="to-auth-mobile-brand"><span className="to-brand-mark">T</span><strong>TaskOrbit</strong></div>
+                    <div className="to-auth-mobile-brand"><TaskOrbitMark /><strong>TaskOrbit</strong></div>
                     <div className="to-auth-form-wrap">
                         <span className="to-eyebrow to-eyebrow-light">WELCOME BACK</span>
                         <h2>Sign in to your workspace</h2>

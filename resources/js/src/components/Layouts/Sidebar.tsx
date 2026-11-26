@@ -4,6 +4,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { IRootState } from '../../store';
 import { toggleSidebar } from '../../store/themeConfigSlice';
 import IconLogout from '../Icon/IconLogout';
+import TaskOrbitMark from '../TaskOrbitMark';
 
 const IconAutoSetting = lazy(() => import('../../components/Icon/IconAutoSetting'));
 const IconListCheck = lazy(() => import('../../components/Icon/IconListCheck'));
@@ -37,7 +38,7 @@ const Sidebar = () => {
             <div className="main_sidebar to-sidebar-surface h-full">
                 <div className="to-sidebar-brand-row">
                     <NavLink to="/" className="to-sidebar-brand" aria-label="TaskOrbit dashboard">
-                        <span className="to-brand-mark" aria-hidden="true">T</span>
+                        <TaskOrbitMark />
                         <span>TaskOrbit</span>
                     </NavLink>
                     <button

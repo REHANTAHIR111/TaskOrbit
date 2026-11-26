@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { post } from '../api/ApiCalls';
 import Alerts from '../../components/Alerts';
+import TaskOrbitMark from '../../components/TaskOrbitMark';
 
 const ForgotPassword = () => {
     const { coloredToast } = Alerts();
@@ -35,12 +36,12 @@ const ForgotPassword = () => {
         <main className="to-auth-page">
             <section className="to-auth-shell">
                 <aside className="to-auth-story">
-                    <a href="/auth/login" className="to-brand"><span className="to-brand-mark">T</span><span>TaskOrbit</span></a>
+                    <a href="/auth/login" className="to-brand"><TaskOrbitMark /><span>TaskOrbit</span></a>
                     <div className="to-story-copy"><span className="to-eyebrow">ACCOUNT RECOVERY</span><h1>Get back to<br/><span>your best work.</span></h1><p>We’ll help you securely regain access to your workspace and get your plans moving again.</p></div>
                     <div className="to-story-foot">Your work is worth protecting.</div>
                 </aside>
                 <section className="to-auth-form-panel">
-                    <div className="to-auth-mobile-brand"><span className="to-brand-mark">T</span><strong>TaskOrbit</strong></div>
+                    <div className="to-auth-mobile-brand"><TaskOrbitMark /><strong>TaskOrbit</strong></div>
                     <div className="to-auth-form-wrap">
                         <span className="to-eyebrow to-eyebrow-light">FORGOT PASSWORD</span>
                         <h2>Reset your password</h2>

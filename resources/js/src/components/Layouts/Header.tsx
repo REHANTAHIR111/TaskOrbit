@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { IRootState } from '../../store';
@@ -24,6 +24,18 @@ const Header = () => {
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
     const [username, setUsername] = useState(() => localStorage.getItem('username') || 'My account');
     const [email, setEmail] = useState(() => localStorage.getItem('email') || '');
+    const [commandOpen, setCommandOpen] = useState(false);
+    const [commandQuery, setCommandQuery] = useState('');
+    const commandInputRef = useRef<HTMLInputElement>(null);
+    const commands = [
+        { label: 'Open dashboard', detail: 'Workspace overview', path: '/', icon: '⌂', group: 'Navigate' },
+        { label: 'All tasks', detail: 'Search and manage tasks', path: '/tasklist', icon: '☷', group: 'Navigate' },
+        { label: 'Create a task', detail: 'Add a task to your schedule', path: '/tasks/create', icon: '+', group: 'Actions' },
+        { label: 'Recycle bin', detail: 'Restore or permanently remove tasks', path: '/recyclebin', icon: '↶', group: 'Navigate' },
+        { label: 'Working hours', detail: 'Manage availability and breaks', path: '/slotsetting', icon: '◷', group: 'Settings' },
+    ];
+    const filteredCommands = commands.filter((command) => (command.label + ' ' + command.detail).toLowerCase().includes(commandQuery.trim().toLowerCase()));
+    const runCommand = (path: string) => { navigate(path); setCommandOpen(false); setCommandQuery(''); };
 
     const context = useMemo(() => {
         if (location.pathname.startsWith('/tasks/edit/')) {
@@ -38,6 +50,22 @@ const Header = () => {
         setUsername(localStorage.getItem('username') || 'My account');
         setEmail(localStorage.getItem('email') || '');
     }, [context.title, dispatch, location.pathname]);
+
+    useEffect(() => {
+        const handleShortcut = (event: KeyboardEvent) => {
+            if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+                event.preventDefault();
+                setCommandOpen((open) => !open);
+            }
+            if (event.key === 'Escape') setCommandOpen(false);
+        };
+        window.addEventListener('keydown', handleShortcut);
+        return () => window.removeEventListener('keydown', handleShortcut);
+    }, []);
+
+    useEffect(() => {
+        if (commandOpen) commandInputRef.current?.focus();
+    }, [commandOpen]);
 
     const signOut = () => {
         localStorage.clear();
@@ -67,6 +95,9 @@ const Header = () => {
                 </div>
 
                 <div className="to-header-actions">
+                    <button type="button" className="to-command-trigger" onClick={() => setCommandOpen(true)} aria-label="Open command menu">
+                        <span>Quick actions</span><kbd>⌘ K</kbd>
+                    </button>
                     <button
                         type="button"
                         className="to-header-icon-button"
@@ -103,6 +134,28 @@ const Header = () => {
                     </Dropdown>
                 </div>
             </div>
+            {commandOpen && (
+                <div className="to-command-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setCommandOpen(false); }}>
+                    <section className="to-command-dialog" role="dialog" aria-modal="true" aria-label="TaskOrbit command menu">
+                        <div className="to-command-search-row">
+                            <span aria-hidden="true">⌕</span>
+                            <input ref={commandInputRef} value={commandQuery} onChange={(event) => setCommandQuery(event.target.value)} placeholder="Search pages and actions…" aria-label="Search commands" />
+                            <kbd>ESC</kbd>
+                        </div>
+                        <div className="to-command-results">
+                            <div className="to-command-group-label">Workspace</div>
+                            {filteredCommands.length ? filteredCommands.map((command) => (
+                                <button type="button" className="to-command-item" key={command.path} onClick={() => runCommand(command.path)}>
+                                    <span className="to-command-item-icon" aria-hidden="true">{command.icon}</span>
+                                    <span><strong>{command.label}</strong><span style={{ display: 'block', marginTop: 2, color: 'var(--to-muted)', fontSize: 10 }}>{command.detail}</span></span>
+                                    <kbd>↵</kbd>
+                                </button>
+                            )) : <div className="to-command-empty-state">No matching actions. Try another search.</div>}
+                        </div>
+                        <div className="to-command-footer"><span>Navigate with search</span><span>Enter to open · Esc to close</span></div>
+                    </section>
+                </div>
+            )}
         </header>
     );
 };

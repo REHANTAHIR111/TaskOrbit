@@ -177,6 +177,7 @@ const NewLoginConver = () => {
                             </div>
                             <div className="to-auth-meta">
                                 <label className="to-checkbox"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}/> <span>Remember me</span></label>
+                                <button type="button" className="to-forgot-link" onClick={() => navigate('/auth/forgot-password')}>Forgot password?</button>
                             </div>
                             <button type="submit" disabled={isLoading} className="to-primary-button">
                                 {isLoading ? <><span className="to-spinner"/> Signing in…</> : "Sign in"}

@@ -190,3 +190,6 @@ body { background: var(--to-canvas); color: var(--to-ink); font-family: Inter, u
 .to-page-content .text-slate-300 { color: #526178 !important; }
 .dark .to-page-content .text-slate-200 { color: #d5dfed !important; }
 .dark .to-page-content .text-slate-300 { color: #c0ccdc !important; }
+
+.to-forgot-link { padding:0; color:#526bd9; background:transparent; font-size:11px; font-weight:700; }
+.to-auth-success { margin:16px 0 0; padding:11px 13px; border:1px solid #ccebdd; border-radius:9px; color:#287b5c; background:#f0fbf5; font-size:11px; line-height:1.6; }

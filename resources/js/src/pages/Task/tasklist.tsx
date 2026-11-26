@@ -254,6 +254,8 @@ const TaskListing = (props: any) => {
                         </Link>
                     </div>
                 </div>
+            </div>
+            <div className="panel to-listing-surface">
                 <div className="to-listing-stats">
                     <div><span className="to-listing-stat-icon">▤</span><span><small>All tasks</small><strong>{taskData.length}</strong></span></div>
                     <div><span className="to-listing-stat-icon is-scheduled">◷</span><span><small>Scheduled</small><strong>{taskData.filter((task: any) => (task.segments || []).length > 0).length}</strong></span></div>

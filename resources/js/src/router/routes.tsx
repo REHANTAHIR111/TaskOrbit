@@ -34,6 +34,16 @@ const routes = [
         element: <NewRegisterCover />,
         layout: "blank",
     },
+    {
+        path: '/auth/forgot-password',
+        element: <ForgotPassword />,
+        layout: "blank",
+    },
+    {
+        path: '/auth/reset-password',
+        element: <ResetPassword />,
+        layout: "blank",
+    },
     
     {
         path: '/tasklist',

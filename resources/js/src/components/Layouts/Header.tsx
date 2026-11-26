@@ -204,7 +204,7 @@ const Header = () => {
                         <div className="hidden md:block sm:ltr:mr-auto sm:rtl:ml-auto">
                             {/* <div>Streamline Your Slot Management Workflow</div> */}
                             {/* <div>Take control of your scheduling with ease</div> */}
-                            <div>Manage, organize, and optimize your slots seamlessly</div>
+                            <div>Plan your work. Protect your time. Make meaningful progress.</div>
                             <button
                                 type="button"
                                 onClick={() => setSearch(!search)}
@@ -235,10 +235,10 @@ const Header = () => {
                                         overflow-hidden
                                         rounded-md
                                         border
-                                        border-gray-600
-                                        bg-[#1b304d]
-                                        shadow-[0_8px_25px_rgba(0,0,0,0.35)]
-                                        text-white
+                                        border-slate-200
+                                        bg-white
+                                        shadow-[0_12px_32px_rgba(17,31,52,0.14)]
+                                        text-slate-800
                                     "
                                 >
                                     {/* Profile Header */}

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setPageTitle } from '../store/themeConfigSlice';
@@ -28,14 +28,16 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState('');
 
-    useEffect(() => {
-        dispatch(setPageTitle('Dashboard'));
-        verifyAuth?.();
+    const reloadTasks = useCallback(() => {
         if (!userId) {
             setLoading(false);
+            setTasks([]);
+            setLoadError('');
             return;
         }
-        get(`getTask/${userId}`)
+        setLoading(true);
+        setLoadError('');
+        get('getTask/' + userId)
             .then((response: any) => {
                 if (Array.isArray(response?.data)) {
                     setTasks(response.data);
@@ -47,9 +49,16 @@ const Dashboard = () => {
             })
             .catch(() => setLoadError('We could not load your tasks. Please refresh and try again.'))
             .finally(() => setLoading(false));
-    }, [dispatch, userId]);
+    }, [userId]);
 
-    const today = new Date().toISOString().slice(0, 10);
+    useEffect(() => {
+        dispatch(setPageTitle('Dashboard'));
+        verifyAuth?.();
+        reloadTasks();
+    }, [dispatch, reloadTasks]);
+
+    const now = new Date();
+    const today = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
     const scheduledTasks = useMemo(() => tasks.filter(task => Array.isArray(task.segments) && task.segments.length > 0), [tasks]);
     const unscheduledTasks = tasks.length - scheduledTasks.length;
     const priorityTasks = tasks.filter(task => ['urgent', 'high'].includes(String(task.priority || '').toLowerCase()));
@@ -88,13 +97,19 @@ const Dashboard = () => {
                 <article className="to-stat-card"><span className="to-stat-icon to-stat-indigo">▦</span><div><span>Total tasks</span><strong>{loading ? '—' : tasks.length}</strong><small>Across your workspace</small></div></article>
                 <article className="to-stat-card"><span className="to-stat-icon to-stat-green">✓</span><div><span>Scheduled</span><strong>{loading ? '—' : scheduledTasks.length}</strong><small>With allocated time</small></div></article>
                 <article className="to-stat-card"><span className="to-stat-icon to-stat-amber">◷</span><div><span>Unscheduled</span><strong>{loading ? '—' : unscheduledTasks}</strong><small>Need a place in your day</small></div></article>
-                <article className="to-stat-card"><span className="to-stat-icon to-stat-rose">↗</span><div><span>High priority</span><strong>{loading ? '—' : priorityTasks.length}</strong><small>Urgent and high priority</small></div></article>
+                <article className="to-stat-card"><span className="to-stat-icon to-stat-rose">↗</span><div><span>High or urgent</span><strong>{loading ? '—' : priorityTasks.length}</strong><small>Tasks needing attention</small></div></article>
             </section>
 
             <section className="to-dashboard-content">
                 <div className="to-dashboard-main-card">
                     <div className="to-section-heading"><div><h2>Upcoming schedule</h2><p>Your next scheduled task segments.</p></div><Link to="/tasklist">View all tasks <span aria-hidden="true">→</span></Link></div>
-                    {loading ? <div className="to-dashboard-empty">Loading your schedule…</div> : upcomingTasks.length ? (
+                    {loading ? <div className="to-dashboard-empty" role="status">Loading your schedule…</div> : loadError ? (
+                        <div className="to-dashboard-empty" role="alert">
+                            <strong>We couldn’t load your schedule</strong>
+                            <p>{loadError}</p>
+                            <button type="button" onClick={reloadTasks}>Try again</button>
+                        </div>
+                    ) : upcomingTasks.length ? (
                         <div className="to-upcoming-list">
                             {upcomingTasks.map(task => <article className="to-upcoming-item" key={task.id}>
                                 <div className="to-upcoming-date"><strong>{task.nextSegment?.segment_date ? new Date(`${task.nextSegment.segment_date}T00:00:00`).toLocaleDateString(undefined, { day: '2-digit' }) : '—'}</strong><span>{task.nextSegment?.segment_date ? new Date(`${task.nextSegment.segment_date}T00:00:00`).toLocaleDateString(undefined, { month: 'short' }) : 'Date'}</span></div>
@@ -103,7 +118,7 @@ const Dashboard = () => {
                                 <Link to={`/tasks/edit/${task.id}`} className="to-upcoming-edit" aria-label={`Edit ${task.task_name || 'task'}`}>Edit</Link>
                             </article>)}
                         </div>
-                    ) : <div className="to-dashboard-empty"><span className="to-empty-icon">◷</span><strong>Your schedule is clear</strong><p>Create a task and give it a time slot to see it here.</p><Link to="/tasks/create">Create your first task</Link></div>}
+                    ) : <div className="to-dashboard-empty"><span className="to-empty-icon">◷</span><strong>No upcoming tasks</strong><p>When a task is scheduled, it will appear here.</p><Link to="/tasks/create">Create a task</Link></div>}
                 </div>
 
                 <aside className="to-dashboard-side-card">

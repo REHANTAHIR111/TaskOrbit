@@ -14,6 +14,7 @@ const NewRegisterCover = () => {
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({
         firstName: false,
         lastName: false,
@@ -47,7 +48,8 @@ const NewRegisterCover = () => {
         return passwordRegex.test(password);
     };
 
-    const submitData = () => {
+    const submitData = async () => {
+        if (isSubmitting) return;
         let hasError = false;
         const newErrors = {
             firstName: !firstName,
@@ -138,16 +140,20 @@ const NewRegisterCover = () => {
             password: password,
         };
 
-        post('account/registeration', sendData).then((responseJson: any) => {
+        setIsSubmitting(true);
+        try {
+            const responseJson: any = await post('account/registeration', sendData);
             if (responseJson.status == 'success') {
                 coloredToast('success', 'Your account has been created successfully!');
                 navigate('/auth/login');
             } else {
                 coloredToast('danger', 'We could not create your account. Please review your details and try again.');
             }
-        }).catch(() => {
+        } catch {
             coloredToast('danger', 'We could not create your account right now. Please try again.');
-        });
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     return (
@@ -180,9 +186,9 @@ const NewRegisterCover = () => {
                             </div>
                             <div className="to-field"><label htmlFor="register-phone">Phone number</label><input id="register-phone" type="tel" value={phone} onChange={(e) => {setPhone(e.target.value); if(errors.phone) setErrors({...errors, phone:false});}} autoComplete="tel" placeholder="03XXXXXXXXX" aria-invalid={errors.phone}/>{errors.phone && errorMessages.phone && <small className="to-field-error">{errorMessages.phone}</small>}</div>
                             <div className="to-field"><label htmlFor="register-email">Email address</label><input id="register-email" type="email" value={email} onChange={(e) => {setEmail(e.target.value); if(errors.email) setErrors({...errors, email:false});}} autoComplete="email" placeholder="you@example.com" aria-invalid={errors.email}/>{errors.email && errorMessages.email && <small className="to-field-error">{errorMessages.email}</small>}</div>
-                            <div className="to-field"><label htmlFor="register-password">Password</label><div className="to-password-field"><input id="register-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => {setPassword(e.target.value); if(errors.password) setErrors({...errors, password:false});}} autoComplete="new-password" placeholder="Create a password" aria-invalid={errors.password}/><button type="button" className="to-password-toggle" onClick={() => setShowPassword(!showPassword)}>{showPassword ? "Hide" : "Show"}</button></div>{errors.password && errorMessages.password && <small className="to-field-error">{errorMessages.password}</small>}<small className="to-field-hint">6–16 characters with uppercase, lowercase, number and special character.</small></div>
-                            <div className="to-field"><label htmlFor="register-confirm-password">Confirm password</label><div className="to-password-field"><input id="register-confirm-password" type={showConfirmPassword ? "text" : "password"} value={passwordConfirmation} onChange={(e) => {setPasswordConfirmation(e.target.value); if(errors.passwordConfirmation) setErrors({...errors, passwordConfirmation:false});}} autoComplete="new-password" placeholder="Re-enter your password" aria-invalid={errors.passwordConfirmation}/><button type="button" className="to-password-toggle" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>{showConfirmPassword ? "Hide" : "Show"}</button></div>{errors.passwordConfirmation && errorMessages.passwordConfirmation && <small className="to-field-error">{errorMessages.passwordConfirmation}</small>}</div>
-                            <button type="submit" className="to-primary-button">Create account</button>
+                            <div className="to-field"><label htmlFor="register-password">Password</label><div className="to-password-field"><input id="register-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => {setPassword(e.target.value); if(errors.password) setErrors({...errors, password:false});}} autoComplete="new-password" placeholder="Create a password" aria-invalid={errors.password}/><button type="button" className="to-password-toggle" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>{showPassword ? "Hide" : "Show"}</button></div>{errors.password && errorMessages.password && <small className="to-field-error">{errorMessages.password}</small>}<small className="to-field-hint">6–16 characters with uppercase, lowercase, number and special character.</small></div>
+                            <div className="to-field"><label htmlFor="register-confirm-password">Confirm password</label><div className="to-password-field"><input id="register-confirm-password" type={showConfirmPassword ? "text" : "password"} value={passwordConfirmation} onChange={(e) => {setPasswordConfirmation(e.target.value); if(errors.passwordConfirmation) setErrors({...errors, passwordConfirmation:false});}} autoComplete="new-password" placeholder="Re-enter your password" aria-invalid={errors.passwordConfirmation}/><button type="button" className="to-password-toggle" aria-label={showConfirmPassword ? 'Hide confirmation' : 'Show confirmation'} aria-pressed={showConfirmPassword} onClick={() => setShowConfirmPassword(!showConfirmPassword)}>{showConfirmPassword ? "Hide" : "Show"}</button></div>{errors.passwordConfirmation && errorMessages.passwordConfirmation && <small className="to-field-error">{errorMessages.passwordConfirmation}</small>}</div>
+                            <button type="submit" className="to-primary-button" disabled={isSubmitting}>{isSubmitting ? 'Creating account…' : 'Create account'}</button>
                         </form>
                         <p className="to-auth-switch">Already have an account? <button type="button" onClick={() => navigate('/auth/login')}>Sign in</button></p>
                     </div>

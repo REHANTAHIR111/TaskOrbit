@@ -170,7 +170,7 @@ const NewLoginConver = () => {
                                 <label htmlFor="login-password">Password</label>
                                 <div className="to-password-field">
                                     <input id="login-password" type={showPassword ? "text" : "password"} value={password} onChange={(e) => { setPassword(e.target.value); setPasswordError(false); }} onKeyDown={handleKeyPress} autoComplete="current-password" placeholder="Enter your password" aria-invalid={passwordError}/>
-                                    <button type="button" className="to-password-toggle" onClick={() => setShowPassword(!showPassword)}>{showPassword ? "Hide" : "Show"}</button>
+                                    <button type="button" className="to-password-toggle" aria-label={showPassword ? 'Hide password' : 'Show password'} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>{showPassword ? "Hide" : "Show"}</button>
                                 </div>
                                 {passwordError && <small className="to-field-error">Please enter your password.</small>}
                             </div>

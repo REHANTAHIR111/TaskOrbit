@@ -30,7 +30,7 @@ const TaskListing = (props: any) => {
     const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
     const [initialRecords, setInitialRecords] = useState<any[]>(rowData || []);
     const [selectedRecords, setSelectedRecords] = useState<any>([]);
-    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'first_scheduled', direction: 'desc' });
+    const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({ columnAccessor: 'first_scheduled', direction: 'asc' });
     const [loader, setLoader] = useState(false);
     const [permissionsData, setpermissionsData] = useState<any>([]);
     const [taskData, setTaskData] = useState<any>([]);
@@ -72,20 +72,14 @@ const TaskListing = (props: any) => {
                 : String(leftValue ?? '').localeCompare(String(rightValue ?? ''), undefined, { numeric: true, sensitivity: 'base' });
             return (sortStatus.direction === 'desc' ? -comparison : comparison) || Number(left.id) - Number(right.id);
         });
-        setInitialRecords(sorted);
+        const normalizedSearch = search.trim().toLowerCase();
+        const filtered = normalizedSearch
+            ? sorted.filter((item: any) => [item.task_name, item.name, item.name_ar]
+                .some((value) => String(value || '').toLowerCase().includes(normalizedSearch)))
+            : sorted;
+        setInitialRecords(filtered);
         setPage(1);
-    }, [taskData, sortStatus]);
-
-    const handleSearch = () => {
-        var filterData = taskData.filter((item: any) => {
-            return (
-                item.task_name?.toString().toLowerCase().includes(search.toLowerCase()) ||
-                item.name?.toString().toLowerCase().includes(search.toLowerCase()) ||
-                item.name_ar?.toString().toLowerCase().includes(search.toLowerCase())
-            );
-        });
-        setInitialRecords(filterData);
-    };
+    }, [taskData, sortStatus, search]);
 
     useEffect(() => {
         setPage(1);
@@ -246,6 +240,7 @@ const TaskListing = (props: any) => {
                         <button
                             type="button"
                             className="listingTrashButton"
+                            aria-label="Delete selected tasks"
                             disabled={selectedRecords?.length < 1}
                             onClick={() => showAlert(11)}
                         >
@@ -261,6 +256,24 @@ const TaskListing = (props: any) => {
                             <span>{t('Add Task')}</span>
                         </Link>
                     </div>
+                </div>
+                <div className="to-task-list-toolbar">
+                    <div className="to-task-search">
+                        <IconSearch aria-hidden="true" className="h-4 w-4" />
+                        <input
+                            id="task-list-search"
+                            type="search"
+                            aria-label="Search tasks"
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Search tasks"
+                            autoComplete="off"
+                        />
+                        {search && <button type="button" onClick={() => setSearch('')}>Clear</button>}
+                    </div>
+                    <span className="to-task-result-count" aria-live="polite">
+                        {initialRecords.length} {initialRecords.length === 1 ? 'task' : 'tasks'}
+                    </span>
                 </div>
                 <div className="datatables">
                     <div className="datatables">

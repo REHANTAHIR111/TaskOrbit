@@ -193,3 +193,23 @@ body { background: var(--to-canvas); color: var(--to-ink); font-family: Inter, u
 
 .to-forgot-link { padding:0; color:#526bd9; background:transparent; font-size:11px; font-weight:700; }
 .to-auth-success { margin:16px 0 0; padding:11px 13px; border:1px solid #ccebdd; border-radius:9px; color:#287b5c; background:#f0fbf5; font-size:11px; line-height:1.6; }
+
+/* Navigation, overlays and shared feedback */
+.sidebar .main_sidebar .nav-item > .nav-link,
+.sidebar .main_sidebar .nav-item > button.nav-link { min-height:42px; margin:2px 10px; padding:10px 12px; border:1px solid transparent; border-radius:10px; color:#d7e2f2; transition:background .18s,border-color .18s,color .18s; }
+.sidebar .main_sidebar .nav-item > .nav-link span,
+.sidebar .main_sidebar .nav-item > button.nav-link span { color:#d7e2f2 !important; }
+.sidebar .main_sidebar .nav-item > .nav-link:hover,
+.sidebar .main_sidebar .nav-item > button.nav-link:hover { background:rgba(125,158,220,.13) !important; border-color:rgba(160,187,232,.16); }
+.sidebar .main_sidebar .nav-item > .nav-link.active,
+.sidebar .main_sidebar .nav-item > button.nav-link.active { background:rgba(112,140,235,.2) !important; border-color:rgba(142,174,239,.25); box-shadow:inset 3px 0 0 #91a8ff; }
+.sidebar .main_sidebar .sub-menu a { color:#b8c7dc !important; border-radius:8px; }
+.sidebar .main_sidebar .sub-menu a:hover, .sidebar .main_sidebar .sub-menu a.active { color:#fff !important; background:rgba(125,158,220,.13); }
+.sidebar .main_sidebar h2 { color:#91a4c0 !important; letter-spacing:.1em; }
+.swal2-popup { border-radius:15px !important; }
+.swal2-title { color:#1d2b43 !important; font-size:19px !important; font-weight:750 !important; letter-spacing:-.02em; }
+.swal2-html-container { color:#617087 !important; font-size:13px !important; line-height:1.65 !important; }
+.swal2-toast { border:1px solid #e6ebf2 !important; box-shadow:0 12px 32px rgba(17,31,52,.14) !important; }
+.dark .swal2-popup { background:#152238 !important; }
+.dark .swal2-title { color:#e6edf8 !important; }
+.dark .swal2-html-container { color:#b8c5d7 !important; }

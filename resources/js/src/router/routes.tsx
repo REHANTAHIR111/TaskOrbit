@@ -7,6 +7,8 @@ const Index = lazy(() => import('../pages/Index'));
 // auth pages
 const LoginCover = lazy(() => import('../pages/Auth/NewLoginCover'));
 const NewRegisterCover = lazy(() => import('../pages/Auth/NewRegisterCover'));
+const ForgotPassword = lazy(() => import('../pages/Auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('../pages/Auth/ResetPassword'));
 
 //task management pages
 const TaskList = lazy(() => import('../pages/Task/tasklist'));

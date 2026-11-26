@@ -143,8 +143,10 @@ const NewRegisterCover = () => {
                 coloredToast('success', 'Your account has been created successfully!');
                 navigate('/auth/login');
             } else {
-                coloredToast('danger', 'Error! Please check data and try again');
+                coloredToast('danger', 'We could not create your account. Please review your details and try again.');
             }
+        }).catch(() => {
+            coloredToast('danger', 'We could not create your account right now. Please try again.');
         });
     }
 

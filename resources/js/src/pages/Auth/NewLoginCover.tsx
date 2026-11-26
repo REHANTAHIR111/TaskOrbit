@@ -112,10 +112,7 @@ const NewLoginConver = () => {
         } catch (error: any) {
             console.error('Login failed:', error);
 
-            const errorMsg =
-                error?.response?.data?.message ||
-                error?.message ||
-                'Something went wrong. Please try again.';
+            const errorMsg = 'We could not sign you in. Check your details and try again.';
 
             coloredToast('danger', errorMsg);
 

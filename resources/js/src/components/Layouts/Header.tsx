@@ -96,7 +96,7 @@ const Header = () => {
 
                 <div className="to-header-actions">
                     <button type="button" className="to-command-trigger" onClick={() => setCommandOpen(true)} aria-label="Open command menu">
-                        <span>Quick actions</span><kbd>⌘ K</kbd>
+                        <span>Quick actions</span><kbd>Ctrl K</kbd>
                     </button>
                     <button
                         type="button"
@@ -139,7 +139,7 @@ const Header = () => {
                     <section className="to-command-dialog" role="dialog" aria-modal="true" aria-label="TaskOrbit command menu">
                         <div className="to-command-search-row">
                             <span aria-hidden="true">⌕</span>
-                            <input ref={commandInputRef} value={commandQuery} onChange={(event) => setCommandQuery(event.target.value)} placeholder="Search pages and actions…" aria-label="Search commands" />
+                            <input ref={commandInputRef} value={commandQuery} onChange={(event) => setCommandQuery(event.target.value)} onKeyDown={(event) => { if (event.key === 'Enter' && filteredCommands[0]) runCommand(filteredCommands[0].path); }} placeholder="Search pages and actions…" aria-label="Search commands" />
                             <kbd>ESC</kbd>
                         </div>
                         <div className="to-command-results">

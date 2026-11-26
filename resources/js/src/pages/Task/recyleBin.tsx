@@ -423,7 +423,8 @@ const RecycleBin = (props: any) => {
 
     return (
         <div>
-            <div className="panel">
+            <div className="panel">            <div className="to-page-heading"><div><span>MANAGE DELETED WORK</span><h1>Recycle bin</h1><p>Restore tasks or permanently remove items you no longer need.</p></div></div>
+
                 <div className="mb-4.5 flex md:items-center md:flex-row flex-col gap-5">
                     <div className="flex items-center gap-2">
                         <button type="button" className="btn btn-outline-primary gap-2" onClick={() => setSelectedRecords(initialRecords)}>

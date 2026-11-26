@@ -182,9 +182,9 @@ const Header = () => {
     }, []);
 
     return (
-        <header className={`z-40 dark`}>
+        <header className="z-40">
             <div className="shadow-sm">
-                <div className="relative flex w-full items-center px-5 py-2.5 bg-black shadow-[1px 1px 2px darkgrey]">
+                <div className="relative flex w-full items-center px-5 py-2.5 taskorbit-header-surface">
                     <div className="horizontal-logo flex lg:hidden justify-between items-center ltr:mr-2 rtl:ml-2">
                         {/* <Link to="/" className="main-logo flex items-center shrink-0">
                             <img className="w-8 ltr:-ml-1 rtl:-mr-1 inline" src="/assets/images/icon_blue.png" alt="logo" />

@@ -49,7 +49,7 @@ const EditTask = (props: any) => {
     const needsSchedulePreview = autoSchedule || scheduleChanged;
 
     useEffect(() => {
-        dispatch(setPageTitle('Edit Task'));
+        dispatch(setPageTitle('Edit task'));
         getData()
     }, [props, id]);
 

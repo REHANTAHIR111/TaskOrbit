@@ -386,7 +386,7 @@ const EditTask = (props: any) => {
                     <div className="panel mb-3">
                         <div className="w-full flex items-center gap-3 mb-3">
                             <div className="w-full">
-                                <label htmlFor="name" className={`mb-1 ${error ? 'text-danger' : ''}`}>Name</label>
+                                <label htmlFor="name" className={`mb-1 ${error ? 'text-danger' : ''}`}>Task name</label>
                                 <input
                                     id="name"
                                     type="text"

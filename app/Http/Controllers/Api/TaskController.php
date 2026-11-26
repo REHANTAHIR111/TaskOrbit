@@ -1074,26 +1074,45 @@ class TaskController extends Controller
             : ($startDate->isToday() ? now() : null);
         if ($startAt && $startDate->isToday() && $startAt->lt(now())) $startAt = now();
         $anchor = $startAt ?: $startDate->copy();
+        $oldSegments = $task->segments->map(fn ($segment) => [
+            'segment_date' => $segment->segment_date->format('Y-m-d'),
+            'start_time' => $segment->start_time,
+            'end_time' => $segment->end_time,
+            'allocated_minutes' => (int) $segment->allocated_minutes,
+        ])->values()->all();
+        $oldDuration = array_sum(array_column($oldSegments, 'allocated_minutes'));
+        $newDuration = (int) round(((float) $request->hour) * 60);
+        if ($this->canPreserveExistingSegments($request, $task, $setting, $oldSegments, $newDuration, $oldDuration, Carbon::parse($request->end_date)->startOfDay()) && $newDuration > $oldDuration) {
+            $lastSegment = $oldSegments[count($oldSegments) - 1];
+            $anchor = Carbon::parse($lastSegment['segment_date'] . ' ' . $lastSegment['end_time']);
+        }
         $tasks = $this->getTasksWithSegmentsAfter((int) $task->user_id, $anchor, [(int) $task->id]);
         $taskIds = $tasks->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
         if (!$taskIds) return $preferredFailure;
 
         $candidateLimit = 32;
-        foreach ($this->mixedDirectionCandidates($taskIds, $preferredMode, $candidateLimit) as $modes) {
+        $conflictTaskIds = collect($preferredFailure['conflicts'] ?? [])
+            ->pluck('id')->map(fn ($id) => (int) $id)->unique()->values()->all();
+        $priorityTaskIds = array_values(array_intersect($conflictTaskIds, $taskIds));
+        $searchTaskIds = array_values(array_unique(array_merge($priorityTaskIds, $taskIds)));
+        foreach ($this->mixedDirectionCandidates($searchTaskIds, $preferredMode, $candidateLimit) as $candidatePlan) {
+            $candidateTaskIds = $candidatePlan['task_ids'];
+            $modes = $candidatePlan['modes'];
             $candidateRequest = Request::createFrom($request);
             $taskModes = [];
-            foreach ($taskIds as $taskId) $taskModes[] = ['task_id' => $taskId, 'mode' => $modes[$taskId]];
+            foreach ($candidateTaskIds as $taskId) $taskModes[] = ['task_id' => $taskId, 'mode' => $modes[$taskId]];
             $candidateRequest->merge([
                 'reflow_mode' => 'mixed',
-                'reflow_task_ids' => $taskIds,
+                'reflow_task_ids' => $candidateTaskIds,
                 'reflow_task_modes' => $taskModes,
             ]);
             $candidate = $this->runEditPreviewAttempt($candidateRequest, (int) $task->id, $setting, 'mixed');
             if (!$candidate['success'] || empty($candidate['segments'])) continue;
+            if (!$this->editAlternativePreservesTaskOrder($tasks, $candidate['affected_tasks'] ?? [], $candidate['original_segments'] ?? [], $candidate['segments'], $candidate['additional_segments'] ?? [])) continue;
 
             $candidate['automatic_fallback'] = true;
             $candidate['preferred_mode'] = $preferredMode;
-            $candidate['suggested_task_ids'] = $taskIds;
+            $candidate['suggested_task_ids'] = $candidateTaskIds;
             $candidate['suggested_task_modes'] = $taskModes;
             $candidate['fallback_reason'] = $this->allocationFailureSummary($preferredFailure['message'] ?? '');
             $candidate['fallback_message'] = 'The ' . $this->directionLabel($preferredMode)
@@ -1120,34 +1139,65 @@ class TaskController extends Controller
         return $preferredFailure;
     }
 
-    /** Generate a bounded search ordered by number of tasks that change direction. */
+    /** Generate a bounded search by smallest task set first, then direction preference. */
     private function mixedDirectionCandidates(array $taskIds, string $preferredMode, int $limit): array
     {
         $preferred = $preferredMode === 'backfill' ? 'backfill' : 'forward';
         $opposite = $preferred === 'forward' ? 'backfill' : 'forward';
-        $candidates = [array_fill_keys($taskIds, $opposite)];
         $count = count($taskIds);
+        $candidates = [];
+        $seen = [];
 
-        for ($flipped = 1; $flipped < $count && count($candidates) < $limit; $flipped++) {
-            $walk = function (int $offset, array $selected) use (&$walk, &$candidates, $taskIds, $count, $flipped, $preferred, $opposite, $limit): void {
+        $appendDirections = function (array $subset) use (&$candidates, &$seen, $preferred, $opposite, $limit): void {
+            if (count($candidates) >= $limit) return;
+            $size = count($subset);
+            $plans = [array_fill_keys($subset, $preferred), array_fill_keys($subset, $opposite)];
+            for ($flipped = 1; $flipped < $size && count($candidates) + count($plans) < $limit; $flipped++) {
+                $walkDirections = function (int $offset, array $selected) use (&$walkDirections, &$plans, $subset, $size, $flipped, $preferred, $opposite, $limit): void {
+                    if (count($plans) >= $limit) return;
+                    if (count($selected) === $flipped) {
+                        $modes = array_fill_keys($subset, $preferred);
+                        foreach ($selected as $index) $modes[$subset[$index]] = $opposite;
+                        $plans[] = $modes;
+                        return;
+                    }
+                    $needed = $flipped - count($selected);
+                    for ($index = $offset; $index <= $size - $needed && count($plans) < $limit; $index++) {
+                        $next = $selected;
+                        $next[] = $index;
+                        $walkDirections($index + 1, $next);
+                    }
+                };
+                $walkDirections(0, []);
+            }
+
+            foreach ($plans as $modes) {
                 if (count($candidates) >= $limit) return;
-                if (count($selected) === $flipped) {
-                    $modes = array_fill_keys($taskIds, $preferred);
-                    foreach ($selected as $index) $modes[$taskIds[$index]] = $opposite;
-                    $candidates[] = $modes;
+                $key = implode(',', $subset) . '|' . implode(',', $modes);
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $candidates[] = ['task_ids' => $subset, 'modes' => $modes];
+            }
+        };
+
+        for ($size = 1; $size <= $count && count($candidates) < $limit; $size++) {
+            $walkSubsets = function (int $offset, array $selected) use (&$walkSubsets, $taskIds, $count, $size, $appendDirections, $limit, &$candidates): void {
+                if (count($candidates) >= $limit) return;
+                if (count($selected) === $size) {
+                    $appendDirections($selected);
                     return;
                 }
-                $needed = $flipped - count($selected);
+                $needed = $size - count($selected);
                 for ($index = $offset; $index <= $count - $needed && count($candidates) < $limit; $index++) {
                     $next = $selected;
-                    $next[] = $index;
-                    $walk($index + 1, $next);
+                    $next[] = $taskIds[$index];
+                    $walkSubsets($index + 1, $next);
                 }
             };
-            $walk(0, []);
+            $walkSubsets(0, []);
         }
 
-        return array_slice($candidates, 0, $limit);
+        return $candidates;
     }
 
     private function directionLabel(string $mode): string
@@ -1161,6 +1211,47 @@ class TaskController extends Controller
             return "Task #{$match[2]} '{$match[1]}' could not fit {$match[3]} minutes by {$match[4]}.";
         }
         return 'The preferred schedule could not fit all tasks within their current dates.';
+    }
+
+    /** Reject a minimal subset if leaving another task fixed would invert their original order. */
+    private function editAlternativePreservesTaskOrder($originalTasks, array $proposedTasks, array $originalTargetSegments, array $updatedTargetSegments, array $additionalSegments): bool
+    {
+        $proposedById = collect($proposedTasks)->keyBy(fn ($item) => (int) $item['id']);
+        $previousStart = null;
+        foreach ($originalTasks as $task) {
+            $segments = $proposedById->get((int) $task->id)['segments'] ?? [];
+            if (!$segments) return false;
+            usort($segments, fn ($left, $right) => [$left['segment_date'], $left['start_time']] <=> [$right['segment_date'], $right['start_time']]);
+            $first = Carbon::parse($segments[0]['segment_date'] . ' ' . $segments[0]['start_time']);
+            if ($previousStart && $first->lt($previousStart)) return false;
+            $previousStart = $first;
+        }
+
+        if (!$originalTargetSegments || !$updatedTargetSegments || !$additionalSegments) return true;
+        usort($originalTargetSegments, fn ($left, $right) => [$left['segment_date'], $left['start_time']] <=> [$right['segment_date'], $right['start_time']]);
+        usort($updatedTargetSegments, fn ($left, $right) => [$left['segment_date'], $left['start_time']] <=> [$right['segment_date'], $right['start_time']]);
+        usort($additionalSegments, fn ($left, $right) => [$left['segment_date'], $left['start_time']] <=> [$right['segment_date'], $right['start_time']]);
+        $oldEnd = Carbon::parse($originalTargetSegments[count($originalTargetSegments) - 1]['segment_date'] . ' ' . $originalTargetSegments[count($originalTargetSegments) - 1]['end_time']);
+        $updatedEnd = Carbon::parse($updatedTargetSegments[count($updatedTargetSegments) - 1]['segment_date'] . ' ' . $updatedTargetSegments[count($updatedTargetSegments) - 1]['end_time']);
+        $backwardAnchor = $this->backwardAnchorForPreservedSchedule($originalTargetSegments, $updatedTargetSegments, Carbon::now());
+        foreach ($proposedTasks as $proposed) {
+            $segments = $proposed['segments'] ?? [];
+            if (!$segments) return false;
+            usort($segments, fn ($left, $right) => [$left['segment_date'], $left['start_time']] <=> [$right['segment_date'], $right['start_time']]);
+            $taskStart = Carbon::parse($segments[0]['segment_date'] . ' ' . $segments[0]['start_time']);
+            $taskEnd = Carbon::parse($segments[count($segments) - 1]['segment_date'] . ' ' . $segments[count($segments) - 1]['end_time']);
+            $taskMode = $proposed['mode'] ?? 'keep';
+            if ($taskMode === 'keep') {
+                foreach ($segments as $segment) {
+                    $segmentStart = Carbon::parse($segment['segment_date'] . ' ' . $segment['start_time']);
+                    $segmentEnd = Carbon::parse($segment['segment_date'] . ' ' . $segment['end_time']);
+                    if ($segmentStart->lt($updatedEnd) && $segmentEnd->gt($oldEnd)) return false;
+                }
+            }
+            if ($taskMode === 'forward' && $taskStart->lt($updatedEnd)) return false;
+            if ($taskMode === 'backfill' && $taskEnd->gt($backwardAnchor)) return false;
+        }
+        return true;
     }
 
     /** Fingerprint the schedule inputs so a save cannot silently diverge from its confirmed preview. */
@@ -1216,11 +1307,31 @@ class TaskController extends Controller
             : ($startDate->isToday() ? now() : null);
         if ($startAt && $startDate->isToday() && $startAt->lt(now())) $startAt = now();
         $duration = (int) round(((float) $request->hour) * 60);
+        $oldDuration = array_sum(array_column($oldSegments, 'allocated_minutes'));
+        $preserveExistingSegments = $this->canPreserveExistingSegments($request, $task, $setting, $oldSegments, $duration, $oldDuration, $endDate);
+        $reducedSegments = null;
+        if ($preserveExistingSegments && $duration < $oldDuration) {
+            $reduction = $this->trimSegmentsToDuration($oldSegments, $duration, Carbon::now());
+            if (!$reduction['success']) {
+                return [
+                    'success' => false,
+                    'message' => "The new duration is shorter than the {$reduction['historical_minutes']} minutes already elapsed. Keep that time or change the task's date range.",
+                    'required_minutes' => $duration,
+                    'historical_minutes' => $reduction['historical_minutes'],
+                ];
+            }
+            $reducedSegments = $reduction['segments'];
+        }
         $anchor = $startAt ?: $startDate->copy();
-        $allLaterTasks = $mode === 'keep'
+        if ($preserveExistingSegments && $duration > $oldDuration) {
+            $lastSegment = $oldSegments[count($oldSegments) - 1];
+            $anchor = Carbon::parse($lastSegment['segment_date'] . ' ' . $lastSegment['end_time']);
+        }
+        $preservingIncrease = $preserveExistingSegments && $duration > $oldDuration;
+        $allLaterTasks = $mode === 'keep' && !$preservingIncrease
             ? collect()
             : $this->getTasksWithSegmentsAfter((int) $task->user_id, $anchor, [(int) $task->id]);
-        $laterTasks = $allLaterTasks;
+        $laterTasks = $mode === 'keep' ? collect() : $allLaterTasks;
         $keptTasks = collect();
         $selectedTaskIds = null;
         if ($request->exists('reflow_task_ids') && $mode !== 'keep') {
@@ -1234,6 +1345,14 @@ class TaskController extends Controller
         }
         $strategySetupPreview = $mode === 'mixed' && $isPreview && !$request->exists('reflow_task_ids');
         $manualSetupPreview = $mode === 'manual' && $isPreview && !$request->input('reflow_task_schedules');
+        $incrementWithoutMovingTasks = $preservingIncrease
+            && in_array($mode, ['keep', 'backfill', 'forward'], true) && !$request->exists('reflow_task_ids');
+        if ($incrementWithoutMovingTasks) {
+            // First see whether the extra time fits around the saved schedule. Do
+            // not move every later task just to make the increment allocator see space.
+            $laterTasks = collect();
+            $keptTasks = collect();
+        }
         $taskModes = collect($request->input('reflow_task_modes', []))
             ->keyBy(fn ($item) => (int) $item['task_id'])
             ->map(fn ($item) => (string) $item['mode'])
@@ -1308,7 +1427,63 @@ class TaskController extends Controller
             $laterTask->segments()->delete();
         }
 
-        if ($request->boolean('auto_schedule')) {
+        $preservedMinutes = null;
+        $addedMinutes = null;
+        $releasedMinutes = null;
+        $additionalSegments = [];
+        if ($preserveExistingSegments && $duration > $oldDuration) {
+            $lastSegment = $oldSegments[count($oldSegments) - 1];
+            $additionalStartAt = Carbon::parse($lastSegment['segment_date'] . ' ' . $lastSegment['end_time']);
+            if ($additionalStartAt->lt(Carbon::now())) $additionalStartAt = Carbon::now();
+            $additionalStartDate = $startDate->copy()->max($additionalStartAt->copy()->startOfDay());
+            $additionalMinutes = $duration - $oldDuration;
+            $additionalSegments = $scheduler->allocate(
+                (int) $task->user_id, $additionalStartDate, $endDate, $additionalMinutes,
+                $setting, null, $additionalStartAt
+            );
+            $availabilityStart = $additionalStartAt;
+            $availabilityEnd = null;
+            if (!$additionalSegments) {
+                $availability = $scheduler->availabilityReport((int) $task->user_id, $additionalStartDate, $endDate, $setting, null, $additionalStartAt);
+                $conflicts = array_values(array_filter($availability['conflicts'], fn ($item) => (int) $item['id'] !== (int) $task->id));
+                $blockingTasks = collect($conflicts)->map(fn ($item) => "#{$item['id']} {$item['task_name']}")->unique()->values()->all();
+                throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json([
+                    'success' => false,
+                    'message' => "Task '{$task->task_name}' (#{$task->id}) could not fit {$additionalMinutes} minutes by its end-date limit ({$endDate->format('Y-m-d')}).",
+                    'required_minutes' => $additionalMinutes,
+                    'additional_minutes' => $additionalMinutes,
+                    'available_minutes' => $availability['available_minutes'],
+                    'conflicts' => $conflicts,
+                    'blocking_tasks' => $blockingTasks,
+                ], 422));
+            }
+            $addedSummary = $scheduler->summarize($additionalSegments);
+            $addedEndAt = Carbon::parse($addedSummary['end_date'] . ' ' . $addedSummary['end_time']);
+            if ($incrementWithoutMovingTasks) {
+                $interleavingTask = $allLaterTasks->first(fn ($candidate) => $this->taskScheduleAnchor($candidate)->lt($addedEndAt));
+                if ($interleavingTask) {
+                    $availability = $scheduler->availabilityReport((int) $task->user_id, $additionalStartDate, $endDate, $setting, null, $additionalStartAt);
+                    $conflicts = array_values(array_filter($availability['conflicts'], fn ($item) => (int) $item['id'] !== (int) $task->id));
+                    throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json([
+                        'success' => false,
+                        'message' => "Task '{$task->task_name}' (#{$task->id}) could not fit {$additionalMinutes} additional minutes before the following tasks can keep their order.",
+                        'required_minutes' => $additionalMinutes,
+                        'additional_minutes' => $additionalMinutes,
+                        'available_minutes' => $availability['available_minutes'],
+                        'conflicts' => $conflicts,
+                    ], 422));
+                }
+            }
+            $segments = $this->mergeScheduleSegments($oldSegments, $additionalSegments);
+            $preservedMinutes = $oldDuration;
+            $addedMinutes = $additionalMinutes;
+        } elseif ($reducedSegments !== null) {
+            $segments = $reducedSegments;
+            $availabilityStart = $startAt;
+            $availabilityEnd = null;
+            $preservedMinutes = $duration;
+            $releasedMinutes = $oldDuration - $duration;
+        } elseif ($request->boolean('auto_schedule')) {
             $segments = $scheduler->allocate((int) $task->user_id, $startDate, $endDate, $duration, $setting, (int) $task->id, $startAt);
             $availabilityStart = $startAt;
             $availabilityEnd = null;
@@ -1369,9 +1544,12 @@ class TaskController extends Controller
                 $reflowAnchor = $mode === 'forward' || $mode === 'manual'
                     ? Carbon::parse($summary['end_date'] . ' ' . $summary['end_time'])
                     : Carbon::parse($summary['start_date'] . ' ' . $summary['start_time']);
+                if ($preserveExistingSegments && $duration > $oldDuration && in_array($mode, ['backfill', 'mixed'], true)) {
+                    $reflowAnchor = $this->backwardAnchorForPreservedSchedule($oldSegments, $segments, Carbon::now());
+                }
                 $forwardAnchor = Carbon::parse($summary['end_date'] . ' ' . $summary['end_time']);
-                $needsBackwardAllocation = $mode === 'backfill' && $duration > array_sum(array_column($oldSegments, 'allocated_minutes'));
-                $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation, $taskModes, $mode === 'mixed' ? $forwardAnchor : null, $taskDeadlineLimits);
+                $needsBackwardAllocation = $mode === 'backfill' && $duration > $oldDuration;
+                $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation, $taskModes, $mode === 'mixed' ? $forwardAnchor : null, $taskDeadlineLimits, true);
                 foreach ($moved as &$item) $item['previous_segments'] = $previousTaskSegments[$item['id']] ?? [];
                 unset($item);
             }
@@ -1402,6 +1580,12 @@ class TaskController extends Controller
                 'allocated_minutes' => (int) $segment->allocated_minutes,
             ])->values()->all(),
             'total_allocated_minutes' => $duration,
+            'duration_adjustment' => $preservedMinutes === null ? null : [
+                'preserved_minutes' => $preservedMinutes,
+                'added_minutes' => $addedMinutes,
+                'released_minutes' => $releasedMinutes,
+            ],
+            'additional_segments' => $additionalSegments,
             'affected_tasks' => $moved,
             'needs_task_strategy' => $strategySetupPreview,
         ];
@@ -1517,6 +1701,105 @@ class TaskController extends Controller
     {
         $allocated = (int) $task->segments->sum('allocated_minutes');
         return $allocated > 0 ? $allocated : (int) round(((float) $task->hour) * 60);
+    }
+
+    private function canPreserveExistingSegments(Request $request, Task $task, $setting, array $segments, int $newDuration, int $oldDuration, Carbon $endDate): bool
+    {
+        if (!$request->boolean('auto_schedule') || !$segments || $oldDuration <= 0 || $newDuration === $oldDuration) return false;
+        if ($task->start_date && Carbon::parse($request->start_date)->format('Y-m-d') !== Carbon::parse($task->start_date)->format('Y-m-d')) return false;
+
+        $first = $segments[0];
+        $originalStartTime = $task->start_time ?: $first['start_time'];
+        $requestedStartTime = $request->filled('start_time') ? $request->start_time : $originalStartTime;
+        if (Carbon::parse($requestedStartTime)->format('H:i:s') !== Carbon::parse($originalStartTime)->format('H:i:s')) return false;
+
+        $rangeStart = Carbon::parse($request->start_date)->startOfDay();
+        foreach ($segments as $segment) {
+            $date = Carbon::parse($segment['segment_date'])->startOfDay();
+            if ($date->lt($rangeStart) || $date->gt($endDate)) return false;
+        }
+        if ($this->segmentsSchedulingProblem($segments, $setting)) return false;
+        if ((new \App\Services\TaskSchedulingService())->hasInternalOverlap($segments)) return false;
+        return !(new \App\Services\TaskSchedulingService())->hasOverlap((int) $task->user_id, $segments, (int) $task->id);
+    }
+
+    /** Use the first current/future target segment as the backward boundary, not a historical segment. */
+    private function backwardAnchorForPreservedSchedule(array $oldSegments, array $updatedSegments, Carbon $now): Carbon
+    {
+        foreach ($oldSegments as $segment) {
+            $start = Carbon::parse($segment['segment_date'] . ' ' . $segment['start_time']);
+            $end = Carbon::parse($segment['segment_date'] . ' ' . $segment['end_time']);
+            if ($end->gt($now)) return $start->lt($now) ? $now->copy() : $start;
+        }
+        foreach ($updatedSegments as $segment) {
+            $start = Carbon::parse($segment['segment_date'] . ' ' . $segment['start_time']);
+            $end = Carbon::parse($segment['segment_date'] . ' ' . $segment['end_time']);
+            if ($end->gt($now)) return $start->lt($now) ? $now->copy() : $start;
+        }
+        return $now->copy();
+    }
+
+    /** Preserve elapsed work and trim only the latest eligible scheduled minutes. */
+    private function trimSegmentsToDuration(array $segments, int $duration, Carbon $now): array
+    {
+        $historicalMinutes = 0;
+        foreach ($segments as $segment) {
+            $start = Carbon::parse($segment['segment_date'] . ' ' . $segment['start_time']);
+            $end = Carbon::parse($segment['segment_date'] . ' ' . $segment['end_time']);
+            if ($end->lte($now)) {
+                $historicalMinutes += (int) $segment['allocated_minutes'];
+            } elseif ($start->lt($now)) {
+                $historicalMinutes += (int) ceil($start->diffInSeconds($now) / 60);
+            }
+        }
+        if ($duration < $historicalMinutes) {
+            return ['success' => false, 'historical_minutes' => $historicalMinutes, 'segments' => []];
+        }
+
+        $remaining = $duration;
+        $kept = [];
+        foreach ($segments as $segment) {
+            if ($remaining <= 0) break;
+            $minutes = (int) $segment['allocated_minutes'];
+            $start = Carbon::parse($segment['segment_date'] . ' ' . $segment['start_time']);
+            $end = Carbon::parse($segment['segment_date'] . ' ' . $segment['end_time']);
+            $minimumToKeep = $end->lte($now)
+                ? $minutes
+                : ($start->lt($now) ? (int) ceil($start->diffInSeconds($now) / 60) : 0);
+            $take = min($remaining, $minutes);
+            if ($take < $minimumToKeep) {
+                return ['success' => false, 'historical_minutes' => $historicalMinutes, 'segments' => []];
+            }
+            if ($take <= 0) continue;
+
+            $keptSegment = $segment;
+            $keptSegment['allocated_minutes'] = $take;
+            $keptSegment['end_time'] = $start->copy()->addMinutes($take)->format('H:i:s');
+            $kept[] = $keptSegment;
+            $remaining -= $take;
+        }
+
+        if ($remaining > 0) return ['success' => false, 'historical_minutes' => $historicalMinutes, 'segments' => []];
+        return ['success' => true, 'historical_minutes' => $historicalMinutes, 'segments' => $this->mergeScheduleSegments($kept, [])];
+    }
+
+    private function mergeScheduleSegments(array $existing, array $additional): array
+    {
+        $segments = array_merge($existing, $additional);
+        usort($segments, fn ($left, $right) => [$left['segment_date'], $left['start_time'], $left['end_time']] <=> [$right['segment_date'], $right['start_time'], $right['end_time']]);
+        $dailySequence = [];
+        foreach ($segments as &$segment) {
+            $date = Carbon::parse($segment['segment_date'])->format('Y-m-d');
+            $segment['segment_date'] = $date;
+            $segment['allocated_minutes'] = (int) $segment['allocated_minutes'];
+            $dailySequence[$date] = ($dailySequence[$date] ?? 0) + 1;
+            $segment['sequence'] = $dailySequence[$date];
+        }
+        unset($segment);
+        if ((new \App\Services\TaskSchedulingService())->hasInternalOverlap($segments)) {
+            throw new \RuntimeException('The preserved and additional task segments would overlap.');
+        }
+        return $segments;
     }
 
     private function taskAllocationLimit(Task $task, Carbon $anchor): Carbon
@@ -1764,7 +2047,7 @@ class TaskController extends Controller
             ->values();
     }
 
-    private function reflowTasks($tasks, Carbon $anchor, $setting, array $manualStarts = [], bool $backward = false, array $taskModes = [], ?Carbon $forwardAnchor = null, array $taskDeadlineLimits = []): array
+    private function reflowTasks($tasks, Carbon $anchor, $setting, array $manualStarts = [], bool $backward = false, array $taskModes = [], ?Carbon $forwardAnchor = null, array $taskDeadlineLimits = [], bool $preserveDateBounds = false): array
     {
         if ($tasks->isEmpty()) return [];
         $scheduler = new \App\Services\TaskSchedulingService();
@@ -1835,9 +2118,13 @@ class TaskController extends Controller
                 throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) could not fit {$plan['duration']} minutes{$limit}.");
             }
             $summary = $scheduler->summarize($segments);
+            $storedStartDate = $preserveDateBounds ? $task->start_date : $summary['start_date'];
+            $storedEndDate = isset($taskDeadlineLimits[$task->id])
+                ? $taskDeadlineLimits[$task->id]->format('Y-m-d')
+                : ($preserveDateBounds ? $task->end_date : $summary['end_date']);
             $task->fill([
-                'start_date' => $summary['start_date'], 'start_time' => $summary['start_time'],
-                'end_date' => $summary['end_date'], 'end_time' => $summary['end_time'],
+                'start_date' => $storedStartDate, 'start_time' => $summary['start_time'],
+                'end_date' => $storedEndDate, 'end_time' => $summary['end_time'],
                 'hour' => $summary['total_minutes'] / 60,
             ])->save();
             $scheduler->writeSegments($task, $segments);

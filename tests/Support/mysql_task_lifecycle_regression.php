@@ -286,8 +286,13 @@ try {
     $forwardTwo = $createTask($user, 'Forward two', 60, [$seg('2030-01-31', '15:00:00', '16:00:00', 60)], '2030-02-01');
     $editData = ['task_name' => $editTarget->task_name, 'hour' => 6, 'start_date' => '2030-01-31', 'end_date' => '2030-02-01', 'start_time' => '09:00', 'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'forward'];
     $forwardPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $editData), $editTarget->id));
-    $forwardSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $editData), $editTarget->id));
-    $assert($forwardPreview['success'] && count($forwardPreview['affected_tasks']) === 2 && $forwardSaved['success'] && $forwardOne->fresh()->segments->first()->start_time === '15:00:00' && $forwardTwo->fresh()->segments->first()->segment_date->format('Y-m-d') === '2030-02-01', 'Duration increase did not cascade later tasks forward.');
+    $forwardSaveData = array_merge($editData, [
+        'reflow_mode' => 'mixed', 'reflow_task_ids' => $forwardPreview['suggested_task_ids'] ?? [],
+        'reflow_task_modes' => $forwardPreview['suggested_task_modes'] ?? [],
+        'schedule_preview_token' => $forwardPreview['schedule_preview_token'] ?? null,
+    ]);
+    $forwardSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $forwardSaveData), $editTarget->id));
+    $assert($forwardPreview['success'] && count($forwardPreview['affected_tasks']) === 2 && $forwardSaved['success'] && $forwardOne->fresh()->segments->first()->start_time === '15:00:00' && $forwardTwo->fresh()->segments->first()->segment_date->format('Y-m-d') === '2030-02-01', 'Duration increase did not cascade later tasks forward: ' . json_encode(['preview' => $forwardPreview, 'save' => $forwardSaved, 'one' => $segmentSnapshot($forwardOne->id), 'two' => $segmentSnapshot($forwardTwo->id)]));
     echo "PASS 17: duration increase cascades tasks forward across dates\n";
 
     // 18. A failed edit cascade restores the edited task and every later segment.
@@ -346,17 +351,26 @@ try {
     $backwardTask = $createTask($user, 'Move before target', 120, [$seg('2030-02-09', '15:00:00', '17:00:00', 120)], '2030-02-10');
     $backwardData = ['task_name' => $editTarget->task_name, 'hour' => 6, 'start_date' => '2030-02-09', 'end_date' => '2030-02-10', 'start_time' => '11:00', 'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'backfill'];
     $backwardPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $backwardData), $editTarget->id));
-    $backwardSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $backwardData), $editTarget->id));
+    $backwardSaveData = array_merge($backwardData, [
+        'reflow_mode' => 'mixed', 'reflow_task_ids' => $backwardPreview['suggested_task_ids'] ?? [],
+        'reflow_task_modes' => $backwardPreview['suggested_task_modes'] ?? [],
+        'schedule_preview_token' => $backwardPreview['schedule_preview_token'] ?? null,
+    ]);
+    $backwardSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $backwardSaveData), $editTarget->id));
     try {
         $previewBackwardSegment = $backwardPreview['affected_tasks'][0]['segments'][0] ?? [];
-        $previewUpdatedSegment = $backwardPreview['segments'][0] ?? [];
+        $previewUpdatedSegments = collect($backwardPreview['segments'] ?? [])->sortBy(fn ($segment) => $segment['segment_date'] . '|' . $segment['start_time'])->values();
+        $savedEditedSegments = $editTarget->fresh()->segments->sortBy(fn ($segment) => $segment->segment_date->format('Y-m-d') . '|' . $segment->start_time)->values();
         $savedBackwardSegments = $backwardTask->fresh()->segments->sortBy('sequence')->values();
         $assert(
             $backwardPreview['success'] && $previewBackwardSegment['segment_date'] === '2030-02-09' &&
             $previewBackwardSegment['start_time'] === '09:00:00' && $previewBackwardSegment['end_time'] === '11:00:00' &&
             (int) $previewBackwardSegment['allocated_minutes'] === 120 &&
-            $previewUpdatedSegment['start_time'] === '11:00:00' && $previewUpdatedSegment['end_time'] === '17:00:00' &&
+            $previewUpdatedSegments->sum('allocated_minutes') === 360 && $previewUpdatedSegments->count() === 2 &&
+            $previewUpdatedSegments->first()['start_time'] === '11:00:00' && $previewUpdatedSegments->first()['end_time'] === '15:00:00' &&
+            $previewUpdatedSegments->last()['start_time'] === '15:00:00' && $previewUpdatedSegments->last()['end_time'] === '17:00:00' &&
             $backwardSaved['success'] && $savedBackwardSegments->sum('allocated_minutes') === 120 &&
+            $savedEditedSegments->sum('allocated_minutes') === 360 && $savedEditedSegments->count() === 2 &&
             $savedBackwardSegments->first()->start_time === '09:00:00' && $savedBackwardSegments->first()->end_time === '11:00:00',
             'Backward reflow failed: ' . json_encode(['preview' => $backwardPreview, 'save' => $backwardSaved, 'stored' => $segmentSnapshot($backwardTask->id)])
         );
@@ -846,6 +860,127 @@ try {
         'Confirmed end-date extension did not save the exact later schedule.'
     );
     echo "PASS 38: task end-date extension requires preview confirmation and saves the approved later placement\n";
+
+    // 39. Preserve an existing 300-minute multi-day schedule, allocate only the
+    // 60-minute increase, and move only the conflicting 240-minute task backward.
+    \Carbon\Carbon::setTestNow('2026-11-24 08:00:00');
+    [$user] = $newUser();
+    $preserveTarget = $createTask($user, 'Preserve existing work', 300, [
+        $seg('2026-11-23', '09:00:00', '13:00:00', 240),
+        $seg('2026-11-24', '14:00:00', '15:00:00', 60),
+    ], '2026-11-26');
+    $fourHourLater = $createTask($user, 'Four-hour following task', 240, [
+        $seg('2026-11-24', '15:00:00', '17:00:00', 120),
+        $seg('2026-11-25', '09:00:00', '11:00:00', 120),
+    ], '2026-11-26');
+    $unrelatedNov25Morning = $createTask($user, 'Unrelated Nov 25 morning', 120, [$seg('2026-11-25', '11:00:00', '13:00:00', 120)], '2026-11-26');
+    $unrelatedNov25Afternoon = $createTask($user, 'Unrelated Nov 25 afternoon', 180, [$seg('2026-11-25', '14:00:00', '17:00:00', 180)], '2026-11-26');
+    $unrelatedNov26Morning = $createTask($user, 'Unrelated Nov 26 morning', 240, [$seg('2026-11-26', '09:00:00', '13:00:00', 240)], '2026-11-26');
+    $unrelatedNov26Afternoon = $createTask($user, 'Unrelated Nov 26 afternoon', 180, [$seg('2026-11-26', '14:00:00', '17:00:00', 180)], '2026-11-26');
+    $preserveTargetBefore = $segmentSnapshot($preserveTarget->id);
+    $fourHourBefore = $segmentSnapshot($fourHourLater->id);
+    $unrelatedBefore = collect([$unrelatedNov25Morning, $unrelatedNov25Afternoon, $unrelatedNov26Morning, $unrelatedNov26Afternoon])
+        ->mapWithKeys(fn ($item) => [$item->id => $segmentSnapshot($item->id)])->all();
+    $preservePayload = [
+        'task_name' => $preserveTarget->task_name, 'hour' => 6,
+        'start_date' => '2026-11-23', 'end_date' => '2026-11-26', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'forward',
+    ];
+    $keepIncrementPreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $preserveTarget->id . '/schedule-preview', 'POST', array_merge($preservePayload, ['reflow_mode' => 'keep'])),
+        $preserveTarget->id
+    ));
+    $assert(
+        !$keepIncrementPreview['success'] && !empty($keepIncrementPreview['conflicts']) &&
+        $segmentSnapshot($preserveTarget->id) == $preserveTargetBefore &&
+        $segmentSnapshot($fourHourLater->id) == $fourHourBefore,
+        'Keeping later tasks did not report the incremental conflict or changed saved schedules: ' . json_encode($keepIncrementPreview)
+    );
+    $preservePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $preserveTarget->id . '/schedule-preview', 'POST', $preservePayload),
+        $preserveTarget->id
+    ));
+    $assert(
+        $preservePreview['success'] && !empty($preservePreview['automatic_fallback']) &&
+        ($preservePreview['preferred_mode'] ?? null) === 'forward' &&
+        ($preservePreview['duration_adjustment']['preserved_minutes'] ?? null) === 300 &&
+        ($preservePreview['duration_adjustment']['added_minutes'] ?? null) === 60 &&
+        ($preservePreview['suggested_task_ids'] ?? []) === [$fourHourLater->id] &&
+        ($preservePreview['suggested_task_modes'][0]['mode'] ?? null) === 'backfill' &&
+        $segmentSnapshot($preserveTarget->id) == $preserveTargetBefore &&
+        $segmentSnapshot($fourHourLater->id) == $fourHourBefore,
+        'The 300-to-360 preview did not preserve the saved schedule or recommend a bounded alternative: ' . json_encode($preservePreview)
+    );
+    $preserveSavePayload = array_merge($preservePayload, [
+        'reflow_mode' => 'mixed',
+        'reflow_task_ids' => $preservePreview['suggested_task_ids'],
+        'reflow_task_modes' => $preservePreview['suggested_task_modes'],
+        'schedule_preview_token' => $preservePreview['schedule_preview_token'],
+    ]);
+    $preserveSave = $responseData($controller->update(
+        Request::create('/api/task/' . $preserveTarget->id . '/update', 'POST', $preserveSavePayload),
+        $preserveTarget->id
+    ));
+    $preservedTargetSegments = $preserveTarget->fresh()->segments->sortBy(fn ($item) => $item->segment_date->format('Y-m-d') . '|' . $item->start_time)->values();
+    $movedFourHourSegments = $fourHourLater->fresh()->segments->sortBy(fn ($item) => $item->segment_date->format('Y-m-d') . '|' . $item->start_time)->values();
+    $latestFollowingDate = $movedFourHourSegments->max(fn ($segment) => $segment->segment_date->format('Y-m-d'));
+    $assert(
+        $preserveSave['success'] && $preservedTargetSegments->sum('allocated_minutes') === 360 &&
+        $preservedTargetSegments->take(2)->map(fn ($item) => [$item->segment_date->format('Y-m-d'), $item->start_time, $item->end_time, (int) $item->allocated_minutes])->all() === [
+            ['2026-11-23', '09:00:00', '13:00:00', 240], ['2026-11-24', '14:00:00', '15:00:00', 60],
+        ] && $preservedTargetSegments->last()->segment_date->format('Y-m-d') === '2026-11-24' &&
+        $preservedTargetSegments->last()->start_time === '15:00:00' && $preservedTargetSegments->last()->end_time === '16:00:00' &&
+        $movedFourHourSegments->sum('allocated_minutes') === 240 && count($movedFourHourSegments) === 1 &&
+        $movedFourHourSegments->first()->start_time === '09:00:00' && $movedFourHourSegments->first()->end_time === '13:00:00' &&
+        $fourHourLater->fresh()->start_date === '2026-11-24' && $fourHourLater->fresh()->end_date === '2026-11-26' &&
+        $latestFollowingDate <= '2026-11-26',
+        'The confirmed edit lost/doubled time or did not place the following task before the updated schedule: ' . json_encode(['save' => $preserveSave, 'target' => $preservedTargetSegments->toArray(), 'following' => $movedFourHourSegments->toArray()])
+    );
+    foreach ([$unrelatedNov25Morning, $unrelatedNov25Afternoon, $unrelatedNov26Morning, $unrelatedNov26Afternoon] as $unrelated) {
+        $assert($segmentSnapshot($unrelated->id) == $unrelatedBefore[$unrelated->id], 'Minimal reflow changed an unrelated task.');
+    }
+    $overlapCount = DB::table('task_segments as first')
+        ->join('task as first_task', 'first_task.id', '=', 'first.task_id')
+        ->join('task_segments as second', function ($join) {
+            $join->on('second.segment_date', '=', 'first.segment_date')->whereColumn('second.id', '>', 'first.id');
+        })
+        ->join('task as second_task', 'second_task.id', '=', 'second.task_id')
+        ->where('first_task.user_id', $user)->where('second_task.user_id', $user)
+        ->whereNull('first_task.deleted_at')->whereNull('second_task.deleted_at')
+        ->whereColumn('first.start_time', '<', 'second.end_time')->whereColumn('first.end_time', '>', 'second.start_time')
+        ->count();
+    $assert($overlapCount === 0 && $latestFollowingDate <= '2026-11-26', 'The saved alternative overlaps another task or exceeded the following task deadline.');
+    echo "PASS 39: past multi-day work is preserved, only 60 minutes are added, and the 240-minute task moves backward within its Nov 26 deadline\n";
+    \Carbon\Carbon::setTestNow();
+
+    // 40. A decrease preserves completed work and releases only the latest future minutes.
+    \Carbon\Carbon::setTestNow('2030-03-10 15:00:00');
+    [$user] = $newUser();
+    $decreaseTarget = $createTask($user, 'Trim latest minutes', 300, [
+        $seg('2030-03-10', '09:00:00', '12:00:00', 180),
+        $seg('2030-03-11', '09:00:00', '11:00:00', 120),
+    ], '2030-03-11');
+    $decreaseLater = $createTask($user, 'Keep later task fixed', 60, [$seg('2030-03-11', '11:00:00', '12:00:00', 60)], '2030-03-11');
+    $decreaseLaterBefore = $segmentSnapshot($decreaseLater->id);
+    $decreasePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $decreaseTarget->id . '/schedule-preview', 'POST', [
+            'task_name' => $decreaseTarget->task_name, 'hour' => 4,
+            'start_date' => '2030-03-10', 'end_date' => '2030-03-11', 'start_time' => '09:00',
+            'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'keep',
+        ]),
+        $decreaseTarget->id
+    ));
+    $assert(
+        $decreasePreview['success'] && ($decreasePreview['duration_adjustment']['preserved_minutes'] ?? null) === 240 &&
+        ($decreasePreview['duration_adjustment']['released_minutes'] ?? null) === 60 &&
+        array_sum(array_column($decreasePreview['segments'], 'allocated_minutes')) === 240 &&
+        $decreasePreview['segments'][0]['segment_date'] === '2030-03-10' &&
+        $decreasePreview['segments'][0]['start_time'] === '09:00:00' && $decreasePreview['segments'][1]['end_time'] === '10:00:00' &&
+        $segmentSnapshot($decreaseLater->id) == $decreaseLaterBefore,
+        'Duration decrease did not preserve elapsed work and trim only the latest scheduled time: ' . json_encode($decreasePreview)
+    );
+    \Carbon\Carbon::setTestNow();
+    echo "PASS 40: duration decrease preserves elapsed work and releases only the latest 60 minutes\n";
 
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";

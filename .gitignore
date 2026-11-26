@@ -15,9 +15,9 @@ yarn-error.log
 /.fleet
 /.idea
 package-lock.json
-composer.json
+#composer.json
 package-lock.json
-package.json
+#package.json
 public/build.zip
 public/frontend-config.json
 public/widget-script.zip

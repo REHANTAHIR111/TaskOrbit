@@ -880,17 +880,27 @@ class TaskController extends Controller
             'description' => 'nullable|string',
             'priority' => 'nullable|string',
             'status' => 'nullable|in:0,1',
-            'reflow_mode' => 'nullable|in:keep,backfill,forward,manual',
+            'reflow_mode' => 'nullable|in:keep,backfill,forward,manual,mixed',
             'schedule_changed' => 'nullable|boolean',
+            'schedule_preview_token' => ['nullable', 'string', 'regex:/^[a-f0-9]{64}$/'],
             'reflow_task_ids' => 'nullable|array',
             'reflow_task_ids.*' => 'integer|min:1',
+            'reflow_task_modes' => 'nullable|array',
+            'reflow_task_modes.*.task_id' => 'required_with:reflow_task_modes|integer|min:1',
+            'reflow_task_modes.*.mode' => 'required_with:reflow_task_modes|in:backfill,forward,manual',
             'reflow_task_schedules' => 'nullable|array',
             'reflow_task_schedules.*.task_id' => 'required_with:reflow_task_schedules|integer|min:1',
             'reflow_task_schedules.*.start_date' => 'required_with:reflow_task_schedules|date',
             'reflow_task_schedules.*.start_time' => 'required_with:reflow_task_schedules|date_format:H:i',
+            'reflow_task_deadlines' => 'nullable|array',
+            'reflow_task_deadlines.*.task_id' => 'required_with:reflow_task_deadlines|integer|min:1',
+            'reflow_task_deadlines.*.end_date' => 'required_with:reflow_task_deadlines|date',
         ]);
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => 'Validation failed', 'errors' => $validator->errors()], 422);
+        }
+        if ($request->filled('reflow_task_deadlines') && (!$request->boolean('schedule_changed') || !$request->filled('schedule_preview_token'))) {
+            return response()->json(['success' => false, 'message' => 'Review the proposed date-limit change before saving.'], 422);
         }
 
         try {
@@ -913,6 +923,16 @@ class TaskController extends Controller
                     ])->save();
                     return response()->json(['success' => true, 'message' => 'Task details updated. Its schedule was kept unchanged.', 'data' => ['task' => $task->load('segments')]]);
                 }
+                if ($request->filled('schedule_preview_token') && !hash_equals(
+                    (string) $request->input('schedule_preview_token'),
+                    $this->scheduleStateToken((int) $task->user_id)
+                )) {
+                    return response()->json([
+                        'success' => false,
+                        'stale_preview' => true,
+                        'message' => 'The schedule changed after this preview. No changes were saved. Review the latest schedule and confirm again.',
+                    ], 409);
+                }
                 $request->merge(['user_id' => $task->user_id]);
                 $setting = SlotSetting::with('holidays')->where('user_id', $task->user_id)->first();
                 if ($request->boolean('auto_schedule') && (!$setting || (string) $setting->status !== '1')) {
@@ -931,6 +951,9 @@ class TaskController extends Controller
                 ]);
             });
         } catch (\Throwable $e) {
+            if ($e instanceof \Illuminate\Http\Exceptions\HttpResponseException) {
+                return $e->getResponse();
+            }
             return response()->json(['success' => false, 'message' => 'Task update failed: ' . $e->getMessage()], 422);
         }
     }
@@ -944,13 +967,19 @@ class TaskController extends Controller
             'start_time' => 'nullable|date_format:H:i',
             'end_time' => 'nullable|date_format:H:i',
             'auto_schedule' => 'nullable|boolean',
-            'reflow_mode' => 'nullable|in:keep,backfill,forward,manual',
+            'reflow_mode' => 'nullable|in:keep,backfill,forward,manual,mixed',
             'reflow_task_ids' => 'nullable|array',
             'reflow_task_ids.*' => 'integer|min:1',
+            'reflow_task_modes' => 'nullable|array',
+            'reflow_task_modes.*.task_id' => 'required_with:reflow_task_modes|integer|min:1',
+            'reflow_task_modes.*.mode' => 'required_with:reflow_task_modes|in:backfill,forward,manual',
             'reflow_task_schedules' => 'nullable|array',
             'reflow_task_schedules.*.task_id' => 'required_with:reflow_task_schedules|integer|min:1',
             'reflow_task_schedules.*.start_date' => 'required_with:reflow_task_schedules|date',
             'reflow_task_schedules.*.start_time' => 'required_with:reflow_task_schedules|date_format:H:i',
+            'reflow_task_deadlines' => 'nullable|array',
+            'reflow_task_deadlines.*.task_id' => 'required_with:reflow_task_deadlines|integer|min:1',
+            'reflow_task_deadlines.*.end_date' => 'required_with:reflow_task_deadlines|date',
         ]);
         if ($validator->fails()) {
             return response()->json(['success' => false, 'message' => 'Check the duration and selected dates.', 'errors' => $validator->errors()], 422);
@@ -983,19 +1012,186 @@ class TaskController extends Controller
                 }
             }
             $request->merge(['user_id' => $task->user_id]);
-            $result = $this->buildEditedTaskPlan($request, $task, $setting, (string) $request->input('reflow_mode', 'keep'), true);
+            $schedulePreviewToken = $this->scheduleStateToken((int) $task->user_id);
+            $preferredMode = (string) $request->input('reflow_mode', 'keep');
+            $result = $this->runEditPreviewAttempt($request, (int) $task->id, $setting, $preferredMode);
+            if (!$result['success'] && in_array($preferredMode, ['forward', 'backfill'], true)
+                && !$request->exists('reflow_task_ids') && $this->isAllocationFailure($result)) {
+                $result = $this->findEditScheduleAlternative($request, $task, $setting, $preferredMode, $result);
+            }
+            $result['schedule_preview_token'] = $schedulePreviewToken;
             $connection->rollBack();
             return response()->json($result, $result['success'] ? 200 : 422);
         } catch (\Throwable $e) {
             if ($connection->transactionLevel() > 0) $connection->rollBack();
+            if ($e instanceof \Illuminate\Http\Exceptions\HttpResponseException) {
+                return $e->getResponse();
+            }
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
+    }
+
+    /**
+     * Evaluate a preview inside a savepoint. Each candidate starts from the same
+     * saved schedule while the outer preview transaction keeps the user lock.
+     */
+    private function runEditPreviewAttempt(Request $request, int $taskId, $setting, string $mode): array
+    {
+        $connection = DB::connection();
+        $outerLevel = $connection->transactionLevel();
+        $connection->beginTransaction();
+        try {
+            $task = Task::with('segments')->whereKey($taskId)->lockForUpdate()->first();
+            if (!$task) return ['success' => false, 'message' => 'This task is no longer available. Refresh and try again.'];
+            return $this->buildEditedTaskPlan(Request::createFrom($request), $task, $setting, $mode, true);
+        } catch (\Illuminate\Http\Exceptions\HttpResponseException $e) {
+            $response = $e->getResponse();
+            $data = method_exists($response, 'getData') ? $response->getData(true) : [];
+            return is_array($data) ? array_merge(['success' => false], $data) : ['success' => false, 'message' => 'The schedule could not be previewed.'];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        } finally {
+            while ($connection->transactionLevel() > $outerLevel) $connection->rollBack();
+        }
+    }
+
+    private function isAllocationFailure(array $result): bool
+    {
+        return preg_match('/could not fit|cannot fit|only \\d+ of \\d+ required working minutes are free/i', (string) ($result['message'] ?? '')) === 1;
+    }
+
+    /**
+     * Try bounded mixed-direction plans before falling back to the per-task
+     * decision editor. The preferred direction is attempted by the caller first;
+     * this method tries the opposite direction, then progressively smaller mixes.
+     */
+    private function findEditScheduleAlternative(Request $request, Task $task, $setting, string $preferredMode, array $preferredFailure): array
+    {
+        $startDate = Carbon::parse($request->start_date)->startOfDay();
+        if ($request->boolean('auto_schedule') && $startDate->lt(Carbon::today())) $startDate = Carbon::today();
+        $startAt = $request->filled('start_time')
+            ? Carbon::parse($startDate->format('Y-m-d') . ' ' . $request->start_time)
+            : ($startDate->isToday() ? now() : null);
+        if ($startAt && $startDate->isToday() && $startAt->lt(now())) $startAt = now();
+        $anchor = $startAt ?: $startDate->copy();
+        $tasks = $this->getTasksWithSegmentsAfter((int) $task->user_id, $anchor, [(int) $task->id]);
+        $taskIds = $tasks->pluck('id')->map(fn ($id) => (int) $id)->values()->all();
+        if (!$taskIds) return $preferredFailure;
+
+        $candidateLimit = 32;
+        foreach ($this->mixedDirectionCandidates($taskIds, $preferredMode, $candidateLimit) as $modes) {
+            $candidateRequest = Request::createFrom($request);
+            $taskModes = [];
+            foreach ($taskIds as $taskId) $taskModes[] = ['task_id' => $taskId, 'mode' => $modes[$taskId]];
+            $candidateRequest->merge([
+                'reflow_mode' => 'mixed',
+                'reflow_task_ids' => $taskIds,
+                'reflow_task_modes' => $taskModes,
+            ]);
+            $candidate = $this->runEditPreviewAttempt($candidateRequest, (int) $task->id, $setting, 'mixed');
+            if (!$candidate['success'] || empty($candidate['segments'])) continue;
+
+            $candidate['automatic_fallback'] = true;
+            $candidate['preferred_mode'] = $preferredMode;
+            $candidate['suggested_task_ids'] = $taskIds;
+            $candidate['suggested_task_modes'] = $taskModes;
+            $candidate['fallback_reason'] = $this->allocationFailureSummary($preferredFailure['message'] ?? '');
+            $candidate['fallback_message'] = 'The ' . $this->directionLabel($preferredMode)
+                . ' plan could not fit every task within its current dates. This alternative fits all tasks; review the proposed changes before saving.';
+            return $candidate;
+        }
+
+        // Even when bounded automatic search finds no complete plan, expose the
+        // existing per-task controls so the user can choose directions or manual times.
+        $setupRequest = Request::createFrom($request);
+        $setupRequest->merge(['reflow_mode' => 'mixed']);
+        $setup = $this->runEditPreviewAttempt($setupRequest, (int) $task->id, $setting, 'mixed');
+        if ($setup['success'] && !empty($setup['needs_task_strategy'])) {
+            $setup['fallback_manual_required'] = true;
+            $setup['preferred_mode'] = $preferredMode;
+            $setup['fallback_reason'] = $this->allocationFailureSummary($preferredFailure['message'] ?? '');
+            $setup['fallback_message'] = 'The ' . $this->directionLabel($preferredMode)
+                . ' plan could not fit every task within its current dates. Choose actions for each task below; deadlines are not extended automatically.';
+            return $setup;
+        }
+
+        $preferredFailure['message'] = $this->allocationFailureSummary($preferredFailure['message'] ?? '')
+            . ' Choose a manual time, adjust the affected task dates, or extend its date limit before trying again. No schedules were changed.';
+        return $preferredFailure;
+    }
+
+    /** Generate a bounded search ordered by number of tasks that change direction. */
+    private function mixedDirectionCandidates(array $taskIds, string $preferredMode, int $limit): array
+    {
+        $preferred = $preferredMode === 'backfill' ? 'backfill' : 'forward';
+        $opposite = $preferred === 'forward' ? 'backfill' : 'forward';
+        $candidates = [array_fill_keys($taskIds, $opposite)];
+        $count = count($taskIds);
+
+        for ($flipped = 1; $flipped < $count && count($candidates) < $limit; $flipped++) {
+            $walk = function (int $offset, array $selected) use (&$walk, &$candidates, $taskIds, $count, $flipped, $preferred, $opposite, $limit): void {
+                if (count($candidates) >= $limit) return;
+                if (count($selected) === $flipped) {
+                    $modes = array_fill_keys($taskIds, $preferred);
+                    foreach ($selected as $index) $modes[$taskIds[$index]] = $opposite;
+                    $candidates[] = $modes;
+                    return;
+                }
+                $needed = $flipped - count($selected);
+                for ($index = $offset; $index <= $count - $needed && count($candidates) < $limit; $index++) {
+                    $next = $selected;
+                    $next[] = $index;
+                    $walk($index + 1, $next);
+                }
+            };
+            $walk(0, []);
+        }
+
+        return array_slice($candidates, 0, $limit);
+    }
+
+    private function directionLabel(string $mode): string
+    {
+        return $mode === 'backfill' ? 'backward' : 'forward';
+    }
+
+    private function allocationFailureSummary(string $message): string
+    {
+        if (preg_match("/Task '(.+?)' \\(#(\\d+)\\) could not fit (\\d+) minutes by its end-date limit \\(([^)]+)\\)/", $message, $match)) {
+            return "Task #{$match[2]} '{$match[1]}' could not fit {$match[3]} minutes by {$match[4]}.";
+        }
+        return 'The preferred schedule could not fit all tasks within their current dates.';
+    }
+
+    /** Fingerprint the schedule inputs so a save cannot silently diverge from its confirmed preview. */
+    private function scheduleStateToken(int $userId): string
+    {
+        $tasks = DB::table('task')->where('user_id', $userId)->whereNull('deleted_at')
+            ->orderBy('id')->get(['id', 'hour', 'start_date', 'end_date']);
+        $segments = DB::table('task_segments as segments')
+            ->join('task', 'task.id', '=', 'segments.task_id')
+            ->where('task.user_id', $userId)->whereNull('task.deleted_at')
+            ->orderBy('segments.segment_date')->orderBy('segments.start_time')->orderBy('segments.id')
+            ->get(['segments.task_id', 'segments.segment_date', 'segments.start_time', 'segments.end_time', 'segments.allocated_minutes', 'segments.sequence']);
+        $setting = DB::table('slot_setting')->where('user_id', $userId)->orderBy('id')->first([
+            'id', 'working_days', 'start_work_time', 'end_work_time', 'start_break_time', 'end_break_time', 'status',
+        ]);
+        $holidays = $setting
+            ? DB::table('holiday')->where('setting_id', $setting->id)->orderBy('holiday_date')->pluck('holiday_date')->all()
+            : [];
+
+        return hash('sha256', json_encode([
+            'tasks' => $tasks->toArray(),
+            'segments' => $segments->toArray(),
+            'setting' => $setting,
+            'holidays' => $holidays,
+        ], JSON_THROW_ON_ERROR));
     }
 
     /** Build and apply an edit plan inside the caller's transaction. Preview callers always roll it back. */
     private function buildEditedTaskPlan(Request $request, Task $task, $setting, string $mode, bool $isPreview = false): array
     {
-        if (!in_array($mode, ['keep', 'backfill', 'forward', 'manual'], true)) {
+        if (!in_array($mode, ['keep', 'backfill', 'forward', 'manual', 'mixed'], true)) {
             return ['success' => false, 'message' => 'Choose how later tasks should be handled.'];
         }
         $request->merge([
@@ -1021,16 +1217,40 @@ class TaskController extends Controller
         if ($startAt && $startDate->isToday() && $startAt->lt(now())) $startAt = now();
         $duration = (int) round(((float) $request->hour) * 60);
         $anchor = $startAt ?: $startDate->copy();
-        $laterTasks = $mode === 'keep'
+        $allLaterTasks = $mode === 'keep'
             ? collect()
             : $this->getTasksWithSegmentsAfter((int) $task->user_id, $anchor, [(int) $task->id]);
+        $laterTasks = $allLaterTasks;
+        $keptTasks = collect();
+        $selectedTaskIds = null;
         if ($request->exists('reflow_task_ids') && $mode !== 'keep') {
             $selectedTaskIds = array_values(array_unique(array_map('intval', (array) $request->input('reflow_task_ids'))));
-            $availableTaskIds = $laterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all();
+            $availableTaskIds = $allLaterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all();
             if (array_diff($selectedTaskIds, $availableTaskIds)) {
                 return ['success' => false, 'message' => 'One or more selected tasks have changed since the preview. Refresh the schedule preview and try again.'];
             }
-            $laterTasks = $laterTasks->filter(fn ($laterTask) => in_array((int) $laterTask->id, $selectedTaskIds, true))->values();
+            $laterTasks = $allLaterTasks->filter(fn ($laterTask) => in_array((int) $laterTask->id, $selectedTaskIds, true))->values();
+            $keptTasks = $allLaterTasks->reject(fn ($laterTask) => in_array((int) $laterTask->id, $selectedTaskIds, true))->values();
+        }
+        $strategySetupPreview = $mode === 'mixed' && $isPreview && !$request->exists('reflow_task_ids');
+        $manualSetupPreview = $mode === 'manual' && $isPreview && !$request->input('reflow_task_schedules');
+        $taskModes = collect($request->input('reflow_task_modes', []))
+            ->keyBy(fn ($item) => (int) $item['task_id'])
+            ->map(fn ($item) => (string) $item['mode'])
+            ->all();
+        if ($mode === 'mixed' && !$strategySetupPreview) {
+            if ($selectedTaskIds === null) {
+                return ['success' => false, 'message' => 'Choose how each affected task should move before saving.'];
+            }
+            $selectedIds = array_map('intval', $selectedTaskIds);
+            $modeIds = array_map('intval', array_keys($taskModes));
+            sort($selectedIds);
+            sort($modeIds);
+            if ($selectedIds !== $modeIds) {
+                return ['success' => false, 'message' => 'Choose a direction or manual placement for every task you selected to move.'];
+            }
+        } elseif ($mode !== 'mixed' && $taskModes) {
+            return ['success' => false, 'message' => 'Per-task directions are available only in mixed mode.'];
         }
         if ($laterTasks->isNotEmpty() && (!$setting || (string) $setting->status !== '1')) {
             return ['success' => false, 'message' => 'Active working-time settings are required before moving other tasks.'];
@@ -1038,30 +1258,53 @@ class TaskController extends Controller
         $manualStarts = collect($request->input('reflow_task_schedules', []))
             ->keyBy(fn ($item) => (int) $item['task_id'])
             ->all();
-        if ($mode === 'manual' && $manualStarts) {
-            $missingManualStart = $laterTasks->first(fn ($laterTask) => !isset($manualStarts[(int) $laterTask->id]));
+        $manualTaskIds = $mode === 'mixed'
+            ? array_keys(array_filter($taskModes, fn ($taskMode) => $taskMode === 'manual'))
+            : ($mode === 'manual' ? $laterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all() : []);
+        if ($manualTaskIds && !$manualSetupPreview) {
+            $missingManualStart = collect($manualTaskIds)->first(fn ($taskId) => !isset($manualStarts[(int) $taskId]));
             if ($missingManualStart) {
-                return ['success' => false, 'message' => "Choose a preferred date and start time for task '{$missingManualStart->task_name}' (#{$missingManualStart->id})."];
+                $missingTask = $laterTasks->firstWhere('id', (int) $missingManualStart);
+                return ['success' => false, 'message' => "Choose a preferred date and start time for task '{$missingTask?->task_name}' (#{$missingManualStart})."];
             }
-            $selectedIds = $laterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->all();
-            foreach (array_keys($manualStarts) as $manualTaskId) {
-                if (!in_array((int) $manualTaskId, $selectedIds, true)) {
-                    return ['success' => false, 'message' => 'A manual schedule was supplied for a task that is not selected to move.'];
-                }
+        }
+        foreach (array_keys($manualStarts) as $manualTaskId) {
+            if (!in_array((int) $manualTaskId, array_map('intval', $manualTaskIds), true)) {
+                return ['success' => false, 'message' => 'A manual schedule was supplied for a task that is not set to manual placement.'];
             }
-        } elseif ($mode === 'manual' && !$isPreview && $laterTasks->isNotEmpty()) {
+        }
+        $taskDeadlineLimits = collect($request->input('reflow_task_deadlines', []))
+            ->keyBy(fn ($item) => (int) $item['task_id'])
+            ->map(fn ($item) => Carbon::parse($item['end_date'])->startOfDay())
+            ->all();
+        foreach ($taskDeadlineLimits as $deadlineTaskId => $deadline) {
+            $deadlineTask = $laterTasks->firstWhere('id', (int) $deadlineTaskId);
+            if (!$deadlineTask) {
+                return ['success' => false, 'message' => 'A date limit was supplied for a task that is not set to move.'];
+            }
+            if ($deadlineTask->start_date && $deadline->lt(Carbon::parse($deadlineTask->start_date)->startOfDay())) {
+                return ['success' => false, 'message' => "The date limit for task #{$deadlineTaskId} cannot be before its allowed start date."];
+            }
+        }
+        if (!$request->boolean('auto_schedule') && (!$request->filled('start_time') || !$request->filled('end_time'))) {
+            return ['success' => false, 'message' => 'Choose both a start and end time for the manual schedule.'];
+        }
+        if ($mode === 'manual' && !$isPreview && $laterTasks->isNotEmpty() && !$manualStarts) {
             return ['success' => false, 'message' => 'Choose a preferred date and start time for every selected task before saving manual reflow.'];
-        } elseif ($mode !== 'manual' && $manualStarts) {
+        }
+        if ($mode !== 'manual' && $mode !== 'mixed' && $manualStarts) {
             return ['success' => false, 'message' => 'Preferred task schedules can only be supplied in manual reflow mode.'];
         }
         $previousTaskSegments = [];
-        foreach ($laterTasks as $laterTask) {
+        foreach ($allLaterTasks as $laterTask) {
             $previousTaskSegments[$laterTask->id] = $laterTask->segments->map(fn ($segment) => [
                 'segment_date' => $segment->segment_date->format('Y-m-d'),
                 'start_time' => $segment->start_time,
                 'end_time' => $segment->end_time,
                 'allocated_minutes' => (int) $segment->allocated_minutes,
             ])->values()->all();
+        }
+        foreach ($laterTasks as $laterTask) {
             $laterTask->segments()->delete();
         }
 
@@ -1070,9 +1313,6 @@ class TaskController extends Controller
             $availabilityStart = $startAt;
             $availabilityEnd = null;
         } else {
-            if (!$request->filled('start_time') || !$request->filled('end_time')) {
-                return ['success' => false, 'message' => 'Choose both a start and end time for the manual schedule.'];
-            }
             $manualStart = Carbon::parse($request->start_date . ' ' . $request->start_time);
             $manualEnd = Carbon::parse($request->end_date . ' ' . $request->end_time);
             $availabilityStart = $manualStart;
@@ -1086,9 +1326,15 @@ class TaskController extends Controller
         if (!$segments) {
             $availability = $scheduler->availabilityReport((int) $task->user_id, $startDate, $endDate, $setting, (int) $task->id, $availabilityStart, $availabilityEnd);
             if ($mode !== 'keep') {
-                $blockers = collect($availability['conflicts'])->map(fn ($item) => "#{$item['id']} {$item['task_name']}")->unique()->implode(', ');
-                $blockedBy = $blockers ? " Remaining occupied periods: {$blockers}." : '';
-                throw new \RuntimeException("After moving the selected tasks, only {$availability['available_minutes']} minutes are available; this task needs {$duration}. Extend its date range or choose another start time.{$blockedBy}");
+                $blockingTasks = collect($availability['conflicts'])->map(fn ($item) => "#{$item['id']} {$item['task_name']}")->unique()->values()->all();
+                throw new \Illuminate\Http\Exceptions\HttpResponseException(response()->json([
+                    'success' => false,
+                    'message' => "Only {$availability['available_minutes']} of {$duration} required working minutes are free. Keep fewer tasks in place, choose another direction or manual time, or extend the date range.",
+                    'required_minutes' => $duration,
+                    'available_minutes' => $availability['available_minutes'],
+                    'conflicts' => $availability['conflicts'],
+                    'blocking_tasks' => $blockingTasks,
+                ], 422));
             }
             return [
                 'success' => false,
@@ -1102,10 +1348,10 @@ class TaskController extends Controller
         $updatedTask = $this->saveTaskAndSegments($request, $segments, (int) $task->id);
         $moved = [];
         if ($laterTasks->isNotEmpty()) {
-            if ($mode === 'manual' && $isPreview && !$manualStarts) {
+            if ($manualSetupPreview || $strategySetupPreview) {
                 // The first manual preview is a placement editor, not an automatic
                 // reflow attempt. Return current task times so the user can choose
-                // dates/times even when the default automatic placement cannot fit.
+                // task directions and manual dates without moving anything.
                 foreach ($laterTasks as $laterTask) {
                     $originalTaskSegments = $previousTaskSegments[$laterTask->id] ?? [];
                     $moved[] = [
@@ -1114,6 +1360,8 @@ class TaskController extends Controller
                         'previous_segments' => $originalTaskSegments,
                         'segments' => $originalTaskSegments,
                         'total_allocated_minutes' => array_sum(array_column($originalTaskSegments, 'allocated_minutes')),
+                        'mode' => 'keep',
+                        'date_limits' => ['start_date' => $laterTask->start_date, 'end_date' => $laterTask->end_date],
                     ];
                 }
             } else {
@@ -1121,12 +1369,27 @@ class TaskController extends Controller
                 $reflowAnchor = $mode === 'forward' || $mode === 'manual'
                     ? Carbon::parse($summary['end_date'] . ' ' . $summary['end_time'])
                     : Carbon::parse($summary['start_date'] . ' ' . $summary['start_time']);
+                $forwardAnchor = Carbon::parse($summary['end_date'] . ' ' . $summary['end_time']);
                 $needsBackwardAllocation = $mode === 'backfill' && $duration > array_sum(array_column($oldSegments, 'allocated_minutes'));
-                $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation);
+                $moved = $this->reflowTasks($laterTasks, $reflowAnchor, $setting, $manualStarts, $needsBackwardAllocation, $taskModes, $mode === 'mixed' ? $forwardAnchor : null, $taskDeadlineLimits);
                 foreach ($moved as &$item) $item['previous_segments'] = $previousTaskSegments[$item['id']] ?? [];
                 unset($item);
             }
         }
+        foreach ($keptTasks as $keptTask) {
+            $previous = $previousTaskSegments[$keptTask->id] ?? [];
+            $moved[] = [
+                'id' => (int) $keptTask->id,
+                'task_name' => $keptTask->task_name,
+                'previous_segments' => $previous,
+                'segments' => $previous,
+                'total_allocated_minutes' => array_sum(array_column($previous, 'allocated_minutes')),
+                'mode' => 'keep',
+                'date_limits' => ['start_date' => $keptTask->start_date, 'end_date' => $keptTask->end_date],
+            ];
+        }
+        $candidateOrder = $allLaterTasks->pluck('id')->map(fn ($taskId) => (int) $taskId)->values()->all();
+        usort($moved, fn ($left, $right) => array_search((int) $left['id'], $candidateOrder, true) <=> array_search((int) $right['id'], $candidateOrder, true));
 
         return [
             'success' => true,
@@ -1140,6 +1403,7 @@ class TaskController extends Controller
             ])->values()->all(),
             'total_allocated_minutes' => $duration,
             'affected_tasks' => $moved,
+            'needs_task_strategy' => $strategySetupPreview,
         ];
     }
 
@@ -1500,7 +1764,7 @@ class TaskController extends Controller
             ->values();
     }
 
-    private function reflowTasks($tasks, Carbon $anchor, $setting, array $manualStarts = [], bool $backward = false): array
+    private function reflowTasks($tasks, Carbon $anchor, $setting, array $manualStarts = [], bool $backward = false, array $taskModes = [], ?Carbon $forwardAnchor = null, array $taskDeadlineLimits = []): array
     {
         if ($tasks->isEmpty()) return [];
         $scheduler = new \App\Services\TaskSchedulingService();
@@ -1512,7 +1776,7 @@ class TaskController extends Controller
             }
             $plans[$task->id] = [
                 'duration' => $duration,
-                'deadline' => $this->taskAllocationLimit($task, $anchor),
+                'deadline' => $taskDeadlineLimits[$task->id] ?? $this->taskAllocationLimit($task, $anchor),
                 'previous_segments' => $task->segments->map(fn ($segment) => $segment->toArray())->all(),
                 'order' => $order,
             ];
@@ -1520,9 +1784,19 @@ class TaskController extends Controller
         }
 
         $moved = [];
-        $processingTasks = $backward ? $tasks->reverse() : $tasks;
+        $isMixed = !empty($taskModes);
+        if ($isMixed) {
+            $manualTasks = $tasks->filter(fn ($task) => ($taskModes[$task->id] ?? null) === 'manual');
+            $backwardTasks = $tasks->filter(fn ($task) => ($taskModes[$task->id] ?? null) === 'backfill')->reverse();
+            $forwardTasks = $tasks->filter(fn ($task) => ($taskModes[$task->id] ?? null) === 'forward');
+            $processingTasks = $manualTasks->concat($backwardTasks)->concat($forwardTasks)->values();
+        } else {
+            $processingTasks = $backward ? $tasks->reverse() : $tasks;
+        }
+        $forwardCursor = $forwardAnchor?->copy() ?? $anchor->copy();
         foreach ($processingTasks as $task) {
             $plan = $plans[$task->id];
+            $taskMode = $taskModes[$task->id] ?? ($backward ? 'backfill' : 'forward');
             if (isset($manualStarts[$task->id])) {
                 $preferred = $manualStarts[$task->id];
                 $taskStart = Carbon::parse($preferred['start_date'] . ' ' . $preferred['start_time']);
@@ -1539,7 +1813,7 @@ class TaskController extends Controller
                     throw new \RuntimeException("Task '{$task->task_name}' (#{$task->id}) must stay between its allowed dates ({$earliestAllowed->format('Y-m-d')} and {$plan['deadline']->format('Y-m-d')}).");
                 }
                 $segments = $scheduler->allocate((int) $task->user_id, $taskStart->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $taskStart);
-            } elseif ($backward) {
+            } elseif ($taskMode === 'backfill') {
                 // A backward move may use earlier working time, but must stay inside
                 // the task's original date range (and never schedule before today).
                 $earliestDate = $task->start_date
@@ -1548,9 +1822,13 @@ class TaskController extends Controller
                 if ($earliestDate->lt(Carbon::today())) {
                     $earliestDate = Carbon::today();
                 }
-                $segments = $scheduler->allocateBackward((int) $task->user_id, $earliestDate, $anchor, $plan['duration'], $setting, (int) $task->id, Carbon::now());
+                $backwardAnchor = $anchor->copy();
+                $deadline = $plan['deadline']->copy()->endOfDay();
+                if ($deadline->lt($backwardAnchor)) $backwardAnchor = $deadline;
+                $segments = $scheduler->allocateBackward((int) $task->user_id, $earliestDate, $backwardAnchor, $plan['duration'], $setting, (int) $task->id, Carbon::now());
             } else {
-                $segments = $scheduler->allocate((int) $task->user_id, $anchor->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $anchor);
+                $allocationAnchor = $isMixed && $taskMode === 'forward' ? $forwardCursor : $anchor;
+                $segments = $scheduler->allocate((int) $task->user_id, $allocationAnchor->copy()->startOfDay(), $plan['deadline'], $plan['duration'], $setting, (int) $task->id, $allocationAnchor);
             }
             if (!$segments) {
                 $limit = $task->end_date ? " by its end-date limit ({$task->end_date})" : ' within the available working periods';
@@ -1563,20 +1841,25 @@ class TaskController extends Controller
                 'hour' => $summary['total_minutes'] / 60,
             ])->save();
             $scheduler->writeSegments($task, $segments);
+            if ($isMixed && $taskMode === 'forward') {
+                $forwardCursor = Carbon::parse($summary['end_date'] . ' ' . $summary['end_time']);
+            }
             $moved[] = [
                 'id' => $task->id,
                 'task_name' => $task->task_name,
                 'previous_segments' => $plan['previous_segments'],
                 'segments' => $segments,
                 'total_allocated_minutes' => $plan['duration'],
+                'mode' => isset($manualStarts[$task->id]) ? 'manual' : $taskMode,
+                'date_limits' => ['start_date' => $task->start_date, 'end_date' => $plan['deadline']->format('Y-m-d')],
                 '_order' => $plan['order'],
             ];
         }
-        if ($backward) {
+        if ($backward || $isMixed) {
             usort($moved, fn ($left, $right) => $left['_order'] <=> $right['_order']);
-            foreach ($moved as &$item) unset($item['_order']);
-            unset($item);
         }
+        foreach ($moved as &$item) unset($item['_order']);
+        unset($item);
         return $moved;
     }
 

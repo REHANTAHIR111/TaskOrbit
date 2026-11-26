@@ -323,7 +323,8 @@ try {
     ];
     $manualMovePreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $editTarget->id . '/schedule-preview', 'POST', $manualMoveData), $editTarget->id));
     $manualMoveSaved = $responseData($controller->update(Request::create('/api/task/' . $editTarget->id . '/update', 'POST', $manualMoveData), $editTarget->id));
-    $assert($manualMovePreview['success'] && count($manualMovePreview['affected_tasks']) === 1 && $manualMovePreview['affected_tasks'][0]['segments'][0]['start_time'] === '12:00:00' && $manualMoveSaved['success'] && $manualMove->fresh()->segments->first()->start_time === '12:00:00' && $unselectedMove->fresh()->segments->first()->start_time === '11:00:00', 'Manual task start adjustment or selected-only reflow was not previewed/applied.');
+    $manualMovePlans = collect($manualMovePreview['affected_tasks'])->keyBy('id');
+    $assert($manualMovePreview['success'] && count($manualMovePreview['affected_tasks']) === 2 && $manualMovePlans[$manualMove->id]['segments'][0]['start_time'] === '12:00:00' && $manualMovePlans[$unselectedMove->id]['mode'] === 'keep' && $manualMoveSaved['success'] && $manualMove->fresh()->segments->first()->start_time === '12:00:00' && $unselectedMove->fresh()->segments->first()->start_time === '11:00:00', 'Manual placement preview did not show the moved and unchanged tasks or apply only the selected move.');
     echo "PASS 20: selected affected task can be manually placed at a preferred time\n";
 
     // 21. Editing only task details leaves its multi-segment schedule untouched.
@@ -418,6 +419,7 @@ try {
         'task_name' => $dateBoundTarget->task_name, 'hour' => 4,
         'start_date' => '2030-02-13', 'end_date' => '2030-02-13', 'start_time' => '11:00',
         'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'backfill',
+        'reflow_task_ids' => [$dateBoundLater->id],
     ];
     $dateBoundPreview = $responseData($controller->previewTaskSchedule(
         Request::create('/api/task/' . $dateBoundTarget->id . '/schedule-preview', 'POST', $dateBoundEdit),
@@ -608,6 +610,242 @@ try {
         'Manual placement preview did not expose a task when automatic reflow could not fit, or the selected manual placement failed.'
     );
     echo "PASS 30: manual placement remains available when automatic reflow cannot fit by deadline\n";
+
+    // 31. Per-task mixed placement supports backward and forward directions in one edit.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $mixedTarget = $createTask($user, 'Mixed target', 240, [$seg('2030-02-21', '11:00:00', '15:00:00', 240)], '2030-02-22');
+    $mixedBack = $createTask($user, 'Mixed backward', 120, [$seg('2030-02-21', '15:00:00', '17:00:00', 120)], '2030-02-22');
+    $mixedForward = $createTask($user, 'Mixed forward', 120, [$seg('2030-02-22', '12:00:00', '14:00:00', 120)], '2030-02-22');
+    $mixedPayload = [
+        'hour' => 8, 'start_date' => '2030-02-21', 'end_date' => '2030-02-22',
+        'start_time' => '11:00', 'end_time' => '17:00', 'auto_schedule' => true, 'reflow_mode' => 'mixed',
+    ];
+    $strategyPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $mixedTarget->id . '/schedule-preview', 'POST', $mixedPayload), $mixedTarget->id));
+    $assert($strategyPreview['success'] && $strategyPreview['needs_task_strategy'] && count($strategyPreview['affected_tasks']) === 2, 'Mixed mode did not show all affected tasks for individual decisions.');
+    $mixedPayload['reflow_task_ids'] = [$mixedBack->id, $mixedForward->id];
+    $mixedPayload['reflow_task_modes'] = [
+        ['task_id' => $mixedBack->id, 'mode' => 'backfill'],
+        ['task_id' => $mixedForward->id, 'mode' => 'forward'],
+    ];
+    $mixedPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $mixedTarget->id . '/schedule-preview', 'POST', $mixedPayload), $mixedTarget->id));
+    $assert($mixedPreview['success'], 'Mixed-direction preview failed: ' . ($mixedPreview['message'] ?? 'unknown'));
+    $mixedBackPreview = collect($mixedPreview['affected_tasks'])->firstWhere('id', $mixedBack->id);
+    $mixedForwardPreview = collect($mixedPreview['affected_tasks'])->firstWhere('id', $mixedForward->id);
+    $assert($mixedBackPreview['segments'][0]['segment_date'] === '2030-02-21' && $mixedBackPreview['segments'][0]['start_time'] === '09:00:00', 'Backward-selected task did not use the same-day earlier slot.');
+    $assert($mixedForwardPreview['segments'][0]['segment_date'] === '2030-02-22' && $mixedForwardPreview['segments'][0]['start_time'] === '11:00:00', 'Forward-selected task did not start after the edited task.');
+    $mixedSavePayload = array_merge($mixedPayload, [
+        'task_name' => $mixedTarget->task_name, 'description' => '', 'priority' => null,
+        'status' => '1', 'schedule_changed' => true,
+        'schedule_preview_token' => $mixedPreview['schedule_preview_token'],
+    ]);
+    $mixedSave = $responseData($controller->update(
+        Request::create('/api/task/' . $mixedTarget->id . '/update', 'POST', $mixedSavePayload),
+        $mixedTarget->id
+    ));
+    $assert($mixedSave['success'], 'Mixed-direction save failed: ' . ($mixedSave['message'] ?? 'unknown'));
+    $assert(array_sum(array_map(fn ($row) => (int) $row->allocated_minutes, $segmentSnapshot($mixedBack->id))) === 120 && array_sum(array_map(fn ($row) => (int) $row->allocated_minutes, $segmentSnapshot($mixedForward->id))) === 120, 'Mixed reflow changed an affected task duration.');
+    echo "PASS 31: mixed per-task backward and forward placement previews and saves correctly\n";
+
+    // 32. A second backward task cascades into the earlier slot while chronological order is preserved.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $cascadeTarget = $createTask($user, 'Backward cascade target', 240, [$seg('2030-02-21', '11:00:00', '15:00:00', 240)], '2030-02-22');
+    $cascadeFirst = $createTask($user, 'Backward cascade first', 60, [$seg('2030-02-21', '15:00:00', '16:00:00', 60)], '2030-02-22');
+    $cascadeSecond = $createTask($user, 'Backward cascade second', 60, [$seg('2030-02-21', '16:00:00', '17:00:00', 60)], '2030-02-22');
+    $cascadePayload = [
+        'task_name' => $cascadeTarget->task_name, 'description' => '', 'priority' => null, 'status' => '1',
+        'hour' => 6, 'start_date' => '2030-02-21', 'end_date' => '2030-02-22',
+        'start_time' => '11:00', 'end_time' => '17:00', 'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'backfill',
+    ];
+    $cascadePreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $cascadeTarget->id . '/schedule-preview', 'POST', $cascadePayload), $cascadeTarget->id));
+    $assert($cascadePreview['success'], 'Backward cascade preview failed.');
+    $cascadePlans = collect($cascadePreview['affected_tasks'])->keyBy('id');
+    $assert($cascadePlans[$cascadeFirst->id]['segments'][0]['start_time'] === '09:00:00' && $cascadePlans[$cascadeSecond->id]['segments'][0]['start_time'] === '10:00:00', 'Backward cascade did not preserve chronological task order.');
+    echo "PASS 32: backward cascade allocates consecutive earlier slots in task order\n";
+
+    // 33. A changed schedule after preview is rejected without saving the edited task.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $staleTarget = $createTask($user, 'Stale preview target', 60, [$seg('2030-02-21', '09:00:00', '10:00:00', 60)], '2030-02-21');
+    $stalePayload = [
+        'task_name' => 'Stale preview target changed', 'description' => '', 'priority' => null, 'status' => '1',
+        'hour' => 90 / 60, 'start_date' => '2030-02-21', 'end_date' => '2030-02-21',
+        'start_time' => '09:00', 'end_time' => '10:30', 'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'keep',
+    ];
+    $stalePreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $staleTarget->id . '/schedule-preview', 'POST', $stalePayload), $staleTarget->id));
+    $assert($stalePreview['success'], 'Stale-preview fixture did not produce a valid preview.');
+    $createTask($user, 'Concurrent insertion', 30, [$seg('2030-02-21', '10:30:00', '11:00:00', 30)], '2030-02-21');
+    $stalePayload['schedule_preview_token'] = $stalePreview['schedule_preview_token'];
+    $staleResponse = $controller->update(Request::create('/api/task/' . $staleTarget->id . '/update', 'POST', $stalePayload), $staleTarget->id);
+    $staleBody = $responseData($staleResponse);
+    $assert($staleResponse->getStatusCode() === 409 && ($staleBody['stale_preview'] ?? false), 'A stale edit preview was not rejected with a conflict response.');
+    $assert((float) Task::findOrFail($staleTarget->id)->hour === 1.0 && $segmentSnapshot($staleTarget->id)[0]->end_time === '10:00:00', 'Stale-preview rejection modified the target task.');
+    echo "PASS 33: stale preview is rejected transactionally after concurrent schedule change\n";
+
+    // 34. Mixed mode accepts a per-task manual date/time and validates it with the shared allocator.
+    [$user] = $newUser(['start_break_time' => null, 'end_break_time' => null]);
+    $mixedManualTarget = $createTask($user, 'Mixed manual target', 60, [$seg('2030-02-21', '09:00:00', '10:00:00', 60)], '2030-02-21');
+    $mixedManualTask = $createTask($user, 'Mixed manual task', 60, [$seg('2030-02-21', '10:00:00', '11:00:00', 60)], '2030-02-21');
+    $mixedManualPayload = [
+        'hour' => 2, 'start_date' => '2030-02-21', 'end_date' => '2030-02-21',
+        'start_time' => '09:00', 'auto_schedule' => true, 'reflow_mode' => 'mixed',
+    ];
+    $mixedManualPayload['reflow_task_ids'] = [$mixedManualTask->id];
+    $mixedManualPayload['reflow_task_modes'] = [['task_id' => $mixedManualTask->id, 'mode' => 'manual']];
+    $mixedManualPayload['reflow_task_schedules'] = [['task_id' => $mixedManualTask->id, 'start_date' => '2030-02-21', 'start_time' => '12:00']];
+    $mixedManualPreview = $responseData($controller->previewTaskSchedule(Request::create('/api/task/' . $mixedManualTarget->id . '/schedule-preview', 'POST', $mixedManualPayload), $mixedManualTarget->id));
+    $assert($mixedManualPreview['success'] && $mixedManualPreview['affected_tasks'][0]['mode'] === 'manual' && $mixedManualPreview['affected_tasks'][0]['segments'][0]['start_time'] === '12:00:00', 'Mixed per-task manual placement was not previewed.');
+    $mixedManualSavePayload = array_merge($mixedManualPayload, [
+        'task_name' => $mixedManualTarget->task_name, 'description' => '', 'priority' => null,
+        'status' => '1', 'schedule_changed' => true,
+        'schedule_preview_token' => $mixedManualPreview['schedule_preview_token'],
+    ]);
+    $mixedManualSave = $responseData($controller->update(Request::create('/api/task/' . $mixedManualTarget->id . '/update', 'POST', $mixedManualSavePayload), $mixedManualTarget->id));
+    $assert($mixedManualSave['success'] && $mixedManualTask->fresh()->segments->first()->start_time === '12:00:00', 'Mixed per-task manual placement did not save.');
+    echo "PASS 34: mixed mode manually places an individual task at its selected date and time\n";
+
+    // 35. Keeping a task in a newly conflicting slot reports the conflict and changes nothing.
+    [$user] = $newUser(['end_work_time' => '11:00:00', 'start_break_time' => null, 'end_break_time' => null]);
+    $keepTarget = $createTask($user, 'Keep conflict target', 60, [$seg('2030-02-21', '09:00:00', '10:00:00', 60)], '2030-02-21');
+    $keepTask = $createTask($user, 'Keep conflict task', 60, [$seg('2030-02-21', '10:00:00', '11:00:00', 60)], '2030-02-21');
+    $keepBefore = $segmentSnapshot($keepTask->id);
+    $keepConflictPayload = [
+        'hour' => 2, 'start_date' => '2030-02-21', 'end_date' => '2030-02-21',
+        'start_time' => '09:00', 'auto_schedule' => true, 'reflow_mode' => 'mixed',
+        'reflow_task_ids' => [], 'reflow_task_modes' => [],
+    ];
+    $keepConflictResponse = $controller->previewTaskSchedule(Request::create('/api/task/' . $keepTarget->id . '/schedule-preview', 'POST', $keepConflictPayload), $keepTarget->id);
+    $keepConflict = $responseData($keepConflictResponse);
+    $assert($keepConflictResponse->getStatusCode() === 422 && !empty($keepConflict['conflicts']) && in_array($keepTask->id, array_map('intval', array_column($keepConflict['conflicts'], 'id')), true), 'Keeping a conflicting task did not report its occupied interval: ' . json_encode($keepConflict));
+    $assert((float) Task::findOrFail($keepTarget->id)->hour === 1.0 && $segmentSnapshot($keepTask->id) == $keepBefore, 'Unresolved keep conflict changed a saved schedule.');
+    echo "PASS 35: unresolved keep choice reports the blocker and preserves all saved schedules\n";
+
+    // 36. If the chosen forward direction misses a task's date limit, the preview
+    // finds a valid earlier placement instead of ending at the allocator error.
+    [$user] = $newUser(['end_work_time' => '19:00:00', 'start_break_time' => '13:00:00', 'end_break_time' => '14:00:00']);
+    $alternativeTarget = $createTask($user, 'Alternative target', 240, [
+        $seg('2030-03-04', '11:00:00', '13:00:00', 120),
+        $seg('2030-03-04', '14:00:00', '16:00:00', 120),
+    ], '2030-03-05');
+    $deadlineTask = $createTask($user, 'Deadline task', 120, [
+        $seg('2030-03-04', '16:00:00', '18:00:00', 120),
+    ], '2030-03-04');
+    $deadlineSegmentsBefore = $segmentSnapshot($deadlineTask->id);
+    $alternativePayload = [
+        'task_name' => $alternativeTarget->task_name, 'hour' => 6,
+        'start_date' => '2030-03-04', 'end_date' => '2030-03-05', 'start_time' => '11:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'forward',
+    ];
+    $alternativePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $alternativeTarget->id . '/schedule-preview', 'POST', $alternativePayload),
+        $alternativeTarget->id
+    ));
+    $assert(
+        $alternativePreview['success'] && !empty($alternativePreview['automatic_fallback']) &&
+        ($alternativePreview['fallback_reason'] ?? '') !== '' &&
+        ($alternativePreview['suggested_task_modes'][0]['task_id'] ?? null) === $deadlineTask->id &&
+        ($alternativePreview['suggested_task_modes'][0]['mode'] ?? null) === 'backfill' &&
+        ($alternativePreview['affected_tasks'][0]['segments'][0]['segment_date'] ?? null) === '2030-03-04' &&
+        ($alternativePreview['affected_tasks'][0]['segments'][0]['start_time'] ?? null) === '09:00:00' &&
+        ($alternativePreview['affected_tasks'][0]['segments'][0]['end_time'] ?? null) === '11:00:00' &&
+        $segmentSnapshot($deadlineTask->id) == $deadlineSegmentsBefore,
+        'Forward failure did not produce a safe same-day backward alternative: ' . json_encode($alternativePreview)
+    );
+    $alternativeSavePayload = array_merge($alternativePayload, [
+        'reflow_mode' => 'mixed',
+        'reflow_task_ids' => $alternativePreview['suggested_task_ids'],
+        'reflow_task_modes' => $alternativePreview['suggested_task_modes'],
+        'schedule_preview_token' => $alternativePreview['schedule_preview_token'],
+    ]);
+    $alternativeSave = $responseData($controller->update(
+        Request::create('/api/task/' . $alternativeTarget->id . '/update', 'POST', $alternativeSavePayload),
+        $alternativeTarget->id
+    ));
+    $savedTargetSegments = $alternativeTarget->fresh()->segments->sortBy('sequence')->values();
+    $savedDeadlineSegment = $deadlineTask->fresh()->segments->first();
+    $assert(
+        $alternativeSave['success'] && $savedTargetSegments->sum('allocated_minutes') === 360 &&
+        !$savedTargetSegments->contains(fn ($segment) => $segment->start_time < '14:00:00' && $segment->end_time > '13:00:00') &&
+        $savedDeadlineSegment->segment_date->format('Y-m-d') === '2030-03-04' &&
+        $savedDeadlineSegment->start_time === '09:00:00' && $savedDeadlineSegment->end_time === '11:00:00' &&
+        $savedDeadlineSegment->allocated_minutes === 120,
+        'Confirmed alternative schedule did not save exact durations and non-overlapping segments.'
+    );
+    echo "PASS 36: failed forward placement offers and saves a valid earlier schedule within the task date limit\n";
+
+    // 37. When no automatic direction fits, the preview opens per-task controls
+    // and leaves the target and affected task exactly as they were.
+    [$user] = $newUser(['end_work_time' => '11:00:00', 'start_break_time' => null, 'end_break_time' => null]);
+    $noAlternativeTarget = $createTask($user, 'No alternative target', 60, [
+        $seg('2030-03-06', '09:00:00', '10:00:00', 60),
+    ], '2030-03-06');
+    $noAlternativeLater = $createTask($user, 'No alternative later', 60, [
+        $seg('2030-03-06', '10:00:00', '11:00:00', 60),
+    ], '2030-03-06');
+    $noAlternativeTargetBefore = $segmentSnapshot($noAlternativeTarget->id);
+    $noAlternativeLaterBefore = $segmentSnapshot($noAlternativeLater->id);
+    $noAlternativePreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $noAlternativeTarget->id . '/schedule-preview', 'POST', [
+            'task_name' => $noAlternativeTarget->task_name, 'hour' => 2,
+            'start_date' => '2030-03-06', 'end_date' => '2030-03-06', 'start_time' => '09:00',
+            'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'forward',
+        ]),
+        $noAlternativeTarget->id
+    ));
+    $assert(
+        $noAlternativePreview['success'] && !empty($noAlternativePreview['fallback_manual_required']) &&
+        !empty($noAlternativePreview['needs_task_strategy']) &&
+        ($noAlternativePreview['affected_tasks'][0]['id'] ?? null) === $noAlternativeLater->id &&
+        ($noAlternativePreview['affected_tasks'][0]['date_limits']['end_date'] ?? null) === '2030-03-06' &&
+        $segmentSnapshot($noAlternativeTarget->id) == $noAlternativeTargetBefore &&
+        $segmentSnapshot($noAlternativeLater->id) == $noAlternativeLaterBefore,
+        'A no-fit edit did not expose per-task choices or altered saved schedules: ' . json_encode($noAlternativePreview)
+    );
+    echo "PASS 37: no automatic plan exposes task-level choices without changing saved schedules\n";
+
+    // 38. A user-approved extended task date limit is shown in preview and can
+    // only be applied with that preview's confirmation token.
+    [$user] = $newUser(['end_work_time' => '11:00:00', 'start_break_time' => null, 'end_break_time' => null]);
+    $extendTarget = $createTask($user, 'Deadline extension target', 60, [
+        $seg('2030-03-08', '09:00:00', '10:00:00', 60),
+    ], '2030-03-08');
+    $extendLater = $createTask($user, 'Deadline extension later task', 60, [
+        $seg('2030-03-08', '10:00:00', '11:00:00', 60),
+    ], '2030-03-08');
+    $extendPayload = [
+        'task_name' => $extendTarget->task_name, 'hour' => 2,
+        'start_date' => '2030-03-08', 'end_date' => '2030-03-08', 'start_time' => '09:00',
+        'auto_schedule' => true, 'schedule_changed' => true, 'reflow_mode' => 'mixed',
+        'reflow_task_ids' => [$extendLater->id],
+        'reflow_task_modes' => [['task_id' => $extendLater->id, 'mode' => 'forward']],
+        'reflow_task_deadlines' => [['task_id' => $extendLater->id, 'end_date' => '2030-03-09']],
+    ];
+    $extendPreview = $responseData($controller->previewTaskSchedule(
+        Request::create('/api/task/' . $extendTarget->id . '/schedule-preview', 'POST', $extendPayload),
+        $extendTarget->id
+    ));
+    $assert(
+        $extendPreview['success'] &&
+        ($extendPreview['affected_tasks'][0]['date_limits']['end_date'] ?? null) === '2030-03-09' &&
+        ($extendPreview['affected_tasks'][0]['segments'][0]['segment_date'] ?? null) === '2030-03-09',
+        'Explicit deadline extension was not reflected in the preview: ' . json_encode($extendPreview)
+    );
+    $extendWithoutToken = $responseData($controller->update(
+        Request::create('/api/task/' . $extendTarget->id . '/update', 'POST', $extendPayload),
+        $extendTarget->id
+    ));
+    $assert(!$extendWithoutToken['success'] && $extendLater->fresh()->segments->first()->segment_date->format('Y-m-d') === '2030-03-08', 'An end-date extension saved without explicit preview confirmation.');
+    $extendSavePayload = array_merge($extendPayload, ['schedule_preview_token' => $extendPreview['schedule_preview_token']]);
+    $extendSave = $responseData($controller->update(
+        Request::create('/api/task/' . $extendTarget->id . '/update', 'POST', $extendSavePayload),
+        $extendTarget->id
+    ));
+    $assert(
+        $extendSave['success'] &&
+        $extendLater->fresh()->segments->first()->segment_date->format('Y-m-d') === '2030-03-09' &&
+        $extendLater->fresh()->end_date === '2030-03-09' &&
+        $extendLater->fresh()->segments->sum('allocated_minutes') === 60,
+        'Confirmed end-date extension did not save the exact later schedule.'
+    );
+    echo "PASS 38: task end-date extension requires preview confirmation and saves the approved later placement\n";
 
     $db->rollBack();
     echo "PASS: lifecycle regression fixtures rolled back from the isolated test schema\n";

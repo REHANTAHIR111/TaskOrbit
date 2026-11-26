@@ -708,3 +708,209 @@
 #33 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php(23): require_once('C:\\\\Users\\\\HP\\\\Doc...')
 #34 {main}
 "} 
+[2026-11-25 18:13:58] local.ERROR: SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions (Connection: mysql, SQL: SELECT SCHEMA_NAME AS database_name FROM INFORMATION_SCHEMA.SCHEMATA WHERE LOWER(SCHEMA_NAME) LIKE '%taskorbit%' ORDER BY SCHEMA_NAME) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions (Connection: mysql, SQL: SELECT SCHEMA_NAME AS database_name FROM INFORMATION_SCHEMA.SCHEMATA WHERE LOWER(SCHEMA_NAME) LIKE '%taskorbit%' ORDER BY SCHEMA_NAME) at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:825)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('SELECT SCHEMA_N...', Array, Object(Closure))
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('SELECT SCHEMA_N...', Array, Object(Closure))
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\DatabaseManager.php(495): Illuminate\\Database\\Connection->select('SELECT SCHEMA_N...')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\DatabaseManager->__call('select', Array)
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\tests\\Support\\mysql_task_data_fingerprint.php(12): Illuminate\\Support\\Facades\\Facade::__callStatic('select', Array)
+#5 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(67): PDO::connect('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(44): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=127....', Array, Array)
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(185): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->{closure:Illuminate\\Database\\Connectors\\ConnectionFactory::createPdoResolverWithHosts():180}()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1231): call_user_func(Object(Closure))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1267): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(512): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(407): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::select():398}('SELECT SCHEMA_N...', Array)
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('SELECT SCHEMA_N...', Array, Object(Closure))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('SELECT SCHEMA_N...', Array, Object(Closure))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\DatabaseManager.php(495): Illuminate\\Database\\Connection->select('SELECT SCHEMA_N...')
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\DatabaseManager->__call('select', Array)
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\tests\\Support\\mysql_task_data_fingerprint.php(12): Illuminate\\Support\\Facades\\Facade::__callStatic('select', Array)
+#15 {main}
+"} 
+[2026-11-25 18:16:47] local.ERROR: Command "test" is not defined.
+
+Did you mean one of these?
+    make:test
+    schedule:test {"exception":"[object] (Symfony\\Component\\Console\\Exception\\CommandNotFoundException(code: 0): Command \"test\" is not defined.
+
+Did you mean one of these?
+    make:test
+    schedule:test at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php:725)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(283): Symfony\\Component\\Console\\Application->find('test')
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#4 {main}
+"} 
+[2026-11-25 18:32:18] local.ERROR: SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions (Connection: mysql, SQL: select exists (select 1 from information_schema.tables where table_schema = 'taskorbit_edit_reflow_audit_20261125' and table_name = 'task_segments' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')) as `exists`) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions (Connection: mysql, SQL: select exists (select 1 from information_schema.tables where table_schema = 'taskorbit_edit_reflow_audit_20261125' and table_name = 'task_segments' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')) as `exists`) at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:825)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('select exists (...', Array, Object(Closure))
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('select exists (...', Array, Object(Closure))
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(344): Illuminate\\Database\\Connection->select('select exists (...', Array, true)
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(361): Illuminate\\Database\\Connection->selectOne('select exists (...', Array, true)
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(45): Illuminate\\Database\\Connection->scalar('select exists (...')
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('task_segments')
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\tests\\Support\\mysql_task_lifecycle_regression.php(24): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#7 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(67): PDO::connect('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(44): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=127....', Array, Array)
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(185): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->{closure:Illuminate\\Database\\Connectors\\ConnectionFactory::createPdoResolverWithHosts():180}()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1231): call_user_func(Object(Closure))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1267): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(512): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(407): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::select():398}('select exists (...', Array)
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('select exists (...', Array, Object(Closure))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('select exists (...', Array, Object(Closure))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(344): Illuminate\\Database\\Connection->select('select exists (...', Array, true)
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(361): Illuminate\\Database\\Connection->selectOne('select exists (...', Array, true)
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(45): Illuminate\\Database\\Connection->scalar('select exists (...')
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('task_segments')
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\tests\\Support\\mysql_task_lifecycle_regression.php(24): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#17 {main}
+"} 
+[2026-11-25 18:47:15] local.ERROR: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'performance_schema.session_status' doesn't exist (Connection: mysql, SQL: select variable_value as `Value` from performance_schema.session_status where variable_name = 'threads_connected') {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S02): SQLSTATE[42S02]: Base table or view not found: 1146 Table 'performance_schema.session_status' doesn't exist (Connection: mysql, SQL: select variable_value as `Value` from performance_schema.session_status where variable_name = 'threads_connected') at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:825)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('select variable...', Array, Object(Closure))
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('select variable...', Array, Object(Closure))
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(344): Illuminate\\Database\\Connection->select('select variable...', Array, true)
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(361): Illuminate\\Database\\Connection->selectOne('select variable...', Array, true)
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(636): Illuminate\\Database\\Connection->scalar('select variable...')
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\ShowCommand.php(53): Illuminate\\Database\\Connection->threadCount()
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\ShowCommand->handle(Object(Illuminate\\Database\\DatabaseManager))
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Database\\Console\\ShowCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 {main}
+
+[previous exception] [object] (PDOException(code: 42S02): SQLSTATE[42S02]: Base table or view not found: 1146 Table 'performance_schema.session_status' doesn't exist at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:407)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(407): PDO->prepare('select variable...')
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::select():398}('select variable...', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('select variable...', Array, Object(Closure))
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('select variable...', Array, Object(Closure))
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(344): Illuminate\\Database\\Connection->select('select variable...', Array, true)
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(361): Illuminate\\Database\\Connection->selectOne('select variable...', Array, true)
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(636): Illuminate\\Database\\Connection->scalar('select variable...')
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\ShowCommand.php(53): Illuminate\\Database\\Connection->threadCount()
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\ShowCommand->handle(Object(Illuminate\\Database\\DatabaseManager))
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Database\\Console\\ShowCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#21 {main}
+"} 
+[2026-11-25 18:47:41] local.ERROR: Call to undefined function Termwind\ValueObjects\mb_strimwidth() {"exception":"[object] (Error(code: 0): Call to undefined function Termwind\\ValueObjects\\mb_strimwidth() at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\ValueObjects\\Styles.php:1052)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\ValueObjects\\Styles.php(870): Termwind\\ValueObjects\\Styles::trimText('..................', 86)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\ValueObjects\\Styles.php(732): Termwind\\ValueObjects\\Styles->applyWidth('..................')
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\Components\\Element.php(77): Termwind\\ValueObjects\\Styles->format('..................')
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\Components\\Element.php(120): Termwind\\Components\\Element->toString()
+#4 [internal function]: Termwind\\Components\\Element->__toString()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\Components\\Element.php(74): implode('', Array)
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\Components\\Element.php(112): Termwind\\Components\\Element->toString()
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\HtmlRenderer.php(24): Termwind\\Components\\Element->render(32)
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\nunomaduro\\termwind\\src\\Functions.php(41): Termwind\\HtmlRenderer->render('<div class=\"fle...', 32)
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\View\\Components\\Component.php(52): Termwind\\render('<div class=\"fle...', 32)
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\View\\Components\\TwoColumnDetail.php(31): Illuminate\\Console\\View\\Components\\Component->renderView('two-column-deta...', Array, 32)
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\View\\Components\\Factory.php(60): Illuminate\\Console\\View\\Components\\TwoColumnDetail->render('<fg=gray>Migrat...', '<fg=gray>Batch ...')
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\StatusCommand.php(74): Illuminate\\Console\\View\\Components\\Factory->__call('twoColumnDetail', Array)
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Migrations\\Migrator.php(658): Illuminate\\Database\\Console\\Migrations\\StatusCommand->{closure:Illuminate\\Database\\Console\\Migrations\\StatusCommand::handle():55}()
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Console\\Migrations\\StatusCommand.php(55): Illuminate\\Database\\Migrations\\Migrator->usingConnection('mysql', Object(Closure))
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Database\\Console\\Migrations\\StatusCommand->handle()
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()
+#17 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(95): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#18 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#19 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(696): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#20 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(213): Illuminate\\Container\\Container->call(Array)
+#21 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Command\\Command.php(318): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#22 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(182): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#23 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(1092): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#24 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(341): Symfony\\Component\\Console\\Application->doRunCommand(Object(Illuminate\\Database\\Console\\Migrations\\StatusCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#25 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\symfony\\console\\Application.php(192): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#26 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#27 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#28 {main}
+"} 
+[2026-11-25 18:53:08] local.ERROR: SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email' in 'where clause' (Connection: mysql, SQL: select exists(select * from `users` where `email` = edit-browser-20261125@example.test) as `exists`) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 42S22): SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email' in 'where clause' (Connection: mysql, SQL: select exists(select * from `users` where `email` = edit-browser-20261125@example.test) as `exists`) at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:825)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('select exists(s...', Array, Object(Closure))
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('select exists(s...', Array, Object(Closure))
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3477): Illuminate\\Database\\Connection->select('select exists(s...', Array, true)
+#3 C:\\Users\\HP\\AppData\\Local\\Temp\\taskorbit-edit-browser-fixture.php(9): Illuminate\\Database\\Query\\Builder->exists()
+#4 {main}
+
+[previous exception] [object] (PDOException(code: 42S22): SQLSTATE[42S22]: Column not found: 1054 Unknown column 'email' in 'where clause' at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:407)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(407): PDO->prepare('select exists(s...')
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(812): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}('select exists(s...', Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('select exists(s...', Array, Object(Closure))
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('select exists(s...', Array, Object(Closure))
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Query\\Builder.php(3477): Illuminate\\Database\\Connection->select('select exists(s...', Array, true)
+#5 C:\\Users\\HP\\AppData\\Local\\Temp\\taskorbit-edit-browser-fixture.php(9): Illuminate\\Database\\Query\\Builder->exists()
+#6 {main}
+"} 
+[2026-11-25 19:30:04] local.ERROR: SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions (Connection: mysql, SQL: select exists (select 1 from information_schema.tables where table_schema = 'taskorbit_edit_reflow_audit_20261125' and table_name = 'task_segments' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')) as `exists`) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 2002): SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions (Connection: mysql, SQL: select exists (select 1 from information_schema.tables where table_schema = 'taskorbit_edit_reflow_audit_20261125' and table_name = 'task_segments' and table_type in ('BASE TABLE', 'SYSTEM VERSIONED')) as `exists`) at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php:825)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('select exists (...', Array, Object(Closure))
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('select exists (...', Array, Object(Closure))
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(344): Illuminate\\Database\\Connection->select('select exists (...', Array, true)
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(361): Illuminate\\Database\\Connection->selectOne('select exists (...', Array, true)
+#4 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(45): Illuminate\\Database\\Connection->scalar('select exists (...')
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('task_segments')
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\tests\\Support\\mysql_task_lifecycle_regression.php(24): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#7 {main}
+
+[previous exception] [object] (PDOException(code: 2002): SQLSTATE[HY000] [2002] An attempt was made to access a socket in a way forbidden by its access permissions at C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php:67)
+[stacktrace]
+#0 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(67): PDO::connect('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#1 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\Connector.php(44): Illuminate\\Database\\Connectors\\Connector->createPdoConnection('mysql:host=127....', 'root', Object(SensitiveParameterValue), Array)
+#2 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\MySqlConnector.php(24): Illuminate\\Database\\Connectors\\Connector->createConnection('mysql:host=127....', Array, Array)
+#3 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connectors\\ConnectionFactory.php(185): Illuminate\\Database\\Connectors\\MySqlConnector->connect(Array)
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->{closure:Illuminate\\Database\\Connectors\\ConnectionFactory::createPdoResolverWithHosts():180}()
+#5 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1231): call_user_func(Object(Closure))
+#6 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(1267): Illuminate\\Database\\Connection->getPdo()
+#7 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(512): Illuminate\\Database\\Connection->getReadPdo()
+#8 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(407): Illuminate\\Database\\Connection->getPdoForSelect(true)
+#9 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(812): Illuminate\\Database\\Connection->{closure:Illuminate\\Database\\Connection::select():398}('select exists (...', Array)
+#10 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(779): Illuminate\\Database\\Connection->runQueryCallback('select exists (...', Array, Object(Closure))
+#11 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(398): Illuminate\\Database\\Connection->run('select exists (...', Array, Object(Closure))
+#12 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(344): Illuminate\\Database\\Connection->select('select exists (...', Array, true)
+#13 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Connection.php(361): Illuminate\\Database\\Connection->selectOne('select exists (...', Array, true)
+#14 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Database\\Schema\\MySqlBuilder.php(45): Illuminate\\Database\\Connection->scalar('select exists (...')
+#15 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Facades\\Facade.php(361): Illuminate\\Database\\Schema\\MySqlBuilder->hasTable('task_segments')
+#16 C:\\Users\\HP\\Documents\\GitHub\\TaskOrbit\\tests\\Support\\mysql_task_lifecycle_regression.php(24): Illuminate\\Support\\Facades\\Facade::__callStatic('hasTable', Array)
+#17 {main}
+"} 

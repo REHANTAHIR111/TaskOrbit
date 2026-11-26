@@ -29,7 +29,7 @@ const EditTask = (props: any) => {
     const [segments, setSegments] = useState<any[]>([]);
     const [originalSchedule, setOriginalSchedule] = useState<any>({ start_date: '', end_date: '', start_time: '', end_time: '' });
     const [autoSchedule, setAutoSchedule] = useState(false);
-    const [reflowMode, setReflowMode] = useState<'keep' | 'backfill' | 'forward' | 'manual'>('keep');
+    const [reflowMode, setReflowMode] = useState<'keep' | 'backfill' | 'forward' | 'manual' | 'mixed'>('keep');
     const [originalHours, setOriginalHours] = useState('');
     const [priorityOptions, setPriorityOptions] = useState<any>([
         { value: 'low', label: 'Low' },
@@ -103,7 +103,7 @@ const EditTask = (props: any) => {
         })
     }
 
-    async function updateData(selectedReflowMode: 'keep' | 'backfill' | 'forward' | 'manual' = reflowMode) {
+    async function updateData(selectedReflowMode: 'keep' | 'backfill' | 'forward' | 'manual' | 'mixed' = reflowMode) {
         const shouldReschedule = willAutoSchedule;
         if (!name || !Number(hours) || Number(hours) <= 0) {
             coloredToast('danger', 'Enter a task name and a duration greater than zero.');
@@ -152,7 +152,16 @@ const EditTask = (props: any) => {
 
         let confirmedMode = selectedReflowMode;
         let confirmedTaskIds: number[] | undefined;
+        let confirmedTaskModes: any[] | undefined;
         let confirmedTaskSchedules: any[] | undefined;
+        let confirmedTaskDeadlines: any[] | undefined;
+        if (preview?.automatic_fallback || preview?.fallback_manual_required) {
+            confirmedMode = 'mixed';
+            if (preview.automatic_fallback) {
+                confirmedTaskIds = (preview.suggested_task_ids || []).map(Number);
+                confirmedTaskModes = preview.suggested_task_modes || [];
+            }
+        }
         if (needsSchedulePreview && durationChanged && Number(hours) < Number(originalHours) && selectedReflowMode === 'keep') {
             const backfillPreview = await post(`task/${id}/schedule-preview`, {
                 start_date: startDate,
@@ -194,47 +203,123 @@ const EditTask = (props: any) => {
                 const affectedTaskList = (plan.affected_tasks || []).map((task: any) => {
                     const oldSchedule = (task.previous_segments || []).map((segment: any) => `${escapeHtml(segment.segment_date)} ${escapeHtml(String(segment.start_time).slice(0, 5))}–${escapeHtml(String(segment.end_time).slice(0, 5))}`).join(', ');
                     const newSchedule = (task.segments || []).map((segment: any) => `${escapeHtml(segment.segment_date)} ${escapeHtml(String(segment.start_time).slice(0, 5))}–${escapeHtml(String(segment.end_time).slice(0, 5))}`).join(', ');
-                    const manualStart = task.segments?.[0];
-                    const manualInputs = allowSelection && plan.mode === 'manual'
-                        ? `<div class="mt-2 flex gap-2"><label>Preferred date<input class="form-input manual-task-date" data-task-id="${Number(task.id)}" type="date" value="${escapeHtml(manualStart?.segment_date || '')}"/></label><label>Preferred start<input class="form-input manual-task-time" data-task-id="${Number(task.id)}" type="time" value="${escapeHtml(String(manualStart?.start_time || '').slice(0, 5))}"/></label></div>`
+                    const dateLimits = task.date_limits?.end_date
+                        ? `<br/><span class="text-slate-500">Allowed dates: ${escapeHtml(task.date_limits.start_date || 'Any')} to ${escapeHtml(task.date_limits.end_date)}</span>`
                         : '';
-                    return `<li class="mb-2"><strong>Task #${task.id} ${escapeHtml(task.task_name)}</strong><br/><span>Was: ${oldSchedule}</span><br/><span>Will be: ${newSchedule}</span>${allowSelection ? `<label class="ml-2 inline-flex items-center gap-2"><input class="reflow-task-choice" type="checkbox" value="${Number(task.id)}" checked/> Move this task</label>${manualInputs}` : ''}</li>`;
+                    const deadlineEditor = allowSelection && (plan.needs_task_strategy || plan.mode === 'manual') && task.date_limits?.end_date
+                        ? `<label class="task-deadline-fields mt-2 flex items-center gap-2">End-date limit<input class="form-input reflow-task-deadline" data-task-id="${Number(task.id)}" data-original-end-date="${escapeHtml(task.date_limits.end_date)}" type="date" value="${escapeHtml(task.date_limits.end_date)}"/></label>`
+                        : '';
+                    const manualStart = task.segments?.[0];
+                    const mixedEditor = allowSelection && plan.mode === 'mixed' && plan.needs_task_strategy;
+                    const manualInputs = allowSelection && mixedEditor
+                        ? `<div class="manual-task-fields mt-2 flex gap-2 ${mixedEditor ? 'hidden' : ''}"><label>Preferred date<input class="form-input manual-task-date" data-task-id="${Number(task.id)}" type="date" value="${escapeHtml(manualStart?.segment_date || '')}"/></label><label>Preferred start<input class="form-input manual-task-time" data-task-id="${Number(task.id)}" type="time" value="${escapeHtml(String(manualStart?.start_time || '').slice(0, 5))}"/></label></div>`
+                        : '';
+                    const mixedChoice = mixedEditor
+                        ? `<label class="mt-2 block text-sm">For this task<select class="form-select task-direction-choice mt-1" data-task-id="${Number(task.id)}"><option value="keep">Keep current time</option><option value="forward">Move forward</option><option value="backfill">Move backward</option><option value="manual">Choose date and time</option></select></label>${manualInputs}`
+                        : '';
+                    const checkboxChoice = allowSelection && plan.mode === 'manual'
+                        ? `<label class="ml-2 inline-flex items-center gap-2"><input class="reflow-task-choice" type="checkbox" value="${Number(task.id)}" checked/> Move this task</label><div class="manual-task-fields mt-2 flex gap-2"><label>Preferred date<input class="form-input manual-task-date" data-task-id="${Number(task.id)}" type="date" value="${escapeHtml(manualStart?.segment_date || '')}"/></label><label>Preferred start<input class="form-input manual-task-time" data-task-id="${Number(task.id)}" type="time" value="${escapeHtml(String(manualStart?.start_time || '').slice(0, 5))}"/></label></div>`
+                        : '';
+                    const actionLabel = !mixedEditor && task.mode ? `<span class="text-slate-500">Action: ${escapeHtml(task.mode === 'keep' ? 'Keep current time' : task.mode === 'backfill' ? 'Move backward' : task.mode === 'forward' ? 'Move forward' : 'Manual placement')}</span><br/>` : '';
+                    const scheduleLines = mixedEditor
+                        ? `<br/><span>Current schedule: ${oldSchedule || 'Not available'}</span>`
+                        : `<br/><span>Was: ${oldSchedule || 'Not available'}</span><br/><span>Will be: ${newSchedule || 'Not available'}</span>`;
+                    return `<li class="mb-3"><strong>Task #${task.id} ${escapeHtml(task.task_name)}</strong>${scheduleLines}${dateLimits}<br/>${actionLabel}${mixedChoice}${checkboxChoice}${deadlineEditor}</li>`;
                 }).join('');
-                const moveDescription = plan.mode === 'forward' ? 'Later tasks will move forward.' : plan.mode === 'manual' ? 'Choose which tasks to move and set a preferred start for each.' : 'Later tasks may move earlier to use the released time.';
-                return `<div class="max-h-[55vh] overflow-auto text-left"><p class="mb-2">Original schedule: ${(segments || []).map((segment: any) => `${escapeHtml(segment.segment_date)} ${escapeHtml(String(segment.start_time).slice(0, 5))}–${escapeHtml(String(segment.end_time).slice(0, 5))}`).join(', ') || 'Not available'}.</p><p class="mb-2">${durationChanged ? `Duration: ${originalHours}h → <strong>${hours}h</strong>.` : `Duration: <strong>${hours}h</strong>.`} Updated schedule:</p><ol class="list-decimal pl-5">${segmentList}</ol><p class="mt-2">Total allocated: <strong>${minutes} minutes</strong></p>${affectedTaskList ? `<hr class="my-3"/><p>${moveDescription} Uncheck any task you want to keep as-is.</p><ul class="list-disc pl-5">${affectedTaskList}</ul>` : '<p class="mt-2">No other tasks will move.</p>'}</div>`;
+                const moveDescription = plan.needs_task_strategy ? 'Choose a direction for each task. Kept tasks stay unchanged and still reserve their times.' : plan.automatic_fallback ? 'Review the recommended direction and new times for each task.' : plan.mode === 'mixed' ? 'The selected directions are shown for each task.' : plan.mode === 'forward' ? 'Later tasks will move forward.' : plan.mode === 'manual' ? 'Choose which tasks to move and set a preferred start for each.' : 'Later tasks may move earlier to use the released time.';
+                const fallbackMessage = plan.fallback_message
+                    ? `<p class="mb-2 rounded bg-amber-50 p-3 text-amber-900">${escapeHtml(plan.fallback_message)}${plan.fallback_reason ? `<br/><span>${escapeHtml(plan.fallback_reason)}</span>` : ''}</p>`
+                    : '';
+                return `<div class="max-h-[55vh] overflow-auto text-left">${fallbackMessage}<p class="mb-2">Original schedule: ${(segments || []).map((segment: any) => `${escapeHtml(segment.segment_date)} ${escapeHtml(String(segment.start_time).slice(0, 5))}–${escapeHtml(String(segment.end_time).slice(0, 5))}`).join(', ') || 'Not available'}.</p><p class="mb-2">${durationChanged ? `Duration: ${originalHours}h → <strong>${hours}h</strong>.` : `Duration: <strong>${hours}h</strong>.`} Updated schedule:</p><ol class="list-decimal pl-5">${segmentList}</ol><p class="mt-2">Total allocated: <strong>${minutes} minutes</strong></p>${affectedTaskList ? `<hr class="my-3"/><p>${moveDescription}${plan.mode === 'manual' ? ' Uncheck any task you want to keep as-is.' : ''}</p><ul class="list-none pl-0">${affectedTaskList}</ul>` : '<p class="mt-2">No other tasks will move.</p>'}</div>`;
             };
+            const automaticFallback = Boolean(preview?.automatic_fallback);
+            const fallbackNeedsChoices = Boolean(preview?.fallback_manual_required);
             const confirmation = await Swal.fire({
-                title: durationChanged ? 'Confirm duration and schedule' : 'Confirm reschedule',
+                title: fallbackNeedsChoices ? 'Choose task actions' : automaticFallback ? 'Alternative schedule found' : durationChanged ? 'Confirm duration and schedule' : 'Confirm reschedule',
                 html: planHtml(preview, preview.affected_tasks?.length > 0),
                 icon: 'question',
                 showCancelButton: true,
-                confirmButtonText: 'Save schedule',
-                cancelButtonText: 'Cancel',
-                preConfirm: () => ({
-                    taskIds: Array.from(document.querySelectorAll<HTMLInputElement>('.reflow-task-choice:checked')).map((input) => Number(input.value)),
+                showDenyButton: automaticFallback,
+                confirmButtonText: fallbackNeedsChoices ? 'Preview choices' : automaticFallback ? 'Use this schedule' : 'Save schedule',
+                denyButtonText: 'Choose task actions',
+                cancelButtonText: automaticFallback || fallbackNeedsChoices ? 'Cancel edit' : 'Cancel',
+                didOpen: () => {
+                    document.querySelectorAll<HTMLSelectElement>('.task-direction-choice').forEach((select) => {
+                        const syncTaskFields = () => {
+                            const taskRow = select.closest('li');
+                            taskRow?.querySelector('.manual-task-fields')?.classList.toggle('hidden', select.value !== 'manual');
+                            const deadlineInput = taskRow?.querySelector<HTMLInputElement>('.reflow-task-deadline');
+                            if (deadlineInput) deadlineInput.disabled = select.value === 'keep';
+                        };
+                        select.addEventListener('change', syncTaskFields);
+                        syncTaskFields();
+                    });
+                    document.querySelectorAll<HTMLInputElement>('.reflow-task-choice').forEach((checkbox) => {
+                        const syncDeadline = () => {
+                            const deadlineInput = checkbox.closest('li')?.querySelector<HTMLInputElement>('.reflow-task-deadline');
+                            if (deadlineInput) deadlineInput.disabled = !checkbox.checked;
+                        };
+                        checkbox.addEventListener('change', syncDeadline);
+                        syncDeadline();
+                    });
+                },
+                preConfirm: () => {
+                    const taskModes = Array.from(document.querySelectorAll<HTMLSelectElement>('.task-direction-choice')).map((select) => ({
+                        task_id: Number(select.dataset.taskId), mode: select.value,
+                    }));
+                    const isMixedSetup = preview?.mode === 'mixed' && preview?.needs_task_strategy;
+                    const taskIds = isMixedSetup ? taskModes.filter((item) => item.mode !== 'keep').map((item) => item.task_id) : Array.from(document.querySelectorAll<HTMLInputElement>('.reflow-task-choice:checked')).map((input) => Number(input.value));
+                    const manualTaskIds = isMixedSetup
+                        ? taskModes.filter((item) => item.mode === 'manual').map((item) => item.task_id)
+                        : preview?.mode === 'manual' ? taskIds : [];
+                    const deadlines = Array.from(document.querySelectorAll<HTMLInputElement>('.reflow-task-deadline')).map((input) => ({
+                        task_id: Number(input.dataset.taskId), end_date: input.value, original_end_date: input.dataset.originalEndDate || '',
+                    })).filter((item) => taskIds.includes(item.task_id) && item.end_date && item.end_date !== item.original_end_date)
+                        .map(({ task_id, end_date }) => ({ task_id, end_date }));
+                    return {
+                    taskIds,
+                    taskModes,
+                    deadlines,
                     schedules: Array.from(document.querySelectorAll<HTMLInputElement>('.manual-task-date')).map((dateInput) => {
                         const taskId = Number(dateInput.dataset.taskId);
                         const timeInput = document.querySelector<HTMLInputElement>(`.manual-task-time[data-task-id="${taskId}"]`);
                         return { task_id: taskId, start_date: dateInput.value, start_time: timeInput?.value || '' };
-                    }),
-                }),
+                    }).filter((schedule) => manualTaskIds.includes(schedule.task_id)),
+                    };
+                },
             });
+            if (automaticFallback && confirmation.isDenied) return updateData('mixed');
             if (!confirmation.isConfirmed) return;
-            if (confirmation.value && preview.affected_tasks?.length) {
+            if (preview?.automatic_fallback) {
+                confirmedTaskIds = (preview.suggested_task_ids || []).map(Number);
+                confirmedTaskModes = preview.suggested_task_modes || [];
+            } else if (confirmation.value && preview.affected_tasks?.length) {
+                confirmedTaskDeadlines = confirmation.value.deadlines || [];
                 const allIds = preview.affected_tasks.map((task: any) => Number(task.id)).sort((a: number, b: number) => a - b);
                 confirmedTaskIds = confirmation.value.taskIds.sort((a: number, b: number) => a - b);
-                const schedulesChanged = confirmedMode === 'manual';
+                const schedulesChanged = confirmedMode === 'manual' || confirmedMode === 'mixed';
                 const selectionChanged = confirmedTaskIds.length !== allIds.length || confirmedTaskIds.some((taskId, index) => taskId !== allIds[index]);
-                if (selectionChanged || schedulesChanged) {
-                    const selectedSchedules = confirmation.value.schedules.filter((schedule: any) => confirmedTaskIds.includes(schedule.task_id));
-                    confirmedTaskSchedules = schedulesChanged ? selectedSchedules : undefined;
+                if (confirmedMode === 'mixed' || selectionChanged || schedulesChanged) {
+                    const selectedModes = (confirmation.value.taskModes || []).filter((item: any) => item.mode !== 'keep');
+                    confirmedTaskModes = confirmedMode === 'mixed' ? selectedModes : undefined;
+                    const manualIds = confirmedMode === 'mixed' ? selectedModes.filter((item: any) => item.mode === 'manual').map((item: any) => item.task_id) : confirmedTaskIds;
+                    const selectedSchedules = confirmation.value.schedules.filter((schedule: any) => manualIds.includes(schedule.task_id));
+                    confirmedTaskSchedules = (confirmedMode === 'manual' || confirmedMode === 'mixed') ? selectedSchedules : undefined;
                     preview = await post(`task/${id}/schedule-preview`, {
                         start_date: startDate, end_date: endDate, start_time: normalizedStartTime, end_time: normalizedEndTime,
                         hour: hours, auto_schedule: shouldReschedule, reflow_mode: confirmedMode, reflow_task_ids: confirmedTaskIds,
-                        reflow_task_schedules: confirmedTaskSchedules,
+                        reflow_task_modes: confirmedTaskModes, reflow_task_schedules: confirmedTaskSchedules, reflow_task_deadlines: confirmedTaskDeadlines,
                     });
                     if (!preview?.success || !preview?.segments?.length) {
-                        await Swal.fire({ title: 'Selected tasks cannot fit', text: preview?.message || 'No changes were made. Select more tasks to move or adjust the dates.', icon: 'warning', confirmButtonText: 'OK' });
+                        const blockers = (preview?.conflicts || []).slice(0, 5).map((conflict: any) => `<li>Task #${Number(conflict.id)} ${escapeHtml(conflict.task_name)} — ${escapeHtml(conflict.segment_date)} ${escapeHtml(String(conflict.start_time).slice(0, 5))}–${escapeHtml(String(conflict.end_time).slice(0, 5))}</li>`).join('');
+                        const retry = await Swal.fire({
+                            title: 'This choice still conflicts',
+                            html: `<p>${escapeHtml(preview?.message || 'No changes were made. Choose another direction, move more tasks, or adjust the dates.')}</p>${blockers ? `<ul class="mt-2 list-disc pl-5 text-left">${blockers}</ul>` : ''}<p class="mt-2">You can choose different actions for each task or enter preferred times.</p>`,
+                            icon: 'warning', showDenyButton: true, showCancelButton: true,
+                            confirmButtonText: 'Choose task actions', denyButtonText: 'Place tasks manually', cancelButtonText: 'Cancel edit',
+                        });
+                        if (retry.isConfirmed) return updateData('mixed');
+                        if (retry.isDenied) return updateData('manual');
                         return;
                     }
                     const revised = await Swal.fire({
@@ -263,18 +348,25 @@ const EditTask = (props: any) => {
         };
         if (needsSchedulePreview) sendData.reflow_mode = confirmedMode;
         if (confirmedTaskIds) sendData.reflow_task_ids = confirmedTaskIds;
+        if (confirmedTaskModes) sendData.reflow_task_modes = confirmedTaskModes;
         if (confirmedTaskSchedules) sendData.reflow_task_schedules = confirmedTaskSchedules;
+        if (confirmedTaskDeadlines?.length) sendData.reflow_task_deadlines = confirmedTaskDeadlines;
+        if (needsSchedulePreview && preview?.schedule_preview_token) sendData.schedule_preview_token = preview.schedule_preview_token;
         if (shouldReschedule || needsSchedulePreview) sendData.start_time = normalizedStartTime;
         if (!shouldReschedule) {
             sendData.start_time = normalizedStartTime;
             sendData.end_time = normalizedEndTime;
         }
 
-        post('task/' + id + '/update', sendData).then((responseJson: any) => {
+        post('task/' + id + '/update', sendData).then(async (responseJson: any) => {
             if (responseJson.success == 'true' || responseJson.success === true) {
                 navigate('/tasklist');
                 coloredToast('success', responseJson?.message);
             } else {
+                if (responseJson?.stale_preview) {
+                    await Swal.fire({ title: 'Schedule changed', text: responseJson.message, icon: 'warning', confirmButtonText: 'Review again' });
+                    return;
+                }
                 const validationErrors = responseJson?.errors ? Object.values(responseJson.errors).flat().join(' ') : '';
                 coloredToast('danger', responseJson?.message && responseJson.message !== 'Validation failed' ? responseJson.message : (validationErrors || 'The task could not be saved. Check the duration, dates, and available working time.'));
             }
@@ -438,11 +530,12 @@ const EditTask = (props: any) => {
                         {needsSchedulePreview && (
                             <div className="mt-4">
                                 <label htmlFor="reflowMode" className="mb-1">When another task needs this time</label>
-                                <select id="reflowMode" className="form-select" value={reflowMode} onChange={(event) => setReflowMode(event.target.value as 'keep' | 'backfill' | 'forward' | 'manual')}>
+                                <select id="reflowMode" className="form-select" value={reflowMode} onChange={(event) => setReflowMode(event.target.value as 'keep' | 'backfill' | 'forward' | 'manual' | 'mixed')}>
                                     <option value="keep">Keep other tasks in place</option>
                                     <option value="backfill">Move later tasks earlier into free time</option>
                                     <option value="forward">Move later tasks forward</option>
                                     <option value="manual">Choose tasks and preferred times manually</option>
+                                    <option value="mixed">Choose a direction for each task</option>
                                 </select>
                                 <small className="mt-1 block text-slate-500">You will review every proposed change before saving. No other task moves without your confirmation.</small>
                             </div>

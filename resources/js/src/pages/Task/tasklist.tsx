@@ -235,7 +235,7 @@ const TaskListing = (props: any) => {
                 <div className="mb-5 flex items-center justify-between">
                     <div>
                         <h2 className="text-lg font-semibold text-white">
-                            {t('Task Listing')}
+                            All tasks
                         </h2>
 
                         <p className="mt-1 text-xs text-slate-400">
@@ -310,7 +310,7 @@ const TaskListing = (props: any) => {
 
                                 {
                                     accessor: 'hour',
-                                    title: t('Hour'),
+                                    title: t('Duration'),
                                     sortable: false,
                                     width: 100,
                                     render: ({ hour, total_allocated_minutes }: any) => (

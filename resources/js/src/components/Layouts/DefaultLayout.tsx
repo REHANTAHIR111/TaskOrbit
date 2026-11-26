@@ -86,7 +86,7 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
                 <Setting />
                 {/* END APP SETTING LAUNCHER */}
 
-                <div className={`${themeConfig.navbar} main-container text-black dark:text-white-dark min-h-screen`}>
+                <div className={`${themeConfig.navbar} main-container text-black dark:text-white-dark min-h-screen to-app-shell`}>
                     {/* BEGIN SIDEBAR */}
                     <Sidebar />
                     {/* END SIDEBAR */}
@@ -98,7 +98,7 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
 
                         {/* BEGIN CONTENT AREA */}
                         <Suspense>
-                            <div className={`${themeConfig.animation}  p-3 animate__animated`}>{children}</div>
+                            <div className={`${themeConfig.animation} p-3 animate__animated to-page-content`}>{children}</div>
                         </Suspense>
                         {/* END CONTENT AREA */}
                         {/* BEGIN FOOTER */}

@@ -79,6 +79,7 @@ const TaskListing = (props: any) => {
     const handleSearch = () => {
         var filterData = taskData.filter((item: any) => {
             return (
+                item.task_name?.toString().toLowerCase().includes(search.toLowerCase()) ||
                 item.name?.toString().toLowerCase().includes(search.toLowerCase()) ||
                 item.name_ar?.toString().toLowerCase().includes(search.toLowerCase())
             );

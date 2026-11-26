@@ -380,7 +380,8 @@ const EditTask = (props: any) => {
 
     return (
         <>
-            <div className="flex xl:flex-row flex-col gap-2">
+            <div className="flex xl:flex-row flex-col gap-2">            <div className="to-page-heading"><div><span>UPDATE YOUR PLAN</span><h1>Edit task</h1><p>Adjust task details and review how the schedule will be updated.</p></div></div>
+
                 <div className="px-0 flex-1 py-0 ltr:xl:mr-1 rtl:xl:ml-1">
                     <div className="panel mb-3">
                         <div className="w-full flex items-center gap-3 mb-3">

@@ -177,3 +177,16 @@ body { background: var(--to-canvas); color: var(--to-ink); font-family: Inter, u
 .dark .to-page-heading h1 { color:#e5edf8; }
 .dark .to-page-heading p { color:#91a2b8; }
 @media(max-width:600px){.to-page-heading{margin-bottom:14px}.to-page-heading h1{font-size:23px}}
+
+@media (max-width: 640px) {
+  .to-page-content .w-full.flex.items-center.gap-3.mb-3 { flex-wrap: wrap; }
+  .to-page-content .w-full.flex.items-center.gap-3.mb-3 > .w-full { flex: 1 1 100%; }
+  .to-page-content .grid.grid-cols-2 { grid-template-columns: minmax(0,1fr); }
+  .to-page-content .grid.grid-cols-2 > .col-span-2 { grid-column: auto; }
+  .to-page-content .mb-4\.5.flex.md\:items-center { align-items: stretch; }
+  .to-page-content .mb-4\.5.flex.md\:items-center > .flex { flex-wrap: wrap; }
+}
+.to-page-content .text-slate-200 { color: #35445c !important; }
+.to-page-content .text-slate-300 { color: #526178 !important; }
+.dark .to-page-content .text-slate-200 { color: #d5dfed !important; }
+.dark .to-page-content .text-slate-300 { color: #c0ccdc !important; }

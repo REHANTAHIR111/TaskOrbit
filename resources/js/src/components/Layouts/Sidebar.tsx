@@ -317,7 +317,7 @@ const Sidebar = (props: any) => {
                                             >
                                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                                             </svg>
-                                            <span>{t('Manage Task')}</span>
+                                            <span>WORKSPACE</span>
                                         </h2>
                                         <li className="nav-item">
                                             <ul className='flex flex-col gap-2'>
@@ -351,7 +351,7 @@ const Sidebar = (props: any) => {
                                                     <NavLink to="/tasklist" className="nav-link group">
                                                         <div className="flex items-center">
                                                             <IconListCheck className="group-hover:!text-black shrink-0 !w-4.5 !h-4.5" />
-                                                            <span className="ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">All Tasks</span>
+                                                            <span className="ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">All tasks</span>
                                                         </div>
                                                     </NavLink>
                                                 </li>
@@ -359,7 +359,7 @@ const Sidebar = (props: any) => {
                                                     <NavLink to="/recyclebin" className="nav-link group">
                                                         <div className="flex items-center">
                                                             <IconTrashLines strokeWidth={2} className="group-hover:!text-black shrink-0 !w-4.5 !h-4.5" />
-                                                            <span className="ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Recycle Bin</span>
+                                                            <span className="ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Recycle bin</span>
                                                         </div>
                                                     </NavLink>
                                                 </li>
@@ -367,7 +367,7 @@ const Sidebar = (props: any) => {
                                                     <NavLink to="/slotsetting" className="nav-link group">
                                                         <div className="flex items-center">
                                                             <IconAutoSetting className="group-hover:!text-black shrink-0 !w-4.5 !h-4.5" />
-                                                            <span className="ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Slot Setting</span>
+                                                            <span className="ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">Working hours</span>
                                                         </div>
                                                     </NavLink>
                                                 </li>

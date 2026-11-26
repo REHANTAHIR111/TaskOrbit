@@ -230,15 +230,15 @@ const TaskListing = (props: any) => {
 
 
     return (
-        <div>
+        <div className="to-task-list">
             <div className="panel">
-                <div className="mb-5 flex items-center justify-between">
+                <div className="to-task-list-heading">
                     <div>
                         <h1>
                             All tasks
-                        </h2>
+                        </h1>
 
-                        <p className="mt-1 text-xs text-slate-400">
+                        <p>
                             Review your tasks, scheduled time, and upcoming work.
                         </p>
                     </div>

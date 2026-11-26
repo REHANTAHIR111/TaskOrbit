@@ -41,7 +41,7 @@ const SlotSetting = (props:any) => {
     });
 
     useEffect(() => {
-        dispatch(setPageTitle('Slot Auto Setting'));
+        dispatch(setPageTitle('Working hours'));
         getData()
     }, [props]);
 

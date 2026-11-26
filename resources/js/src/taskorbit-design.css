@@ -154,3 +154,39 @@ button, input, select, textarea { font: inherit; }
 @media (max-width: 1023px) {
   .sidebar { box-shadow: 14px 0 38px rgba(0, 0, 0, .24); }
 }
+
+/* Theme-aware surfaces and form controls (overrides legacy fixed-dark defaults) */
+.panel {
+  background: var(--to-surface) !important;
+  border: 1px solid var(--to-border) !important;
+  box-shadow: var(--to-shadow) !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.form-input,
+.form-textarea,
+.form-select,
+.form-multiselect,
+.css-b62m3t-container [class$='-control'] {
+  background-color: var(--to-surface) !important;
+  border-color: var(--to-border) !important;
+  color: var(--to-text) !important;
+}
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--to-muted) !important;
+  opacity: .8;
+}
+.dark .panel {
+  background: var(--to-surface) !important;
+  border-color: var(--to-border) !important;
+}
+.dark .form-input,
+.dark .form-textarea,
+.dark .form-select,
+.dark .form-multiselect,
+.dark .css-b62m3t-container [class$='-control'] {
+  background-color: var(--to-surface) !important;
+  border-color: var(--to-border) !important;
+  color: var(--to-text) !important;
+}

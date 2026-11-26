@@ -238,7 +238,7 @@ const TaskListing = (props: any) => {
                         </h2>
 
                         <p className="mt-1 text-xs text-slate-400">
-                            Create and manage your available slots
+                            Review your tasks, scheduled time, and upcoming work.
                         </p>
                     </div>
                     <div className="flex items-center gap-2">

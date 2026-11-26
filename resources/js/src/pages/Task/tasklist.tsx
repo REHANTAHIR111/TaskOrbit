@@ -280,8 +280,7 @@ const TaskListing = (props: any) => {
                     </span>
                 </div>
                 <div className="datatables">
-                    <div className="datatables">
-                        <DataTable
+                    <DataTable
                             noRecordsText="No tasks found"
                             highlightOnHover
                             striped={false}
@@ -323,8 +322,7 @@ const TaskListing = (props: any) => {
                             paginationText={({ from, to, totalRecords }) =>
                                 `${t('showing')} ${from} ${t('to')} ${to} ${t('of')} ${totalRecords} ${t('entries')}`
                             }
-                        />
-                    </div>
+                    />
                 </div>
             </div>
         </div>

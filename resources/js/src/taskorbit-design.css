@@ -264,3 +264,11 @@ body { background: var(--to-canvas); color: var(--to-ink); font-family: Inter, u
  .to-task-list .to-task-list-heading h1 { font-size:22px; }
  .to-task-list .to-task-list-heading > div:last-child { width:100%; justify-content:flex-end; }
 }
+
+
+/* Workspace header: keep utility text legible on the light application canvas */
+.taskorbit-header-surface { min-height:68px; border-bottom:1px solid #e8edf4; background:rgba(255,255,255,.94) !important; color:#526178 !important; backdrop-filter:blur(14px); }
+.taskorbit-header-surface > div, .taskorbit-header-surface > div *:not(svg):not(path) { color:#526178; }
+.taskorbit-header-surface button { color:#526178 !important; }
+.taskorbit-header-surface button:hover { color:#405bd1 !important; background:#f2f5ff !important; }
+.taskorbit-header-surface .dropdown ul { color:#26354b !important; }

@@ -169,3 +169,11 @@ body { background: var(--to-canvas); color: var(--to-ink); font-family: Inter, u
 .dark .to-dashboard-tip { border-color: #33436c; background: #1a2743; }
 @media(max-width:1100px){.to-dashboard-stats{grid-template-columns:repeat(2,minmax(0,1fr));}.to-dashboard-content{grid-template-columns:1fr;}}
 @media(max-width:600px){.to-dashboard{gap:16px}.to-dashboard-heading{align-items:flex-start;flex-direction:column}.to-dashboard-heading h1{font-size:25px}.to-dashboard-stats{gap:10px}.to-stat-card{min-height:98px;padding:13px;gap:10px}.to-stat-icon{width:36px;height:36px;flex-basis:36px}.to-stat-card strong{font-size:21px}.to-dashboard-main-card,.to-dashboard-side-card{padding:16px}.to-upcoming-item{gap:9px}.to-duration-pill{display:none}}
+
+.to-page-heading { display:flex; align-items:flex-end; justify-content:space-between; margin: 0 0 20px; }
+.to-page-heading span { color:#7183d9; font-size:10px; font-weight:800; letter-spacing:.15em; }
+.to-page-heading h1 { margin:6px 0 4px; color:#1d2b43; font-size:26px; font-weight:760; letter-spacing:-.04em; }
+.to-page-heading p { margin:0; color:#7b8799; font-size:12px; }
+.dark .to-page-heading h1 { color:#e5edf8; }
+.dark .to-page-heading p { color:#91a2b8; }
+@media(max-width:600px){.to-page-heading{margin-bottom:14px}.to-page-heading h1{font-size:23px}}

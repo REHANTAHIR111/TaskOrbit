@@ -177,7 +177,7 @@ const CreateTask = (props: any) => {
                                     value={name}
                                     onChange={(e: any) => { setName(e.target.value); }}
                                     className={`form-input ${error ? '!border-danger placeholder:text-red-300' : ''}`}
-                                    placeholder='Enter task Name'
+                                    placeholder='Enter task name'
                                 />
                             </div>
                             <div className="w-full">
@@ -193,7 +193,7 @@ const CreateTask = (props: any) => {
                                     value={hours}
                                     onChange={(e: any) => { setHours(e.target.value); }}
                                     className={`form-input ${hourError ? '!border-danger placeholder:text-red-300' : ''}`}
-                                    placeholder='Enter task Hours'
+                                    placeholder='Enter duration in hours'
                                 />
                             </div>
                         </div>

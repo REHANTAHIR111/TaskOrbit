@@ -432,12 +432,12 @@ const RecycleBin = (props: any) => {
                         <button type="button" className="btn btn-outline-secondary gap-2" onClick={() => setSelectedRecords([])} disabled={!selectedRecords.length}>
                             Clear selection
                         </button>
-                        <Tippy content="Delete Permanantly">
+                        <Tippy content="Delete permanently">
                             <button type="button" className="listingTrashButton" disabled={selectedRecords?.length >= 1 ? false : true} onClick={() => showAlert(11)}>
                                 <IconTrashLines className='w-4.5 h-4.5'/>
                             </button>
                         </Tippy>
-                        <Tippy content="Restore Seleted">
+                        <Tippy content="Restore selected">
                             <button 
                                 type="button" 
                                 className="btn btn-success !bg-green-600 !border-green-600 gap-2 w-fit" 

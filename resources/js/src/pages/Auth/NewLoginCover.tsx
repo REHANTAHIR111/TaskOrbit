@@ -19,7 +19,6 @@ const NewLoginConver = () => {
     const [passwordError, setPasswordError] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [rememberMe, setRememberMe] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
@@ -175,8 +174,7 @@ const NewLoginConver = () => {
                                 </div>
                                 {passwordError && <small className="to-field-error">Please enter your password.</small>}
                             </div>
-                            <div className="to-auth-meta">
-                                <label className="to-checkbox"><input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}/> <span>Remember me</span></label>
+                            <div className="to-auth-meta to-auth-meta-end">
                                 <button type="button" className="to-forgot-link" onClick={() => navigate('/auth/forgot-password')}>Forgot password?</button>
                             </div>
                             <button type="submit" disabled={isLoading} className="to-primary-button">

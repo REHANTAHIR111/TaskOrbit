@@ -109,9 +109,9 @@ const TaskListing = (props: any) => {
     };
 
     const schedulePoint = (date: string, time: string) => (
-        <div className="text-sm text-slate-300">
+        <div className="text-sm text-slate-700">
             <div>{date || '—'}</div>
-            <div className="text-xs text-slate-400">{formatTime(time) || '—'}</div>
+            <div className="text-xs text-slate-500">{formatTime(time) || '—'}</div>
         </div>
     );
 

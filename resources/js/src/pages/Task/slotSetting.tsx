@@ -362,7 +362,7 @@ const SlotSetting = (props:any) => {
                                 />
                             </div>
                             <div className="w-full">
-                                <label htmlFor="start_break_time" className={`mb-1`}>Break Start Time</label>
+                                <label htmlFor="start_break_time" className={`mb-1`}>Break End Time</label>
                                 <input
                                     id="start_break_time"
                                     type="time"

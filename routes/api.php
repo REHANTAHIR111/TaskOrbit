@@ -9,6 +9,8 @@ use App\Http\Controllers\Api\TaskController;
 Route::post('account/registeration', [UserController::class, 'register'])->name('api.register');
 Route::post('account/login', [UserController::class, 'login'])->name('api.login');
 Route::post('account/logout', [UserController::class, 'logout'])->name('api.logout');
+Route::post('account/forgot-password', [UserController::class, 'sendPasswordResetLink'])->name('api.password.email');
+Route::post('account/reset-password', [UserController::class, 'resetPassword'])->name('api.password.update');
 
 //task management routes
 Route::post('/task/{id}/restore-preview', [TaskController::class, 'previewRestore'])->name('api.restorePreview');

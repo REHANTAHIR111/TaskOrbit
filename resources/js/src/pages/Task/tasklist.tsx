@@ -234,7 +234,7 @@ const TaskListing = (props: any) => {
             <div className="panel">
                 <div className="mb-5 flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-semibold text-white">
+                        <h1>
                             All tasks
                         </h2>
 
@@ -298,7 +298,7 @@ const TaskListing = (props: any) => {
                                     render: ({ task_name }: any) => (
                                         <div className="max-w-[220px] truncate">
                                             {task_name ? (
-                                                <span className="text-sm font-semibold text-slate-200">
+                                                <span className="text-sm font-semibold">
                                                     {task_name}
                                                 </span>
                                             ) : (
@@ -361,7 +361,7 @@ const TaskListing = (props: any) => {
                                     render: ({ segments }: any) => (
                                         <div className="space-y-1 whitespace-normal">
                                             {(segments || []).map((segment: any, index: number) => (
-                                                <div key={segment.id || index} className="text-xs text-slate-300">
+                                                <div key={segment.id || index} className="text-xs">
                                                     <span className="text-slate-400">{segment.segment_date}</span>{' '}
                                                     {formatTime(segment.start_time)}–{formatTime(segment.end_time)}{' '}
                                                     <span className="text-slate-500">({formatDuration(Number(segment.allocated_minutes))})</span>

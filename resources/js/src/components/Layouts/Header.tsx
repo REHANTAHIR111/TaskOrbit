@@ -119,7 +119,7 @@ const Header = () => {
                             </span>
                         }
                     >
-                        <ul className="to-account-menu">
+                        <ul className="to-account-menu to-account-popover">
                             <li className="to-account-menu-profile">
                                 <div className="to-account-menu-heading"><span className="to-avatar" aria-hidden="true">{username.slice(0, 1).toUpperCase()}</span><span><strong>{username}</strong>{email && <span>{email}</span>}</span></div>
                             </li>

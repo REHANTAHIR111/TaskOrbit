@@ -77,7 +77,7 @@ const Header = () => {
     };
 
     return (
-        <header className="z-40">
+        <header className="to-global-header">
             <div className="taskorbit-header-surface">
                 <button
                     type="button"
@@ -121,8 +121,7 @@ const Header = () => {
                     >
                         <ul className="to-account-menu">
                             <li className="to-account-menu-profile">
-                                <strong>{username}</strong>
-                                {email && <span>{email}</span>}
+                                <div className="to-account-menu-heading"><span className="to-avatar" aria-hidden="true">{username.slice(0, 1).toUpperCase()}</span><span><strong>{username}</strong>{email && <span>{email}</span>}</span></div>
                             </li>
                             <li>
                                 <button type="button" className="to-account-menu-action" onClick={signOut}>

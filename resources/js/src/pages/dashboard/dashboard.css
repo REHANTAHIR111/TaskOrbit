@@ -4,18 +4,18 @@
  * legacy template styles or the Phase 1 .to-* rules. No !important anywhere.
  */
 .tdb {
-  --tdb-ink: #17243a;
-  --tdb-ink-2: #3f4e65;
-  --tdb-muted: #5f6e84;
-  --tdb-line: #e5eaf2;
-  --tdb-line-strong: #d3dbe7;
-  --tdb-surface: #ffffff;
-  --tdb-surface-2: #f7f9fc;
-  --tdb-surface-3: #eef1f6;
-  --tdb-brand: #526de5;
-  --tdb-brand-deep: #3346a8;
-  --tdb-brand-soft: #eef1ff;
-  --tdb-shadow: 0 1px 2px rgba(23, 36, 58, 0.05);
+  --tdb-ink: var(--to-ink);
+  --tdb-ink-2: var(--to-text);
+  --tdb-muted: var(--to-muted);
+  --tdb-line: var(--to-line);
+  --tdb-line-strong: var(--to-line-strong);
+  --tdb-surface: var(--to-panel);
+  --tdb-surface-2: var(--to-panel-2);
+  --tdb-surface-3: var(--to-panel-3);
+  --tdb-brand: var(--to-brand);
+  --tdb-brand-deep: var(--to-brand);
+  --tdb-brand-soft: var(--to-brand-soft);
+  --tdb-shadow: var(--to-shadow);
   display: grid;
   gap: 20px;
   width: 100%;
@@ -206,3 +206,58 @@
 @media (prefers-reduced-motion: reduce) {
   .tdb *, .tdb *::before, .tdb *::after { animation: none; transition: none; }
 }
+
+
+/* TaskOrbit Command Center: palette is inherited from the global theme in both modes. */
+.tdb { max-width: 1600px; gap: 18px; }
+.tdb-hero { border-color: #263c5b; background: radial-gradient(ellipse at 88% 5%,rgba(75,145,239,.18),transparent 34%),linear-gradient(115deg,#101a2a,#152a43 60%,#19385c); box-shadow: 0 12px 34px rgba(6,18,36,.12); }
+.tdb-hero h1 { color:#f7faff; font-size:clamp(28px,3vw,36px); font-weight:760; letter-spacing:-.045em; }
+.tdb-hero__date { color:#a9bad0; font-size:12px; }
+.tdb-hero__intro { color:#c5d2e2; font-size:14px; }
+.tdb-kpi,.tdb-panel,.tdb-quick__item { border-color:var(--to-line); border-radius:12px; background:var(--to-panel); box-shadow:var(--to-shadow); }
+.tdb-kpi { padding:15px 14px; gap:11px; }
+.tdb-kpi__label { color:var(--to-muted); font-size:11px; }
+.tdb-kpi__value { color:var(--to-ink); font-size:23px; font-weight:750; }
+.tdb-kpi__hint { color:var(--to-muted); font-size:10px; }
+.tdb-panel { padding:20px; }
+.tdb-panel__head h2 { color:var(--to-ink); font-size:15px; font-weight:700; }
+.tdb-panel__head p { color:var(--to-muted); font-size:11px; }
+.tdb-day { border-color:var(--to-line); border-radius:8px; color:var(--to-text); background:var(--to-panel); }
+.tdb-day span,.tdb-day small { color:var(--to-muted); font-size:10px; }
+.tdb-day strong { color:var(--to-ink); font-size:17px; }
+.tdb-day.is-active { border-color:var(--to-brand); background:var(--to-brand-soft); }
+.tdb-day.is-active strong,.tdb-day.is-today strong { color:var(--to-brand); }
+.tdb-empty { border-color:var(--to-line-strong); color:var(--to-muted); }
+.tdb-empty strong { color:var(--to-ink); }
+.tdb-empty p { color:var(--to-muted); }
+.tdb-agenda li,.tdb-list li,.tdb-table td { border-color:var(--to-line); }
+.tdb-agenda__time,.tdb-agenda__main strong,.tdb-list__main strong,.tdb-table td { color:var(--to-text); }
+.tdb-agenda__main span,.tdb-list__main span,.tdb-muted { color:var(--to-muted); }
+.tdb-table th { border-color:var(--to-line); color:var(--to-muted); }
+.tdb-table tbody tr:hover { background:var(--to-panel-2); }
+.tdb-quick__item { color:var(--to-text); }
+.tdb-quick__item strong { color:var(--to-ink); }
+.tdb-quick__item:hover { border-color:var(--to-line-strong); background:var(--to-panel-2); }
+.tdb-meter__row,.tdb-legend span { color:var(--to-text); }
+.tdb-meter__track { background:var(--to-panel-3); }
+.tdb .tdb-btn--secondary { border-color:rgba(220,235,255,.28); }
+.tdb-skel { background:linear-gradient(90deg,var(--to-panel-3) 25%,var(--to-panel-2) 50%,var(--to-panel-3) 75%); background-size:200% 100%; }
+.dark .tdb-kpi,.dark .tdb-panel,.dark .tdb-quick__item { background:var(--to-panel); border-color:var(--to-line); }
+.dark .tdb-kpi__value,.dark .tdb-panel__head h2,.dark .tdb-empty strong,.dark .tdb-table td,.dark .tdb-quick__item strong { color:var(--to-ink); }
+.dark .tdb-kpi__label,.dark .tdb-kpi__hint,.dark .tdb-panel__head p,.dark .tdb-empty p,.dark .tdb-table th,.dark .tdb-muted { color:var(--to-muted); }
+.dark .tdb-day { background:var(--to-panel); border-color:var(--to-line); }
+.dark .tdb-day strong { color:var(--to-ink); }
+.dark .tdb-day span,.dark .tdb-day small { color:var(--to-muted); }
+.dark .tdb-day.is-active { background:var(--to-brand-soft); border-color:var(--to-brand); }
+.dark .tdb-empty { border-color:var(--to-line-strong); }
+.dark .tdb-agenda li,.dark .tdb-list li,.dark .tdb-table td,.dark .tdb-table th { border-color:var(--to-line); }
+.dark .tdb-agenda__time,.dark .tdb-agenda__main strong,.dark .tdb-list__main strong { color:var(--to-text); }
+.dark .tdb-agenda__main span,.dark .tdb-list__main span { color:var(--to-muted); }
+.dark .tdb-table tbody tr:hover { background:var(--to-panel-2); }
+.dark .tdb-quick__item { color:var(--to-text); }
+.dark .tdb-quick__item:hover { background:var(--to-panel-2); }
+.dark .tdb-meter__row span,.dark .tdb-legend span { color:var(--to-text); }
+.dark .tdb-due { color:var(--to-text); background:var(--to-panel-3); }
+.dark .tdb-due.is-soon { color:var(--to-red); background:var(--to-red-soft); }
+@media(max-width:1100px){.tdb-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){.tdb-hero{grid-template-columns:1fr}.tdb-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.tdb-panel{padding:15px}}

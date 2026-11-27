@@ -223,3 +223,18 @@ button,input,select,textarea{font:inherit}
  .to-command-trigger{display:none}
  .to-header-context span{display:none}
 }
+
+/* Dashboard shares the same product surfaces and semantic palette. */
+.tdb{--tdb-ink:var(--tw-ink)!important;--tdb-ink-2:var(--tw-text)!important;--tdb-muted:var(--tw-muted)!important;--tdb-line:var(--tw-line)!important;--tdb-line-strong:var(--tw-line-strong)!important;--tdb-surface:var(--tw-surface)!important;--tdb-surface-2:var(--tw-surface-alt)!important;--tdb-surface-3:var(--tw-surface-soft)!important;--tdb-brand:var(--tw-brand)!important;--tdb-brand-deep:var(--tw-brand-hover)!important;--tdb-brand-soft:var(--tw-brand-soft)!important;--tdb-shadow:var(--tw-shadow)!important;color:var(--tw-text)!important}
+.tdb .tdb-panel,.tdb .tdb-card,.tdb .tdb-hero,.tdb .tdb-metric{border-color:var(--tw-line)!important;border-radius:12px!important;box-shadow:var(--tw-shadow)!important}
+.tdb .tdb-panel,.tdb .tdb-card,.tdb .tdb-metric{background:var(--tw-surface)!important;color:var(--tw-text)!important}
+.tdb .tdb-panel h2,.tdb .tdb-panel h3,.tdb .tdb-card strong,.tdb .tdb-metric strong{color:var(--tw-ink)!important}
+.tdb .tdb-hero{background:linear-gradient(120deg,var(--tw-surface),var(--tw-surface-alt))!important;color:var(--tw-ink)!important}
+.tdb .tdb-hero *{color:inherit}
+.tdb .tdb-empty{border-color:var(--tw-line)!important;background:var(--tw-surface-alt)!important;color:var(--tw-muted)!important}
+.tdb .tdb-day,.tdb .tdb-day-card{border-color:var(--tw-line)!important;background:var(--tw-surface)!important}
+.tdb .tdb-day.is-selected,.tdb .tdb-day-card.is-selected{border-color:var(--tw-brand)!important;background:var(--tw-brand-soft)!important}
+.tdb .tdb-panel p,.tdb .tdb-card p{color:var(--tw-muted)!important}
+.to-recycle-page .btn-success{background:var(--tw-green)!important;border-color:var(--tw-green)!important}
+.to-recycle-page .mantine-DataTable-emptyState{min-height:190px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:9px}
+.to-recycle-page .mantine-DataTable-emptyState:after{content:"Deleted tasks will appear here when you move them to the recycle bin.";display:block;color:var(--tw-muted);font-size:11px}

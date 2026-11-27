@@ -30,7 +30,7 @@ const Sidebar = () => {
     useEffect(() => {
         setUsername(localStorage.getItem('username') || 'My account');
         setEmail(localStorage.getItem('email') || '');
-        if (window.innerWidth < 1024 && !themeConfig.sidebar) dispatch(toggleSidebar());
+        if (window.innerWidth < 1024 && themeConfig.sidebar) dispatch(toggleSidebar());
     }, [dispatch, location.pathname]);
 
     const signOut = () => {

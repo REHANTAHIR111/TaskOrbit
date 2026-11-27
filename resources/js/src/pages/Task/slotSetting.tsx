@@ -294,7 +294,7 @@ const SlotSetting = (props:any) => {
         <>
             <div className="to-form-page">            <div className="to-page-heading"><div><span>PERSONAL AVAILABILITY</span><h1>Working hours</h1><p>Set your working days, daily hours, breaks, and holidays.</p></div></div>
 
-                <div className="px-0 flex-1 py-0 ltr:xl:mr-1 rtl:xl:ml-1">
+                <div className="px-0 flex-1 py-0 ltr:xl:mr-1 rtl:xl:ml-1 to-form-main">
                     <div className="panel mb-3">
                         <div className=''>
                             <h3 className='font-bold text-lg text-gray-400'>Working Days</h3>
@@ -477,7 +477,7 @@ const SlotSetting = (props:any) => {
                         ))}
                     </div>
                 </div>
-                <div className="xl:w-96 w-full xl:mt-0">
+                <div className="xl:w-96 w-full xl:mt-0 to-form-actions">
                     <div className="panel mb-4">
                         <div className="flex xl:grid-cols-1 lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-2">
                             <button

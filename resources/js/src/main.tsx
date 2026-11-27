@@ -7,6 +7,7 @@ import 'react-perfect-scrollbar/dist/css/styles.css';
 // Tailwind css
 import './tailwind.css';
 import './taskorbit-design.css';
+import './taskorbit-workspace.css';
 
 // i18n (needs to be bundled)
 import './i18n';

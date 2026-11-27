@@ -2669,3 +2669,93 @@ body { background: var(--to-canvas) !important; color: var(--to-ink); }
 .to-command-empty-state { padding:24px 12px; color:var(--to-muted); text-align:center; font-size:12px; }
 .to-command-footer { display:flex; justify-content:space-between; gap:12px; padding:10px 17px; border-top:1px solid var(--to-line); color:var(--to-subtle); font-size:10px; }
 @media (max-width: 640px) { .to-command-trigger span { display:none; } .to-command-trigger { width:36px; justify-content:center; padding:0; } }
+
+
+/* Command Center shell correction: full-width collapsed state */
+@media (min-width: 1024px) {
+  .main-container.vertical .sidebar.to-sidebar,
+  .main-container.collapsible-vertical .sidebar.to-sidebar {
+    width: var(--to-sidebar-width) !important;
+    left: 0 !important;
+    right: auto !important;
+    transition: transform 190ms ease, width 190ms ease !important;
+  }
+  .main-container.vertical.toggle-sidebar .sidebar.to-sidebar,
+  .main-container.collapsible-vertical.toggle-sidebar .sidebar.to-sidebar {
+    transform: translateX(calc(-1 * (var(--to-sidebar-width) + 8px))) !important;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .main-container.vertical:not(.toggle-sidebar) .main-content,
+  .main-container.collapsible-vertical:not(.toggle-sidebar) .main-content {
+    margin-left: var(--to-sidebar-width) !important;
+    margin-right: 0 !important;
+    width: calc(100% - var(--to-sidebar-width)) !important;
+  }
+  .main-container.vertical.toggle-sidebar .main-content,
+  .main-container.collapsible-vertical.toggle-sidebar .main-content {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+}
+@media (max-width: 1023px) {
+  .main-container.vertical .sidebar.to-sidebar,
+  .main-container.collapsible-vertical .sidebar.to-sidebar {
+    width: min(var(--to-sidebar-width), calc(100vw - 48px)) !important;
+    left: 0 !important;
+    right: auto !important;
+    transform: translateX(-105%) !important;
+    visibility: hidden;
+    pointer-events: none;
+    transition: transform 190ms ease, visibility 190ms ease !important;
+  }
+  .main-container.vertical.toggle-sidebar .sidebar.to-sidebar,
+  .main-container.collapsible-vertical.toggle-sidebar .sidebar.to-sidebar {
+    transform: translateX(0) !important;
+    visibility: visible;
+    pointer-events: auto;
+  }
+}
+.main-container.vertical:not(.toggle-sidebar) .sidebar.to-sidebar,
+.main-container.collapsible-vertical:not(.toggle-sidebar) .sidebar.to-sidebar {
+  visibility: visible;
+  pointer-events: auto;
+}
+.to-app-shell { overflow-x: clip; }
+.to-sidebar-collapse { flex: 0 0 34px; }
+.to-sidebar-brand-row { gap: 8px; }
+.to-sidebar-account { max-width: calc(100% - 28px); }
+.to-sidebar-nav { scrollbar-width: thin; scrollbar-color: var(--to-line-strong) transparent; }
+
+/* Refined command-center surfaces across all screens */
+.to-page-content { color: var(--to-body); }
+.to-page-content .panel,
+.to-page-content .card,
+.to-page-content [class*="rounded-xl"][class*="bg-white"] {
+  border-color: var(--to-line) !important;
+  box-shadow: var(--to-shadow-sm);
+}
+.to-page-content .btn-primary,
+.to-page-content button.bg-primary,
+.to-page-content a.bg-primary {
+  border-color: var(--to-accent) !important;
+  color: #fff !important;
+  background: var(--to-accent) !important;
+}
+.to-page-content .form-input,
+.to-page-content .form-select,
+.to-page-content .form-textarea,
+.to-page-content input,
+.to-page-content select,
+.to-page-content textarea {
+  font-family: inherit;
+}
+.dark body, body.dark { background: var(--to-canvas) !important; }
+.dark .to-page-content .panel,
+.dark .to-page-content .card { color: var(--to-body); background: var(--to-surface) !important; }
+.dark .to-page-content table thead th { color: var(--to-muted) !important; background: var(--to-surface-muted) !important; }
+.dark .to-page-content table tbody td { color: var(--to-body); border-color: var(--to-line) !important; }
+.dark .to-page-content input,
+.dark .to-page-content select,
+.dark .to-page-content textarea { color: var(--to-ink) !important; background: var(--to-surface-muted) !important; border-color: var(--to-line-strong) !important; }

@@ -91,7 +91,7 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
                 <Setting />
                 {/* END APP SETTING LAUNCHER */}
 
-                <div className={`${themeConfig.navbar} main-container text-black dark:text-white-dark min-h-screen to-app-shell`}>
+                <div className={`${themeConfig.menu} ${themeConfig.sidebar ? "toggle-sidebar" : ""} ${themeConfig.navbar} main-container text-black dark:text-white-dark min-h-screen to-app-shell`}>
                     {/* BEGIN SIDEBAR */}
                     <Sidebar />
                     {/* END SIDEBAR */}

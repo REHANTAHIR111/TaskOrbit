@@ -1,33 +1,136 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { CSSProperties, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import Chart from 'react-apexcharts';
+import ReactApexChart from 'react-apexcharts';
+import type { ApexOptions } from 'apexcharts';
 import { setPageTitle } from '../store/themeConfigSlice';
 import { get } from './api/ApiCalls';
 import GlobalContext from '../GlobalContext';
+import { Icon, IconName } from './dashboard/DashboardIcons';
+import DayTimeline from './dashboard/DayTimeline';
+import {
+    PRIORITY_META,
+    PRIORITY_ORDER,
+    Task,
+    buildDashboard,
+    formatClock,
+    formatMinutes,
+    formatTimeRange,
+    isYmd,
+    parseYmd,
+    priorityKey,
+    relativeDayLabel,
+    scheduleSpan,
+    taskLabel,
+    taskMinutes,
+    toYmd,
+} from './dashboard/dashboardData';
+import './dashboard/dashboard.css';
 
-type Segment = { segment_date?: string; start_time?: string; end_time?: string; allocated_minutes?: number };
-type Task = { id: number | string; task_name?: string; priority?: string; status?: number; hour?: number | string; total_allocated_minutes?: number; segments?: Segment[] };
+/* ---------- small presentational helpers ---------- */
+
+const shortDate = (ymd: string) => parseYmd(ymd).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+const longDate = (ymd: string) => parseYmd(ymd).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+const percentOf = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : 0);
+const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
+
+function PriorityPill({ priority }: { priority?: string | null }) {
+    const key = priorityKey(priority);
+    const label = key === 'other' ? String(priority).trim() : PRIORITY_META[key].label;
+    return (
+        <span className="tdb-pill" style={{ '--tdb-pill': PRIORITY_META[key].color } as CSSProperties}>
+            <i aria-hidden="true" />
+            {label}
+        </span>
+    );
+}
+
+function Skeleton({ width = '100%', height = 14 }: { width?: number | string; height?: number | string }) {
+    return <span className="tdb-skel" style={{ width, height }} aria-hidden="true" />;
+}
+
+type PanelProps = { id: string; title: string; subtitle?: string; action?: ReactNode; className?: string; children: ReactNode };
+
+function Panel({ id, title, subtitle, action, className, children }: PanelProps) {
+    return (
+        <section className={['tdb-panel', className].filter(Boolean).join(' ')} aria-labelledby={id}>
+            <header className="tdb-panel__head">
+                <div>
+                    <h2 id={id}>{title}</h2>
+                    {subtitle ? <p>{subtitle}</p> : null}
+                </div>
+                {action}
+            </header>
+            {children}
+        </section>
+    );
+}
+
+type EmptyProps = { icon: IconName; title: string; text: string; action?: ReactNode };
+
+function Empty({ icon, title, text, action }: EmptyProps) {
+    return (
+        <div className="tdb-empty">
+            <span className="tdb-empty__icon">
+                <Icon name={icon} size={20} />
+            </span>
+            <strong>{title}</strong>
+            <p>{text}</p>
+            {action}
+        </div>
+    );
+}
+
+function Meter({ label, value, total, color }: { label: string; value: number; total: number; color: string }) {
+    const percent = percentOf(value, total);
+    return (
+        <div className="tdb-meter">
+            <div className="tdb-meter__row">
+                <span>{label}</span>
+                <strong>{plural(value, 'task', 'tasks')}</strong>
+            </div>
+            <div className="tdb-meter__track" role="img" aria-label={`${label}: ${value} of ${total} tasks, ${percent} percent`}>
+                <span style={{ width: `${percent}%`, background: color }} />
+            </div>
+        </div>
+    );
+}
+
+/* ---------- page ---------- */
+
+type Kpi = { key: string; label: string; value: string | number; hint: string; icon: IconName; tone: string };
 
 const Dashboard = () => {
     const dispatch = useDispatch();
-    const { verifyAuth } = useContext<any>(GlobalContext);
+    const { verifyAuth, userAuthData } = useContext(GlobalContext);
     const userId = localStorage.getItem('user_id');
-    const username = localStorage.getItem('username') || '';
+
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+    const [loadError, setLoadError] = useState('');
+    const [now, setNow] = useState(() => new Date());
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
     const reloadTasks = useCallback(() => {
-        if (!userId) { setTasks([]); setLoading(false); return; }
+        if (!userId) {
+            setLoading(false);
+            setTasks([]);
+            setLoadError('');
+            return;
+        }
         setLoading(true);
-        setError('');
+        setLoadError('');
         get('getTask/' + userId)
             .then((response: any) => {
-                if (Array.isArray(response?.data)) setTasks(response.data);
-                else { setTasks([]); setError(response?.message || 'Task data is unavailable.'); }
+                if (Array.isArray(response?.data)) {
+                    setTasks(response.data);
+                    setLoadError('');
+                } else {
+                    setTasks([]);
+                    setLoadError(response?.message || 'Task data is not available right now.');
+                }
             })
-            .catch(() => setError('We could not load your tasks. Please try again.'))
+            .catch(() => setLoadError('We could not load your tasks. Check your connection and try again.'))
             .finally(() => setLoading(false));
     }, [userId]);
 
@@ -37,119 +140,482 @@ const Dashboard = () => {
         reloadTasks();
     }, [dispatch, reloadTasks]);
 
-    const now = new Date();
-    const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
-    const scheduled = useMemo(() => tasks.filter(task => Array.isArray(task.segments) && task.segments.length > 0), [tasks]);
-    const unscheduledCount = tasks.length - scheduled.length;
-    const priorities = useMemo(() => ({
-        high: tasks.filter(task => ['high', 'urgent'].includes(String(task.priority || '').toLowerCase())).length,
-        medium: tasks.filter(task => String(task.priority || '').toLowerCase() === 'medium').length,
-        low: tasks.filter(task => String(task.priority || '').toLowerCase() === 'low').length,
-    }), [tasks]);
-    const days = useMemo(() => Array.from({ length: 7 }, (_, index) => {
-        const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() + index);
-        const key = [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
-        const segments = scheduled.flatMap(task => (task.segments || []).filter(segment => segment.segment_date === key));
-        return { key, label: date.toLocaleDateString(undefined, { weekday: 'short' }), date: date.getDate(), count: segments.length, minutes: segments.reduce((sum, segment) => sum + Number(segment.allocated_minutes || 0), 0) };
-    }), [scheduled, today]);
-    const weekMinutes = days.reduce((sum, day) => sum + day.minutes, 0);
-    const upcoming = useMemo(() => scheduled.flatMap(task => (task.segments || []).map(segment => ({ task, segment })))
-        .filter(item => item.segment.segment_date && (item.segment.segment_date > today || (item.segment.segment_date === today && String(item.segment.end_time || '').slice(0, 5) >= String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0'))))
-        .sort((a, b) => (String(a.segment.segment_date) + ' ' + String(a.segment.start_time)).localeCompare(String(b.segment.segment_date) + ' ' + String(b.segment.start_time)))
-        .slice(0, 7), [scheduled, today, now.getHours(), now.getMinutes()]);
-    const todayItems = scheduled.flatMap(task => (task.segments || []).filter(segment => segment.segment_date === today).map(segment => ({ task, segment }))).sort((a, b) => String(a.segment.start_time).localeCompare(String(b.segment.start_time)));
-    const greeting = now.getHours() < 12 ? 'Good morning' : now.getHours() < 18 ? 'Good afternoon' : 'Good evening';
-    const duration = (value: number) => {
-        const minutes = Math.max(0, Math.round(value));
-        const hours = Math.floor(minutes / 60);
-        const remainder = minutes % 60;
-        return (hours ? hours + 'h ' : '') + (remainder ? remainder + 'm' : (hours ? '' : '0m'));
-    };
-    const time = (value?: string) => {
-        if (!value) return 'Time not set';
-        const parts = value.split(':');
-        const hour = Number(parts[0]);
-        return (hour % 12 || 12) + ':' + (parts[1] || '00') + ' ' + (hour >= 12 ? 'PM' : 'AM');
-    };
-    const first = upcoming[0];
-    const hasPriority = priorities.high + priorities.medium + priorities.low > 0;
-    const weeklyOptions = {
-        chart: { toolbar: { show: false }, fontFamily: 'Inter, sans-serif', foreColor: '#929bad', parentHeightOffset: 0 },
-        plotOptions: { bar: { borderRadius: 6, columnWidth: '42%' } },
-        dataLabels: { enabled: false },
-        grid: { borderColor: '#edf0f5', strokeDashArray: 4, padding: { left: 0, right: 8 } },
-        xaxis: { categories: days.map(day => day.label), axisBorder: { show: false }, axisTicks: { show: false } },
-        yaxis: { labels: { formatter: (value: number) => value >= 60 ? Math.round(value / 60) + 'h' : Math.round(value) + 'm' } },
-        tooltip: { y: { formatter: (value: number) => duration(value) } },
-        colors: ['#665df0'],
-        states: { hover: { filter: { type: 'lighten', value: 0.06 } } },
-    };
-    const priorityOptions = {
-        chart: { type: 'donut' as const, fontFamily: 'Inter, sans-serif' },
-        labels: ['High', 'Medium', 'Low'],
-        colors: ['#e56e7c', '#e7ad55', '#7192e8'],
-        stroke: { width: 4, colors: ['#ffffff'] },
-        dataLabels: { enabled: false },
-        legend: { show: false },
-        plotOptions: { pie: { donut: { size: '76%', labels: { show: true, total: { show: true, label: 'Tasks', color: '#929bad', formatter: () => String(tasks.length) } } } } },
-        tooltip: { y: { formatter: (value: number) => value + ' tasks' } },
-    };
+    // Keep "next up" and the now-marker current without refetching.
+    useEffect(() => {
+        const timer = window.setInterval(() => setNow(new Date()), 60000);
+        return () => window.clearInterval(timer);
+    }, []);
+
+    const model = useMemo(() => buildDashboard(tasks, now), [tasks, now]);
+    const today = toYmd(now);
+    const activeDay = model.days.find(day => day.date === selectedDate) ?? model.days[0];
+    const todayDay = model.days[0];
+    const nowMinutes = activeDay.isToday ? now.getHours() * 60 + now.getMinutes() : null;
+    const initialLoading = loading && tasks.length === 0 && !loadError;
+
+    const hour = now.getHours();
+    const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+    const firstName = (userAuthData?.user?.name || '').trim().split(/\s+/)[0];
+
+    const intro = initialLoading
+        ? 'Loading your schedule.'
+        : model.total === 0
+          ? 'Create your first task and TaskOrbit will place it around your working hours.'
+          : todayDay.blocks.length > 0
+            ? `${plural(todayDay.blocks.length, 'scheduled segment', 'scheduled segments')} today, ${formatMinutes(todayDay.minutes)} of planned work.`
+            : 'Nothing is scheduled for today.';
+
+    const kpis: Kpi[] = [
+        { key: 'total', label: 'Total tasks', value: model.total, hint: model.enabled + model.disabled > 0 ? `${model.enabled} enabled` : 'In your workspace', icon: 'layers', tone: 'brand' },
+        { key: 'scheduled', label: 'Scheduled', value: model.scheduled, hint: `${percentOf(model.scheduled, model.total)}% of all tasks`, icon: 'calendarCheck', tone: 'success' },
+        { key: 'unscheduled', label: 'Unscheduled', value: model.unscheduled, hint: model.unscheduled ? 'Waiting for a time slot' : 'Everything is planned', icon: 'inbox', tone: 'warning' },
+        { key: 'priority', label: 'High priority', value: model.highPriority, hint: 'Urgent and high', icon: 'flag', tone: 'danger' },
+        { key: 'deadlines', label: 'Ending within 7 days', value: model.dueSoon, hint: 'By task end date', icon: 'calendarAlert', tone: 'info' },
+        { key: 'planned', label: 'Planned next 7 days', value: formatMinutes(model.plannedWeekMinutes), hint: 'Scheduled work time', icon: 'clock', tone: 'violet' },
+    ];
+
+    /* ---------- chart data ---------- */
+
+    const workloadTotalMinutes = model.workload.reduce((sum, item) => sum + item.hours * 60, 0);
+    const weeklyTotalMinutes = model.weekly.reduce((sum, item) => sum + item.hours * 60, 0);
+    const priorityEntries = PRIORITY_ORDER.filter(key => model.priorityCounts[key] > 0);
+
+    const axisText = { fontSize: '11px', colors: '#5f6e84' };
+
+    const workloadOptions = useMemo<ApexOptions>(
+        () => ({
+            chart: { fontFamily: 'inherit', toolbar: { show: false }, animations: { speed: 350 } },
+            plotOptions: { bar: { borderRadius: 4, columnWidth: '52%' } },
+            dataLabels: { enabled: false },
+            colors: ['#526de5'],
+            grid: { borderColor: '#e5eaf2', strokeDashArray: 3, padding: { left: 8, right: 8 } },
+            xaxis: { categories: model.workload.map(item => item.label), axisBorder: { show: false }, axisTicks: { show: false }, labels: { rotate: -35, style: axisText } },
+            yaxis: { min: 0, labels: { formatter: (value: number) => `${Math.round(value * 10) / 10}h`, style: axisText } },
+            tooltip: { y: { formatter: (value: number) => formatMinutes(value * 60) } },
+        }),
+        [model.workload]
+    );
+
+    const weeklyOptions = useMemo<ApexOptions>(
+        () => ({
+            chart: { fontFamily: 'inherit', toolbar: { show: false }, animations: { speed: 350 } },
+            plotOptions: { bar: { borderRadius: 4, columnWidth: '48%', distributed: true } },
+            dataLabels: { enabled: false },
+            legend: { show: false },
+            colors: model.weekly.map(item => (item.isCurrent ? '#3346a8' : '#a9b6f2')),
+            grid: { borderColor: '#e5eaf2', strokeDashArray: 3, padding: { left: 8, right: 8 } },
+            xaxis: { categories: model.weekly.map(item => item.label), axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: axisText } },
+            yaxis: { min: 0, labels: { formatter: (value: number) => `${Math.round(value * 10) / 10}h`, style: axisText } },
+            tooltip: { y: { formatter: (value: number) => formatMinutes(value * 60) } },
+        }),
+        [model.weekly]
+    );
+
+    const priorityOptions = useMemo<ApexOptions>(
+        () => ({
+            chart: { fontFamily: 'inherit' },
+            labels: priorityEntries.map(key => PRIORITY_META[key].label),
+            colors: priorityEntries.map(key => PRIORITY_META[key].color),
+            legend: { show: false },
+            dataLabels: { enabled: false },
+            stroke: { width: 2, colors: ['#ffffff'] },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        size: '72%',
+                        labels: {
+                            show: true,
+                            name: { show: true, fontSize: '12px', color: '#5f6e84', offsetY: 18 },
+                            value: { show: true, fontSize: '26px', fontWeight: 700, color: '#17243a', offsetY: -14 },
+                            total: { show: true, showAlways: true, label: 'Tasks', fontSize: '12px', color: '#5f6e84', formatter: () => String(model.total) },
+                        },
+                    },
+                },
+            },
+            tooltip: { y: { formatter: (value: number) => plural(value, 'task', 'tasks') } },
+        }),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [model.priorityCounts, model.total]
+    );
+
+    const bestWeek = model.weekly.reduce((best, item) => (item.hours > best.hours ? item : best), model.weekly[0]);
 
     return (
-        <main className="to-command-center">
-            <section className="to-command-welcome">
-                <div className="to-welcome-copy">
-                    <span className="to-welcome-date">◷ &nbsp;{now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                    <h1>{greeting}{username ? ', ' + username.split(' ')[0] : ''}</h1>
-                    <p>Your workspace at a glance. Plan deliberately, stay focused, and make time count.</p>
-                    <div className="to-welcome-actions"><Link to="/tasks/create" className="to-command-primary">＋ &nbsp;Create task</Link><Link to="/tasklist" className="to-command-secondary">View all tasks&nbsp; ↗</Link></div>
+        <main className="tdb">
+            {/* Welcome header */}
+            <header className="tdb-hero">
+                <div className="tdb-hero__copy">
+                    <p className="tdb-hero__date">{now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</p>
+                    <h1>{firstName ? `${greeting}, ${firstName}` : greeting}</h1>
+                    <p className="tdb-hero__intro">{intro}</p>
+                    {model.nextBlock && (
+                        <div className="tdb-nextup">
+                            <span className="tdb-nextup__tag">{model.nextBlock.isNow ? 'In progress' : 'Next up'}</span>
+                            <strong>{model.nextBlock.taskName}</strong>
+                            <span>
+                                {relativeDayLabel(model.nextBlock.date, today)}, {formatTimeRange(model.nextBlock.startMin, model.nextBlock.endMin)}
+                            </span>
+                            <Link to={`/tasks/edit/${model.nextBlock.taskId}`} className="tdb-nextup__link">
+                                Open task
+                            </Link>
+                        </div>
+                    )}
                 </div>
-                <div className="to-welcome-focus">
-                    <span className="to-focus-overline">NEXT UP</span>
-                    {loading ? <strong className="to-focus-task">Loading your plan…</strong> : first ? <><strong className="to-focus-task">{first.task.task_name || 'Task #' + first.task.id}</strong><span className="to-focus-time">{new Date(String(first.segment.segment_date) + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} · {time(first.segment.start_time)}</span></> : <><strong className="to-focus-task">Nothing scheduled</strong><span className="to-focus-time">Your calendar has room for focused work.</span></>}
-                    <div className="to-focus-bottom"><span>◷ &nbsp;{loading ? '—' : duration(weekMinutes)} planned this week</span><Link to="/tasklist">↗</Link></div>
+                <div className="tdb-hero__actions">
+                    <Link to="/tasks/create" className="tdb-btn tdb-btn--primary">
+                        <Icon name="plus" size={16} />
+                        Create task
+                    </Link>
+                    <Link to="/slotsetting" className="tdb-btn tdb-btn--secondary">
+                        <Icon name="sliders" size={16} />
+                        Working hours
+                    </Link>
                 </div>
+            </header>
+
+            {loadError && (
+                <div className="tdb-banner" role="alert">
+                    <span>{loadError}</span>
+                    <button type="button" className="tdb-btn tdb-btn--ghost" onClick={reloadTasks}>
+                        <Icon name="refresh" size={16} />
+                        Try again
+                    </button>
+                </div>
+            )}
+
+            {/* Productivity overview */}
+            <section className="tdb-kpis" aria-label="Productivity overview">
+                {kpis.map(kpi => (
+                    <article className={`tdb-kpi tdb-tone-${kpi.tone}`} key={kpi.key}>
+                        <span className="tdb-kpi__icon">
+                            <Icon name={kpi.icon} size={18} />
+                        </span>
+                        <div>
+                            <span className="tdb-kpi__label">{kpi.label}</span>
+                            <strong className="tdb-kpi__value">{initialLoading ? <Skeleton width={48} height={24} /> : kpi.value}</strong>
+                            <span className="tdb-kpi__hint">{initialLoading ? <Skeleton width={90} height={11} /> : kpi.hint}</span>
+                        </div>
+                    </article>
+                ))}
             </section>
 
-            {error && <div className="to-command-error" role="alert"><span>{error}</span><button type="button" onClick={reloadTasks}>Retry</button></div>}
+            {initialLoading ? (
+                <div className="tdb-grid tdb-grid--main" aria-busy="true" aria-label="Loading dashboard">
+                    <div className="tdb-panel">
+                        <Skeleton width="40%" height={18} />
+                        <div style={{ height: 14 }} />
+                        <Skeleton height={64} />
+                        <div style={{ height: 14 }} />
+                        <Skeleton height={150} />
+                    </div>
+                    <div className="tdb-panel">
+                        <Skeleton width="55%" height={18} />
+                        <div style={{ height: 14 }} />
+                        <Skeleton height={200} />
+                    </div>
+                </div>
+            ) : (
+                <>
+                    {/* Schedule command center */}
+                    <div className="tdb-grid tdb-grid--main">
+                        <Panel
+                            id="tdb-schedule-title"
+                            title="Schedule"
+                            subtitle={`${longDate(activeDay.date)}: ${activeDay.blocks.length ? `${plural(activeDay.blocks.length, 'segment', 'segments')}, ${formatMinutes(activeDay.minutes)} planned` : 'nothing scheduled'}`}
+                            action={
+                                <Link className="tdb-link" to="/tasklist">
+                                    All tasks
+                                </Link>
+                            }
+                        >
+                            <div className="tdb-days" role="group" aria-label="Choose a day">
+                                {model.days.map(day => (
+                                    <button
+                                        type="button"
+                                        key={day.date}
+                                        className={['tdb-day', day.date === activeDay.date ? 'is-active' : '', day.isToday ? 'is-today' : ''].filter(Boolean).join(' ')}
+                                        aria-pressed={day.date === activeDay.date}
+                                        onClick={() => setSelectedDate(day.date)}
+                                    >
+                                        <span>{day.weekday}</span>
+                                        <strong>{day.dayNumber}</strong>
+                                        <small>{day.minutes ? formatMinutes(day.minutes) : 'Open'}</small>
+                                    </button>
+                                ))}
+                            </div>
 
-            <section className="to-command-kpis" aria-label="Workspace overview">
-                <article className="to-kpi-card"><span className="to-kpi-icon kpi-violet">▤</span><div><span className="to-kpi-label">Total tasks</span><strong>{loading ? '—' : tasks.length}</strong><small>Across your workspace</small></div><Link to="/tasklist">↗</Link></article>
-                <article className="to-kpi-card"><span className="to-kpi-icon kpi-green">✓</span><div><span className="to-kpi-label">Scheduled</span><strong>{loading ? '—' : scheduled.length}</strong><small>Tasks with planned time</small></div><span className="to-kpi-tag">PLANNED</span></article>
-                <article className="to-kpi-card"><span className="to-kpi-icon kpi-amber">◷</span><div><span className="to-kpi-label">Needs planning</span><strong>{loading ? '—' : unscheduledCount}</strong><small>Tasks without segments</small></div><Link to="/tasklist">↗</Link></article>
-                <article className="to-kpi-card"><span className="to-kpi-icon kpi-rose">⚑</span><div><span className="to-kpi-label">High priority</span><strong>{loading ? '—' : priorities.high}</strong><small>Urgent and high priority</small></div><span className="to-kpi-tag">FOCUS</span></article>
-            </section>
+                            {activeDay.blocks.length > 0 ? (
+                                <>
+                                    <DayTimeline blocks={activeDay.blocks} nowMinutes={nowMinutes} />
+                                    <ol className="tdb-agenda">
+                                        {activeDay.blocks.map(block => (
+                                            <li key={block.key}>
+                                                <span className="tdb-agenda__time">{block.startMin !== null ? formatClock(block.startMin) : 'No time'}</span>
+                                                <span className="tdb-agenda__bar" style={{ '--tdb-block': PRIORITY_META[block.priority].color } as CSSProperties} aria-hidden="true" />
+                                                <div className="tdb-agenda__main">
+                                                    <strong>{block.taskName}</strong>
+                                                    <span>{formatTimeRange(block.startMin, block.endMin)}</span>
+                                                </div>
+                                                <span className="tdb-agenda__duration">{formatMinutes(block.minutes)}</span>
+                                                <Link className="tdb-icon-link" to={`/tasks/edit/${block.taskId}`} aria-label={`Edit ${block.taskName}`}>
+                                                    <Icon name="pencil" size={16} />
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ol>
+                                </>
+                            ) : (
+                                <Empty
+                                    icon="calendarCheck"
+                                    title={`Nothing scheduled ${relativeDayLabel(activeDay.date, today).toLowerCase()}`}
+                                    text={model.total === 0 ? 'Create a task and it will appear here once it is scheduled.' : 'Pick another day above, or create a task to fill this one.'}
+                                    action={
+                                        <Link to="/tasks/create" className="tdb-btn tdb-btn--secondary">
+                                            <Icon name="plus" size={16} />
+                                            Create task
+                                        </Link>
+                                    }
+                                />
+                            )}
+                        </Panel>
 
-            <section className="to-command-grid">
-                <article className="to-command-panel to-schedule-panel">
-                    <div className="to-panel-heading"><div><span className="to-panel-eyebrow">YOUR AGENDA</span><h2>Upcoming schedule</h2><p>Next scheduled work, in chronological order.</p></div><Link to="/tasklist" className="to-panel-link">Full task list&nbsp; ↗</Link></div>
-                    {loading ? <div className="to-command-empty">Loading your schedule…</div> : upcoming.length ? <div className="to-agenda-list">{upcoming.map((item, index) => <div className="to-agenda-row" key={String(item.task.id) + '-' + item.segment.segment_date + '-' + item.segment.start_time}>
-                        <div className="to-agenda-date"><strong>{new Date(String(item.segment.segment_date) + 'T00:00:00').toLocaleDateString(undefined, { day: '2-digit' })}</strong><span>{new Date(String(item.segment.segment_date) + 'T00:00:00').toLocaleDateString(undefined, { month: 'short' })}</span></div>
-                        <span className={'to-agenda-marker' + (index === 0 ? ' is-current' : '')}><i /></span>
-                        <div className="to-agenda-info"><strong>{item.task.task_name || 'Task #' + item.task.id}</strong><span>{time(item.segment.start_time)} – {time(item.segment.end_time)}{(item.task.segments?.length || 0) > 1 ? ' · Scheduled segment' : ''}</span></div>
-                        <span className="to-agenda-duration">{duration(Number(item.segment.allocated_minutes || 0))}</span><Link to={'/tasks/edit/' + item.task.id} className="to-agenda-open">Open ↗</Link>
-                    </div>)}</div> : <div className="to-command-empty"><span className="to-empty-symbol">◷</span><strong>No upcoming work</strong><p>When tasks are scheduled, your next commitments will appear here.</p><Link to="/tasks/create">Create a task ↗</Link></div>}
-                </article>
+                        <Panel id="tdb-deadlines-title" title="Upcoming end dates" subtitle="Tasks ordered by their end date">
+                            {model.deadlines.length > 0 ? (
+                                <ul className="tdb-list">
+                                    {model.deadlines.slice(0, 6).map(({ task, daysLeft }) => (
+                                        <li key={task.id}>
+                                            <div className="tdb-list__main">
+                                                <strong>{taskLabel(task)}</strong>
+                                                <span>Ends {shortDate(task.end_date as string)}</span>
+                                            </div>
+                                            <span className={`tdb-due${daysLeft <= 2 ? ' is-soon' : ''}`}>{daysLeft === 0 ? 'Today' : daysLeft === 1 ? 'Tomorrow' : `${daysLeft} days`}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <Empty icon="calendarAlert" title="No upcoming end dates" text="Tasks with an end date today or later will be listed here." />
+                            )}
+                        </Panel>
+                    </div>
 
-                <article className="to-command-panel to-week-panel">
-                    <div className="to-panel-heading"><div><span className="to-panel-eyebrow">CAPACITY PLANNING</span><h2>Weekly workload</h2><p>Allocated minutes across the next seven days.</p></div><strong className="to-chart-total">{loading ? '—' : duration(weekMinutes)}</strong></div>
-                    <div className="to-week-chart-wrap">{loading ? <div className="to-chart-loading">Preparing workload…</div> : <Chart options={weeklyOptions} series={[{ name: 'Scheduled minutes', data: days.map(day => day.minutes) }]} type="bar" height={220} width="100%" />}</div>
-                    <div className="to-chart-footnote"><span><i /> Scheduled time</span><span>{loading ? '—' : days.reduce((sum, day) => sum + day.count, 0) + ' segments planned'}</span></div>
-                </article>
+                    {/* Task management */}
+                    <div className="tdb-grid tdb-grid--main">
+                        <Panel
+                            id="tdb-recent-title"
+                            title="Latest tasks"
+                            subtitle="Most recently created"
+                            action={
+                                <Link className="tdb-link" to="/tasklist">
+                                    View all
+                                </Link>
+                            }
+                        >
+                            {model.recent.length > 0 ? (
+                                <div className="tdb-table-wrap">
+                                    <table className="tdb-table">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Task</th>
+                                                <th scope="col">Priority</th>
+                                                <th scope="col">Duration</th>
+                                                <th scope="col">Schedule</th>
+                                                <th scope="col">Status</th>
+                                                <th scope="col">
+                                                    <span className="tdb-sr-only">Actions</span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {model.recent.slice(0, 6).map(task => {
+                                                const span = scheduleSpan(task);
+                                                const hasStatus = task.status !== null && task.status !== undefined && task.status !== '';
+                                                const isEnabled = Number(task.status) === 1;
+                                                return (
+                                                    <tr key={task.id}>
+                                                        <td>
+                                                            <div className="tdb-cell-name">
+                                                                <strong>{taskLabel(task)}</strong>
+                                                                <span>#{task.id}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <PriorityPill priority={task.priority} />
+                                                        </td>
+                                                        <td className="tdb-num">{formatMinutes(taskMinutes(task))}</td>
+                                                        <td className="tdb-num">
+                                                            {span.segments > 0 && span.first ? (
+                                                                span.first === span.last || !span.last ? shortDate(span.first) : `${shortDate(span.first)} to ${shortDate(span.last)}`
+                                                            ) : (
+                                                                <span className="tdb-muted">Not scheduled</span>
+                                                            )}
+                                                        </td>
+                                                        <td>{hasStatus ? <span className={`tdb-status${isEnabled ? ' is-on' : ''}`}>{isEnabled ? 'Enabled' : 'Disabled'}</span> : <span className="tdb-muted">None</span>}</td>
+                                                        <td className="tdb-actions">
+                                                            <Link className="tdb-icon-link" to={`/tasks/edit/${task.id}`} aria-label={`Edit ${taskLabel(task)}`}>
+                                                                <Icon name="pencil" size={16} />
+                                                            </Link>
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                <Empty
+                                    icon="layers"
+                                    title="No tasks yet"
+                                    text="Your newest tasks will show up here."
+                                    action={
+                                        <Link to="/tasks/create" className="tdb-btn tdb-btn--primary">
+                                            <Icon name="plus" size={16} />
+                                            Create task
+                                        </Link>
+                                    }
+                                />
+                            )}
+                        </Panel>
 
-                <article className="to-command-panel to-priority-panel">
-                    <div className="to-panel-heading"><div><span className="to-panel-eyebrow">WORK PRIORITIES</span><h2>Task distribution</h2><p>Breakdown by priority level.</p></div><Link to="/tasklist" className="to-panel-link">Manage ↗</Link></div>
-                    {hasPriority ? <div className="to-priority-content"><div className="to-priority-chart"><Chart options={priorityOptions} series={[priorities.high, priorities.medium, priorities.low]} type="donut" height={190} width="100%" /></div><div className="to-priority-legend"><div><i className="priority-high" /><span>High priority</span><strong>{priorities.high}</strong></div><div><i className="priority-medium" /><span>Medium priority</span><strong>{priorities.medium}</strong></div><div><i className="priority-low" /><span>Low priority</span><strong>{priorities.low}</strong></div></div></div> : <div className="to-command-empty compact"><strong>No priority data yet</strong><p>Assign priorities to tasks to see the distribution.</p></div>}
-                </article>
+                        <Panel
+                            id="tdb-unscheduled-title"
+                            title="Needs scheduling"
+                            subtitle={model.unscheduled ? `${plural(model.unscheduled, 'task', 'tasks')} without a time slot` : 'Tasks without a time slot'}
+                        >
+                            {model.unscheduledList.length > 0 ? (
+                                <ul className="tdb-list">
+                                    {model.unscheduledList.slice(0, 6).map(task => (
+                                        <li key={task.id}>
+                                            <div className="tdb-list__main">
+                                                <strong>{taskLabel(task)}</strong>
+                                                <span>
+                                                    {formatMinutes(taskMinutes(task))}
+                                                    {isYmd(task.end_date) ? `, ends ${shortDate(task.end_date)}` : ''}
+                                                </span>
+                                            </div>
+                                            <Link className="tdb-icon-link" to={`/tasks/edit/${task.id}`} aria-label={`Edit ${taskLabel(task)}`}>
+                                                <Icon name="pencil" size={16} />
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <Empty icon="calendarCheck" title="Everything is scheduled" text="Every task has time set aside in your calendar." />
+                            )}
+                        </Panel>
+                    </div>
 
-                <article className="to-command-panel to-today-panel">
-                    <div className="to-panel-heading"><div><span className="to-panel-eyebrow">TODAY</span><h2>Today's commitments</h2><p>{now.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</p></div><span className="to-today-count">{loading ? '—' : todayItems.length + ' segments'}</span></div>
-                    {loading ? <div className="to-command-empty">Loading today’s plan…</div> : todayItems.length ? <div className="to-today-list">{todayItems.slice(0, 5).map(item => <div className="to-today-row" key={String(item.task.id) + '-' + item.segment.start_time}><span className="to-today-time">{time(item.segment.start_time)}</span><i className="to-today-dot" /><div><strong>{item.task.task_name || 'Task #' + item.task.id}</strong><small>{time(item.segment.start_time)} – {time(item.segment.end_time)}</small></div><span className="to-today-duration">{duration(Number(item.segment.allocated_minutes || 0))}</span></div>)}</div> : <div className="to-command-empty compact"><strong>No commitments today</strong><p>Your day is open. Add a task whenever you're ready.</p></div>}
-                    <Link to="/tasklist" className="to-today-footer">See all scheduled tasks&nbsp; ↗</Link>
-                </article>
-            </section>
+                    {/* Analytics */}
+                    <div className="tdb-grid tdb-grid--main">
+                        <Panel id="tdb-workload-title" title="Workload, next 14 days" subtitle={workloadTotalMinutes > 0 ? `${formatMinutes(workloadTotalMinutes)} of scheduled work` : 'Scheduled hours per day'}>
+                            {workloadTotalMinutes > 0 ? (
+                                <div role="img" aria-label={`Scheduled hours per day for the next 14 days, ${formatMinutes(workloadTotalMinutes)} in total`}>
+                                    <ReactApexChart type="bar" height={270} options={workloadOptions} series={[{ name: 'Scheduled hours', data: model.workload.map(item => item.hours) }]} />
+                                </div>
+                            ) : (
+                                <Empty icon="clock" title="No scheduled work in the next 14 days" text="Scheduled task segments will be charted here by day." />
+                            )}
+                        </Panel>
 
-            <section className="to-command-bottom"><div className="to-command-bottom-copy"><span className="to-bottom-icon">✦</span><div><strong>Keep your plan intentional</strong><p>{loading ? 'Your workspace insights are updating.' : unscheduledCount ? unscheduledCount + ' task' + (unscheduledCount === 1 ? '' : 's') + ' still need a place in your schedule.' : 'Your tasks are planned. Review upcoming work and protect your focus time.'}</p></div></div><div className="to-bottom-actions"><Link to="/slotsetting">Working hours</Link><Link to="/recyclebin">Recycle bin</Link></div></section>
+                        <Panel id="tdb-priority-title" title="Priority mix" subtitle="All tasks by priority">
+                            {model.total > 0 ? (
+                                <>
+                                    <div className="tdb-donut" role="img" aria-label={`Tasks by priority: ${priorityEntries.map(key => `${PRIORITY_META[key].label} ${model.priorityCounts[key]}`).join(', ')}`}>
+                                        <ReactApexChart type="donut" height={220} options={priorityOptions} series={priorityEntries.map(key => model.priorityCounts[key])} />
+                                    </div>
+                                    <ul className="tdb-legend">
+                                        {priorityEntries.map(key => (
+                                            <li key={key}>
+                                                <i style={{ background: PRIORITY_META[key].color }} aria-hidden="true" />
+                                                <span>{PRIORITY_META[key].label}</span>
+                                                <strong>{model.priorityCounts[key]}</strong>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </>
+                            ) : (
+                                <Empty icon="flag" title="No priorities to show" text="Set a priority on a task to see the mix." />
+                            )}
+                        </Panel>
+                    </div>
+
+                    <div className="tdb-grid tdb-grid--main">
+                        <Panel
+                            id="tdb-weekly-title"
+                            title="Planned hours by week"
+                            subtitle="Three weeks back to four weeks ahead. Shows scheduled time, not completed work."
+                        >
+                            {weeklyTotalMinutes > 0 ? (
+                                <div role="img" aria-label={`Planned hours per week. Busiest week starts ${bestWeek.label} with ${formatMinutes(bestWeek.hours * 60)}`}>
+                                    <ReactApexChart type="bar" height={250} options={weeklyOptions} series={[{ name: 'Planned hours', data: model.weekly.map(item => item.hours) }]} />
+                                </div>
+                            ) : (
+                                <Empty icon="clock" title="No scheduled weeks yet" text="Weekly totals appear once tasks have scheduled segments." />
+                            )}
+                        </Panel>
+
+                        <Panel id="tdb-coverage-title" title="Task coverage" subtitle="How your tasks are set up">
+                            {model.total > 0 ? (
+                                <div className="tdb-meters">
+                                    <Meter label="Scheduled" value={model.scheduled} total={model.total} color="#2f9a73" />
+                                    <Meter label="Unscheduled" value={model.unscheduled} total={model.total} color="#d9a21f" />
+                                    {model.enabled + model.disabled > 0 && (
+                                        <>
+                                            <Meter label="Enabled" value={model.enabled} total={model.enabled + model.disabled} color="#526de5" />
+                                            <Meter label="Disabled" value={model.disabled} total={model.enabled + model.disabled} color="#9aa6b8" />
+                                        </>
+                                    )}
+                                </div>
+                            ) : (
+                                <Empty icon="layers" title="Nothing to measure yet" text="Create a task to see how much of your list is scheduled." />
+                            )}
+                        </Panel>
+                    </div>
+                </>
+            )}
+
+            {/* Quick access */}
+            <nav className="tdb-quick" aria-label="Quick access">
+                <Link to="/tasklist" className="tdb-quick__item">
+                    <span className="tdb-quick__icon">
+                        <Icon name="list" size={20} />
+                    </span>
+                    <span>
+                        <strong>All tasks</strong>
+                        <small>Search, sort and manage every task</small>
+                    </span>
+                    <Icon name="chevronRight" size={16} />
+                </Link>
+                <Link to="/tasks/create" className="tdb-quick__item">
+                    <span className="tdb-quick__icon">
+                        <Icon name="plus" size={20} />
+                    </span>
+                    <span>
+                        <strong>Create task</strong>
+                        <small>Add a task to your schedule</small>
+                    </span>
+                    <Icon name="chevronRight" size={16} />
+                </Link>
+                <Link to="/slotsetting" className="tdb-quick__item">
+                    <span className="tdb-quick__icon">
+                        <Icon name="sliders" size={20} />
+                    </span>
+                    <span>
+                        <strong>Working hours</strong>
+                        <small>Set your days, hours and breaks</small>
+                    </span>
+                    <Icon name="chevronRight" size={16} />
+                </Link>
+                <Link to="/recyclebin" className="tdb-quick__item">
+                    <span className="tdb-quick__icon">
+                        <Icon name="trash" size={20} />
+                    </span>
+                    <span>
+                        <strong>Recycle bin</strong>
+                        <small>Restore deleted tasks</small>
+                    </span>
+                    <Icon name="chevronRight" size={16} />
+                </Link>
+            </nav>
         </main>
     );
 };

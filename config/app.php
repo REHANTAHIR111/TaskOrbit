@@ -54,8 +54,8 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost'),
-    'frontend_base_url' => 'http://127.0.0.1:8000/',
+    'url' => env('APP_URL', 'http://127.0.0.1:8001'),
+    'frontend_base_url' => rtrim(env('FRONTEND_BASE_URL', env('APP_URL', 'http://127.0.0.1:8001')), '/') . '/',
 
     'asset_url' => env('ASSET_URL'),
 
